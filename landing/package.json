@@ -1,0 +1,19 @@
+{
+  "name": "kkbar-landing",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev --port 4321",
+    "build": "astro build",
+    "preview": "astro preview --port 4321"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.21.0",
+    "@astrojs/vue": "^5.0.0",
+    "astro": "^4.4.0",
+    "bolt-cep": "file:../..",
+    "nanoid": "^5.1.9",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.33"
+  }
+}
