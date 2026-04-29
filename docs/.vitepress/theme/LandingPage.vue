@@ -4,7 +4,6 @@ import CepPreview from './components/CepPreview.vue'
 
 const isDark = ref(true)
 const isHeaderCollapsed = ref(true)
-const isVideoOpen = ref(false)
 const isNavDropdownOpen = ref(false)
 
 function toggleTheme() {
@@ -14,30 +13,14 @@ function toggleTheme() {
   localStorage.setItem('kkbar-dark', String(isDark.value))
 }
 
-function toggleHeader() {
-  isHeaderCollapsed.value = !isHeaderCollapsed.value
-}
+const isVideoOpen = ref(false)
 
 function openVideo() {
   isVideoOpen.value = true
-  document.body.classList.add('modal-open')
 }
 
 function closeVideo() {
   isVideoOpen.value = false
-  document.body.classList.remove('modal-open')
-}
-
-function openNavDropdown() {
-  isNavDropdownOpen.value = true
-}
-
-function closeNavDropdown() {
-  isNavDropdownOpen.value = false
-}
-
-function toggleNavDropdown() {
-  isNavDropdownOpen.value = !isNavDropdownOpen.value
 }
 
 const featureData: Record<string, { title: string; desc: string }> = {
@@ -111,17 +94,14 @@ const mainHeader = ref<HTMLElement | null>(null)
 
 function onScroll() {
   if (mainHeader.value) {
-    if (window.scrollY > SCROLL_THRESHOLD) {
-      mainHeader.value.classList.add('scrolled')
-    } else {
-      mainHeader.value.classList.remove('scrolled')
-    }
+    mainHeader.value.classList.toggle('scrolled', window.scrollY > SCROLL_THRESHOLD)
   }
 }
 
-function onResize() {
-  if (window.innerWidth > RESPONSIVE_WIDTH) {
-    isHeaderCollapsed.value = true
+function onDocumentClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  if (!target.closest('.header-dropdown')) {
+    isNavDropdownOpen.value = false
   }
 }
 
@@ -138,7 +118,7 @@ onMounted(async () => {
   }
 
   window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('resize', onResize)
+  document.addEventListener('click', onDocumentClick)
 
   await nextTick()
 
@@ -194,7 +174,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
-  window.removeEventListener('resize', onResize)
+  document.removeEventListener('click', onDocumentClick)
   if (scrollTriggerInstance) {
     scrollTriggerInstance.getAll().forEach((t: any) => t.kill())
   }
@@ -204,90 +184,98 @@ onUnmounted(() => {
 <template>
   <div class="landing-page">
     <!-- Header -->
-    <header id="main-header" ref="mainHeader"
-      class="lg:tw-px-4 tw-max-w-[100vw] tw-max-w-lg:tw-mr-auto max-lg:tw-top-0 tw-fixed tw-top-4 lg:tw-left-1/2 lg:tw--translate-x-1/2 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-text-gray-700 tw-bg-white dark:tw-text-gray-200 dark:tw-bg-[#17181b] tw-px-[3%] tw-rounded-md lg:tw-max-w-5xl tw-shadow-md dark:tw-shadow-gray-700 lg:tw-justify-around lg:!tw-backdrop-blur-lg lg:tw-opacity-[0.99]">
-      <a id="header-logo" class="tw-flex tw-p-[4px] tw-gap-2 tw-place-items-center" href="#">
-        <div class="tw-h-[30px] tw-max-w-[100px]">
-          <img src="/assets/logo/logo.png" alt="logo" class="tw-object-contain tw-h-full tw-w-full dark:tw-invert" />
-        </div>
-        <span class="tw-uppercase tw-text-base tw-font-medium">Kkbar</span>
+    <header id="main-header" ref="mainHeader">
+      <!-- Logo -->
+      <a id="header-logo" href="/">
+        <img src="/assets/logo/logo.png" alt="Kkbar" />
+        <span>KKBAR</span>
       </a>
-      <div class="collapsible-header animated-collapse max-lg:tw-shadow-md" id="collapsed-header-items"
-        :style="{ height: isHeaderCollapsed ? '0vh' : '90vh' }">
-        <nav class="tw-relative tw-flex tw-h-full max-lg:tw-h-max tw-w-max tw-gap-5 tw-text-base max-lg:tw-mt-[30px] max-lg:tw-flex-col max-lg:tw-gap-5 lg:tw-mx-auto tw-place-items-center">
-          <a class="header-links" href="/guides/introduction/">文档</a>
-          <a class="header-links" href="#">接口</a>
-          <a class="header-links" href="#">博客</a>
-          <a class="header-links" href="#">解决方案</a>
-          <div class="tw-relative tw-flex tw-flex-col tw-place-items-center">
-            <div id="nav-dropdown-toggle-0" class="max-lg:tw-max-w-fit tw-flex header-links tw-gap-1 tw-place-items-center"
-              @mouseenter="openNavDropdown" @mouseleave="closeNavDropdown" @click="toggleNavDropdown">
-              <span>功能</span>
-              <i class="tw-text-sm bi bi-chevron-down"></i>
+
+      <!-- Desktop Nav -->
+      <nav id="header-nav">
+        <a class="header-link" href="/guides/introduction/">文档</a>
+        <div class="header-dropdown" :class="{ 'header-dropdown--open': isNavDropdownOpen }">
+          <button class="header-link header-dropdown__toggle" @click="isNavDropdownOpen = !isNavDropdownOpen" type="button">
+            <span>功能</span>
+            <i class="bi bi-chevron-down"></i>
+          </button>
+          <div class="header-dropdown__panel" @click.stop>
+            <div class="header-dropdown__grid">
+              <a class="header-dropdown__item" href="#"><i class="bi bi-list-columns-reverse"></i><div><strong>提示词库</strong><p>内置预制提示词模板</p></div></a>
+              <a class="header-dropdown__item" href="#"><i class="bi bi-grid-1x2-fill"></i><div><strong>统一接口</strong><p>在一个界面中测试多种AI模型</p></div></a>
+              <a class="header-dropdown__item" href="#"><i class="bi bi-globe"></i><div><strong>实时网络搜索</strong><p>实时搜索互联网</p></div></a>
+              <a class="header-dropdown__item" href="#"><i class="bi bi-image-fill"></i><div><strong>图像生成</strong><p>从提示词生成图像</p></div></a>
+              <a class="header-dropdown__item" href="#"><i class="bi bi-calendar-range"></i><div><strong>历史记录</strong><p>从中断处继续对话</p></div></a>
+              <a class="header-dropdown__item" href="#"><i class="bi bi-translate"></i><div><strong>多语言支持</strong><p>支持多语言对话</p></div></a>
             </div>
-            <nav id="nav-dropdown-list-0" :data-open="isNavDropdownOpen"
-              class="lg:tw-fixed tw-flex lg:tw-top-[80px] lg:tw-left-1/2 lg:tw--translate-x-1/2 tw-w-[90%] tw-rounded-lg max-lg:tw-h-0 max-lg:tw-w-0 lg:tw-h-[450px] tw-overflow-hidden tw-bg-white dark:tw-bg-[#17181B] tw-duration-300 tw-transition-opacity tw-transition-height tw-shadow-lg tw-p-4"
-              :class="isNavDropdownOpen ? 'tw-opacity-100 tw-scale-100 max-lg:tw-min-h-[450px] max-lg:!tw-h-fit tw-min-w-[320px]' : 'tw-scale-0 tw-opacity-0'"
-              @mouseleave="closeNavDropdown">
-              <div class="tw-grid max-xl:tw-flex max-xl:tw-flex-col tw-justify-around tw-grid-cols-2 tw-w-full">
-                <a class="header-links tw-flex tw-text-left tw-gap-4 !tw-p-4" href="#">
-                  <div class="tw-font-semibold tw-text-3xl"><i class="bi bi-list-columns-reverse"></i></div>
-                  <div class="tw-flex tw-flex-col tw-gap-2">
-                    <div class="tw-text-lg tw-text-black dark:tw-text-white tw-font-medium">提示词库</div>
-                    <p>内置预制提示词模板</p>
-                  </div>
-                </a>
-                <a class="header-links tw-flex tw-text-left tw-gap-4 !tw-p-4" href="#">
-                  <div class="tw-font-semibold tw-text-3xl"><i class="bi bi-grid-1x2-fill"></i></div>
-                  <div class="tw-flex tw-flex-col tw-gap-2">
-                    <div class="tw-text-lg tw-text-black dark:tw-text-white tw-font-medium">统一接口</div>
-                    <p>在一个界面中测试多种AI模型</p>
-                  </div>
-                </a>
-                <a class="header-links tw-flex tw-text-left tw-gap-4 !tw-p-4" href="#">
-                  <div class="tw-font-semibold tw-text-3xl"><i class="bi bi-globe"></i></div>
-                  <div class="tw-flex tw-flex-col tw-gap-2">
-                    <div class="tw-text-lg tw-text-black dark:tw-text-white tw-font-medium">实时网络搜索</div>
-                    <p>实时搜索互联网</p>
-                  </div>
-                </a>
-                <a class="header-links tw-flex tw-text-left tw-gap-4 !tw-p-4" href="#">
-                  <div class="tw-font-semibold tw-text-3xl"><i class="bi bi-image-fill"></i></div>
-                  <div class="tw-flex tw-flex-col tw-gap-2">
-                    <div class="tw-text-lg tw-text-black dark:tw-text-white tw-font-medium">图像生成</div>
-                    <p>从提示词生成图像</p>
-                  </div>
-                </a>
-                <a class="header-links tw-flex tw-text-left tw-gap-4 !tw-p-4" href="#">
-                  <div class="tw-font-semibold tw-text-3xl"><i class="bi bi-calendar-range"></i></div>
-                  <div class="tw-flex tw-flex-col tw-gap-2">
-                    <div class="tw-text-lg tw-text-black dark:tw-text-white tw-font-medium">历史记录</div>
-                    <p>从中断处继续对话</p>
-                  </div>
-                </a>
-                <a class="header-links tw-flex tw-text-left tw-gap-4 !tw-p-4" href="#">
-                  <div class="tw-font-semibold tw-text-3xl"><i class="bi bi-translate"></i></div>
-                  <div class="tw-flex tw-flex-col tw-gap-2">
-                    <div class="tw-text-lg tw-text-black dark:tw-text-white tw-font-medium">多语言支持</div>
-                    <p>支持多语言对话</p>
-                  </div>
-                </a>
-              </div>
-            </nav>
           </div>
-          <a class="header-links" href="#pricing">价格</a>
-        </nav>
-        <button type="button" @click="toggleTheme" class="header-links tw-text-gray-600 dark:tw-text-gray-300" title="切换主题">
+        </div>
+        <a class="header-link" href="#pricing">价格</a>
+        <a class="header-link" href="#">博客</a>
+      </nav>
+
+      <!-- Actions -->
+      <div id="header-actions">
+        <button id="theme-toggle" @click="toggleTheme" type="button" :title="isDark ? '切换到浅色' : '切换到深色'">
           <i class="bi" :class="isDark ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
         </button>
-      </div>
-      <div class="lg:tw-mx-4 tw-flex tw-place-items-center tw-gap-[20px] tw-text-base max-md:tw-w-full max-md:tw-flex-col max-md:tw-place-content-center scrolled-cta" id="header-cta-container">
-        <a href="#hero-section" id="header-cta-btn" aria-label="Try Kkbar" class="btn tw-flex tw-gap-3 tw-px-3 tw-py-2 tw-transition-transform tw-duration-[0.3s] hover:tw-translate-x-2">
+        <a id="header-cta" href="#hero-section">
           <span>试用工具</span>
           <i class="bi bi-arrow-right"></i>
         </a>
       </div>
-      <button class="bi bi-list tw-absolute tw-right-3 tw-top-3 tw-z-50 tw-text-3xl tw-text-gray-500 lg:tw-hidden" @click="toggleHeader" aria-label="menu" :class="isHeaderCollapsed ? 'bi-list' : 'bi-x'"></button>
+
+      <!-- Mobile hamburger -->
+      <button id="header-hamburger" @click="isHeaderCollapsed = !isHeaderCollapsed" type="button"
+        :aria-label="isHeaderCollapsed ? '打开菜单' : '关闭菜单'">
+        <span class="hamburger-line" :class="{ 'hamburger-line--open': !isHeaderCollapsed }"></span>
+      </button>
+
+      <!-- Mobile drawer backdrop -->
+      <Transition name="drawer-fade">
+        <div v-if="!isHeaderCollapsed" id="drawer-backdrop" @click="isHeaderCollapsed = true"></div>
+      </Transition>
+
+      <!-- Mobile drawer -->
+      <Transition name="drawer-slide">
+        <div v-if="!isHeaderCollapsed" id="mobile-drawer">
+          <nav id="drawer-nav">
+            <a class="drawer-link" href="/guides/introduction/" @click="isHeaderCollapsed = true">
+              <i class="bi bi-book"></i><span>文档</span>
+            </a>
+            <button class="drawer-link" @click="isNavDropdownOpen = !isNavDropdownOpen" type="button">
+              <i class="bi bi-grid-3x3-gap"></i><span>功能</span>
+              <i class="bi bi-chevron-down drawer-link__arrow" :class="{ 'drawer-link__arrow--open': isNavDropdownOpen }"></i>
+            </button>
+            <Transition name="drawer-expand">
+              <div v-if="isNavDropdownOpen" class="drawer-submenu">
+                <a class="drawer-sublink" href="#"><i class="bi bi-list-columns-reverse"></i>提示词库</a>
+                <a class="drawer-sublink" href="#"><i class="bi bi-grid-1x2-fill"></i>统一接口</a>
+                <a class="drawer-sublink" href="#"><i class="bi bi-globe"></i>实时网络搜索</a>
+                <a class="drawer-sublink" href="#"><i class="bi bi-image-fill"></i>图像生成</a>
+                <a class="drawer-sublink" href="#"><i class="bi bi-calendar-range"></i>历史记录</a>
+                <a class="drawer-sublink" href="#"><i class="bi bi-translate"></i>多语言支持</a>
+              </div>
+            </Transition>
+            <a class="drawer-link" href="#pricing" @click="isHeaderCollapsed = true">
+              <i class="bi bi-tag"></i><span>价格</span>
+            </a>
+            <a class="drawer-link" href="#" @click="isHeaderCollapsed = true">
+              <i class="bi bi-pencil-square"></i><span>博客</span>
+            </a>
+          </nav>
+          <div id="drawer-footer">
+            <button id="drawer-theme" @click="toggleTheme" type="button">
+              <i class="bi" :class="isDark ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
+              <span>{{ isDark ? '浅色模式' : '深色模式' }}</span>
+            </button>
+            <a id="drawer-cta" href="#hero-section" @click="isHeaderCollapsed = true">
+              <span>试用工具</span>
+              <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </Transition>
     </header>
 
     <!-- Hero Section -->
