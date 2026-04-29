@@ -20,6 +20,7 @@ export default defineConfig({
     logo: '/assets/logo/logo.png',
 
     nav: [
+      { text: '首页', link: '/' },
       { text: '指南', link: '/guides/introduction/' },
       { text: '功能', link: '/features/buttons/' },
       { text: 'API', link: '/reference/api/' },

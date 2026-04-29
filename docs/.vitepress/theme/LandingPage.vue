@@ -215,6 +215,7 @@ onUnmounted(() => {
       <div class="collapsible-header animated-collapse max-lg:tw-shadow-md" id="collapsed-header-items"
         :style="{ height: isHeaderCollapsed ? '0vh' : '90vh' }">
         <nav class="tw-relative tw-flex tw-h-full max-lg:tw-h-max tw-w-max tw-gap-5 tw-text-base max-lg:tw-mt-[30px] max-lg:tw-flex-col max-lg:tw-gap-5 lg:tw-mx-auto tw-place-items-center">
+          <a class="header-links" href="/guides/introduction/">文档</a>
           <a class="header-links" href="#">接口</a>
           <a class="header-links" href="#">博客</a>
           <a class="header-links" href="#">解决方案</a>
@@ -670,13 +671,13 @@ onUnmounted(() => {
         <div class="tw-flex max-md:tw-grid max-md:tw-grid-cols-2 tw-flex-wrap tw-gap-6 tw-h-full tw-w-full tw-justify-around">
           <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
             <h2 class="tw-text-xl">资源</h2>
-            <div class="tw-flex tw-flex-col tw-gap-3">
-              <a href="javascript:void(0)" class="footer-link">入门指南</a>
-              <a href="javascript:void(0)" class="footer-link">API 文档</a>
-              <a href="javascript:void(0)" class="footer-link">API 端点</a>
-              <a href="javascript:void(0)" class="footer-link">服务状态</a>
-              <a href="javascript:void(0)" class="footer-link">价格</a>
-            </div>
+                    <div class="tw-flex tw-flex-col tw-gap-3">
+                        <a href="/guides/introduction/" class="footer-link">入门指南</a>
+                        <a href="/reference/api/" class="footer-link">API 文档</a>
+                        <a href="/guides/installation/" class="footer-link">安装指南</a>
+                        <a href="/guides/quickstart/" class="footer-link">快速上手</a>
+                        <a href="#pricing" class="footer-link">价格</a>
+                    </div>
           </div>
           <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
             <h2 class="tw-text-xl">公司</h2>
