@@ -210,6 +210,13 @@ header>.collapsible-header {
   transition: width 0.3s ease, height 0.3s ease;
 }
 
+@media (min-width: 1024px) {
+  header>.collapsible-header {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
 hr {
   border-color: var(--hr-color);
   border-style: solid;
