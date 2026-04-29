@@ -1,14 +1,20 @@
 {
   "name": "kkbar-doc",
-  "type": "module",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
-    "dev": "astro dev --port 4321",
-    "build": "astro build",
-    "preview": "astro preview --port 4321"
+    "dev": "vitepress dev docs --port 4321",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs --port 4321"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "vitepress": "^1.6.3",
+    "vue": "^3.5.13"
   },
   "dependencies": {
-    "astro": "^5.0.0",
-    "@astrojs/starlight": "^0.30.0"
+    "gsap": "^3.15.0"
   }
 }

@@ -3,9 +3,8 @@ module.exports = {
 	prefix: 'tw-',
 	important: false,
 	content: [
-		"**/*.{html, jsx, js}",
-		"**/*.js",
-		"**/*.html",
+		"docs/**/*.{vue,ts,js}",
+		"docs/.vitepress/theme/**/*.{vue,ts,js,css}",
 	],
 	darkMode: 'class',
 	theme: {
