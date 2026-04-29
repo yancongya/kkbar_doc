@@ -466,6 +466,8 @@ onUnmounted(() => {
         <div class="tw-relative tw-flex tw-max-w-[30%] max-lg:tw-max-w-full tw-flex-col tw-place-items-start tw-gap-4 tw-p-2 max-lg:tw-place-items-center max-lg:tw-place-content-center max-lg:tw-w-full">
           <div class="tw-top-40 tw-flex tw-flex-col lg:tw-sticky tw-place-items-center tw-max-h-fit tw-max-w-[850px] max-lg:tw-max-h-fit max-lg:tw-max-w-[320px]" id="feature-sticky-header">
             <h2 class="tw-text-5xl tw-font-serif tw-text-center tw-font-medium max-md:tw-text-3xl">九大按钮功能</h2>
+            <img :src="'/assets/images/features/' + activeFeature + '.svg'" :alt="activeFeature"
+              class="tw-w-full tw-h-[180px] tw-mt-6 tw-object-contain tw-transition-opacity tw-duration-300" />
             <p v-if="featureData[activeFeature]" class="tw-mt-4 tw-text-center tw-text-sm tw-text-gray-500 tw-max-w-[80%]">{{ featureData[activeFeature].desc }}</p>
           </div>
         </div>
