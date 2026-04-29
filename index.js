@@ -69,18 +69,13 @@ window.addEventListener("resize", responsive)
 
 /** Header scroll behavior */
 const mainHeader = document.getElementById('main-header')
-const headerCtaStandalone = document.getElementById('header-cta-standalone')
 const SCROLL_THRESHOLD = 80
 
 function onScroll() {
     if (window.scrollY > SCROLL_THRESHOLD) {
         mainHeader.classList.add('scrolled')
-        headerCtaStandalone.classList.remove('tw-hidden')
-        headerCtaStandalone.classList.add('tw-flex')
     } else {
         mainHeader.classList.remove('scrolled')
-        headerCtaStandalone.classList.add('tw-hidden')
-        headerCtaStandalone.classList.remove('tw-flex')
     }
 }
 window.addEventListener('scroll', onScroll, { passive: true })
@@ -88,15 +83,29 @@ window.addEventListener('scroll', onScroll, { passive: true })
 
 
 const savedDark = localStorage.getItem('kkbar-dark');
+const themeIcon = document.getElementById('theme-icon');
 if (savedDark === 'false') {
     document.documentElement.classList.remove('tw-dark');
+    themeIcon.classList.remove('bi-sun-fill');
+    themeIcon.classList.add('bi-moon-fill');
 } else {
     document.documentElement.classList.add('tw-dark');
+    themeIcon.classList.remove('bi-moon-fill');
+    themeIcon.classList.add('bi-sun-fill');
 }
 
 function cycleTheme() {
     const isDark = document.documentElement.classList.toggle('tw-dark');
     localStorage.setItem('kkbar-dark', isDark);
+    
+    const themeIcon = document.getElementById('theme-icon');
+    if (isDark) {
+        themeIcon.classList.remove('bi-moon-fill');
+        themeIcon.classList.add('bi-sun-fill');
+    } else {
+        themeIcon.classList.remove('bi-sun-fill');
+        themeIcon.classList.add('bi-moon-fill');
+    }
 }
 
 
@@ -177,16 +186,8 @@ function closeVideo(){
  * Animations
  */
 
-const typed = new Typed('#prompts-sample', {
-    strings: ["How to solve a rubik's cube? Step by step guide", 
-                "What's Pixa playground?", 
-                "How to build an AI SaaS App?", 
-                "How to integrate Pixa API?"],
-    typeSpeed: 80,
-    smartBackspace: true, 
-    loop: true,
-    backDelay: 2000,
-})
+// Typed.js 已移除 - 目标元素不存在
+// const typed = new Typed('#prompts-sample', { ... })
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -197,21 +198,20 @@ gsap.to(".reveal-up", {
 })
 
 
-// straightens the slanting image
-gsap.to("#dashboard", {
-
-    scale: 1,
-    translateY: 0,
-    // translateY: "0%",
-    rotateX: "0deg",
+// 滚动时回正效果
+gsap.fromTo("#dashboard", {
+    transform: "perspective(1200px) rotateX(60deg) scale(0.3)",
+    opacity: 0.3,
+}, {
+    transform: "perspective(1200px) rotateX(0deg) scale(1)",
+    opacity: 1,
+    ease: "none",
     scrollTrigger: {
         trigger: "#hero-section",
-        start: window.innerWidth > RESPONSIVE_WIDTH ? "top 95%" : "top 70%",
-        end: "bottom bottom",
-        scrub: 1,
-        // markers: true,
+        start: "top 20%",
+        end: "center center",
+        scrub: true,
     }
-
 })
 
 const faqAccordion = document.querySelectorAll('.faq-accordion')

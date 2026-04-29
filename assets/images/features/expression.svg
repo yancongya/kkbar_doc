@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250">
+  <rect width="400" height="250" fill="#1a1a2e"/>
+  <text x="200" y="120" text-anchor="middle" fill="#ff7043" font-size="24" font-family="sans-serif">表达式</text>
+  <text x="200" y="150" text-anchor="middle" fill="#666" font-size="14" font-family="sans-serif">为属性添加动画表达式</text>
+  <rect x="50" y="170" width="300" height="40" rx="8" fill="#ff7043"/>
+  <text x="200" y="195" text-anchor="middle" fill="#fff" font-size="14" font-family="sans-serif">applyExpression(code)</text>
+</svg>

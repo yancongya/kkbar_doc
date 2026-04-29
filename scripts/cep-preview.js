@@ -16,44 +16,211 @@ class CepPreview {
     this._sidebarState = 'expanded';
     this._isDragging = false;
 
-    // 分类数据：每个按钮固定，icons 存各热键形态 { click, ctrl, shift, alt, ... }
+    // 分类数据：每个按钮固定，icons 存各热键形态
+    // 8 种形态：click | ctrl | shift | alt | ctrl+shift | ctrl+alt | shift+alt | ctrl+shift+alt
     this._categories = [
       {
         name: '常用', color: '#f97316',
+        icon: 'bi-info-circle',
         buttons: [
-          { label: '关于', icons: { click: { icon: 'bi-info-circle', color: '#4a9eff' }, ctrl: { icon: 'bi-arrow-return-left', color: '#4a9eff' }, shift: { icon: 'bi-arrow-up-circle', color: '#22c55e' }, alt: { icon: 'bi-bullseye', color: '#f97316' } } },
-          { label: '过滤器', icons: { click: { icon: 'bi-funnel', color: '#f97316' }, ctrl: { icon: 'bi-arrow-return-right', color: '#22c55e' }, shift: { icon: 'bi-arrow-down-circle', color: '#ef4444' }, alt: { icon: 'bi-rulers', color: '#94a3b8' } } },
-          { label: '播放', icons: { click: { icon: 'bi-play-fill', color: '#22c55e' }, ctrl: { icon: 'bi-clipboard', color: '#f97316' }, shift: { icon: 'bi-skip-backward-fill', color: '#4a9eff' }, alt: { icon: 'bi-link-45deg', color: '#4a9eff' } } },
-          { label: '剪切', icons: { click: { icon: 'bi-scissors', color: '#ef4444' }, ctrl: { icon: 'bi-trash', color: '#ef4444' }, shift: { icon: 'bi-skip-forward-fill', color: '#4a9eff' }, alt: { icon: 'bi-puzzle', color: '#a78bfa' } } },
-          { label: '收藏', icons: { click: { icon: 'bi-star-fill', color: '#eab308' }, ctrl: { icon: 'bi-search', color: '#eab308' }, shift: { icon: 'bi-shuffle', color: '#a78bfa' }, alt: { icon: 'bi-lightbulb', color: '#eab308' } } },
-          { label: '设置', icons: { click: { icon: 'bi-gear', color: '#94a3b8' }, ctrl: { icon: 'bi-lightbulb-fill', color: '#a78bfa' }, shift: { icon: 'bi-pin-angle', color: '#f97316' }, alt: { icon: 'bi-key', color: '#94a3b8' } } },
+          { label: '关于', icons: {
+            click:              { icon: 'bi-info-circle',        color: '#4a9eff' },
+            ctrl:               { icon: 'bi-arrow-return-left',  color: '#4a9eff' },
+            shift:              { icon: 'bi-arrow-up-circle',    color: '#22c55e' },
+            alt:                { icon: 'bi-bullseye',           color: '#f97316' },
+            'ctrl+shift':       { icon: 'bi-arrow-up-square',    color: '#a78bfa' },
+            'ctrl+alt':         { icon: 'bi-arrow-left-circle',  color: '#eab308' },
+            'shift+alt':        { icon: 'bi-arrow-right-circle', color: '#ef4444' },
+            'ctrl+shift+alt':   { icon: 'bi-stars',              color: '#f97316' },
+          }},
+          { label: '过滤器', icons: {
+            click:              { icon: 'bi-funnel',             color: '#f97316' },
+            ctrl:               { icon: 'bi-funnel-fill',        color: '#22c55e' },
+            shift:              { icon: 'bi-arrow-down-circle',  color: '#ef4444' },
+            alt:                { icon: 'bi-rulers',             color: '#94a3b8' },
+            'ctrl+shift':       { icon: 'bi-filter-circle',      color: '#4a9eff' },
+            'ctrl+alt':         { icon: 'bi-filter-square',      color: '#a78bfa' },
+            'shift+alt':        { icon: 'bi-sliders',            color: '#eab308' },
+            'ctrl+shift+alt':   { icon: 'bi-sliders2',           color: '#f97316' },
+          }},
+          { label: '播放', icons: {
+            click:              { icon: 'bi-play-fill',          color: '#22c55e' },
+            ctrl:               { icon: 'bi-clipboard',          color: '#f97316' },
+            shift:              { icon: 'bi-skip-backward-fill', color: '#4a9eff' },
+            alt:                { icon: 'bi-link-45deg',         color: '#4a9eff' },
+            'ctrl+shift':       { icon: 'bi-play-circle-fill',   color: '#22c55e' },
+            'ctrl+alt':         { icon: 'bi-pause-fill',         color: '#eab308' },
+            'shift+alt':        { icon: 'bi-stop-fill',          color: '#ef4444' },
+            'ctrl+shift+alt':   { icon: 'bi-record-fill',        color: '#ef4444' },
+          }},
+          { label: '剪切', icons: {
+            click:              { icon: 'bi-scissors',           color: '#ef4444' },
+            ctrl:               { icon: 'bi-trash',              color: '#ef4444' },
+            shift:              { icon: 'bi-skip-forward-fill',  color: '#4a9eff' },
+            alt:                { icon: 'bi-puzzle',             color: '#a78bfa' },
+            'ctrl+shift':       { icon: 'bi-scissors2',          color: '#f97316' },
+            'ctrl+alt':         { icon: 'bi-trash3-fill',        color: '#ef4444' },
+            'shift+alt':        { icon: 'bi-x-circle-fill',      color: '#94a3b8' },
+            'ctrl+shift+alt':   { icon: 'bi-eraser-fill',        color: '#a78bfa' },
+          }},
+          { label: '收藏', icons: {
+            click:              { icon: 'bi-star-fill',          color: '#eab308' },
+            ctrl:               { icon: 'bi-search',             color: '#eab308' },
+            shift:              { icon: 'bi-shuffle',            color: '#a78bfa' },
+            alt:                { icon: 'bi-lightbulb',          color: '#eab308' },
+            'ctrl+shift':       { icon: 'bi-bookmark-fill',      color: '#4a9eff' },
+            'ctrl+alt':         { icon: 'bi-heart-fill',         color: '#ef4444' },
+            'shift+alt':        { icon: 'bi-pin-fill',           color: '#f97316' },
+            'ctrl+shift+alt':   { icon: 'bi-trophy-fill',        color: '#eab308' },
+          }},
+          { label: '设置', icons: {
+            click:              { icon: 'bi-gear',               color: '#94a3b8' },
+            ctrl:               { icon: 'bi-lightbulb-fill',     color: '#a78bfa' },
+            shift:              { icon: 'bi-pin-angle',          color: '#f97316' },
+            alt:                { icon: 'bi-key',                color: '#94a3b8' },
+            'ctrl+shift':       { icon: 'bi-gear-fill',          color: '#4a9eff' },
+            'ctrl+alt':         { icon: 'bi-toggles',            color: '#22c55e' },
+            'shift+alt':        { icon: 'bi-wrench-adjustable',  color: '#eab308' },
+            'ctrl+shift+alt':   { icon: 'bi-cpu-fill',           color: '#a78bfa' },
+          }},
         ],
       },
       {
         name: '脚本', color: '#4a9eff',
+        icon: 'bi-file-earmark-code',
         buttons: [
-          { label: '运行', icons: { click: { icon: 'bi-file-earmark-code', color: '#4a9eff' }, ctrl: { icon: 'bi-play-circle', color: '#4a9eff' }, shift: { icon: 'bi-bug', color: '#f97316' }, alt: { icon: 'bi-lightning', color: '#eab308' } } },
-          { label: '循环', icons: { click: { icon: 'bi-arrow-repeat', color: '#22c55e' }, ctrl: { icon: 'bi-stop-fill', color: '#ef4444' }, shift: { icon: 'bi-pencil-square', color: '#4a9eff' }, alt: { icon: 'bi-wrench', color: '#94a3b8' } } },
-          { label: '导入', icons: { click: { icon: 'bi-folder2-open', color: '#eab308' }, ctrl: { icon: 'bi-upload', color: '#22c55e' }, shift: { icon: 'bi-download', color: '#eab308' }, alt: { icon: 'bi-archive', color: '#eab308' } } },
-          { label: '保存', icons: { click: { icon: 'bi-save', color: '#94a3b8' }, ctrl: { icon: 'bi-lock', color: '#94a3b8' }, shift: { icon: 'bi-clipboard-check', color: '#f97316' }, alt: { icon: 'bi-cloud-upload', color: '#4a9eff' } } },
+          { label: '运行', icons: {
+            click:              { icon: 'bi-file-earmark-code',  color: '#4a9eff' },
+            ctrl:               { icon: 'bi-play-circle',        color: '#4a9eff' },
+            shift:              { icon: 'bi-bug',                color: '#f97316' },
+            alt:                { icon: 'bi-lightning',          color: '#eab308' },
+            'ctrl+shift':       { icon: 'bi-play-circle-fill',   color: '#22c55e' },
+            'ctrl+alt':         { icon: 'bi-lightning-fill',     color: '#eab308' },
+            'shift+alt':        { icon: 'bi-bug-fill',           color: '#ef4444' },
+            'ctrl+shift+alt':   { icon: 'bi-rocket-fill',        color: '#a78bfa' },
+          }},
+          { label: '循环', icons: {
+            click:              { icon: 'bi-arrow-repeat',       color: '#22c55e' },
+            ctrl:               { icon: 'bi-stop-fill',          color: '#ef4444' },
+            shift:              { icon: 'bi-pencil-square',      color: '#4a9eff' },
+            alt:                { icon: 'bi-wrench',             color: '#94a3b8' },
+            'ctrl+shift':       { icon: 'bi-arrow-clockwise',    color: '#22c55e' },
+            'ctrl+alt':         { icon: 'bi-arrow-counterclockwise', color: '#f97316' },
+            'shift+alt':        { icon: 'bi-infinity',           color: '#a78bfa' },
+            'ctrl+shift+alt':   { icon: 'bi-recycle',            color: '#22c55e' },
+          }},
+          { label: '导入', icons: {
+            click:              { icon: 'bi-folder2-open',       color: '#eab308' },
+            ctrl:               { icon: 'bi-upload',             color: '#22c55e' },
+            shift:              { icon: 'bi-download',           color: '#eab308' },
+            alt:                { icon: 'bi-archive',            color: '#eab308' },
+            'ctrl+shift':       { icon: 'bi-folder-plus',        color: '#4a9eff' },
+            'ctrl+alt':         { icon: 'bi-cloud-upload',       color: '#22c55e' },
+            'shift+alt':        { icon: 'bi-cloud-download',     color: '#4a9eff' },
+            'ctrl+shift+alt':   { icon: 'bi-database-fill-up',   color: '#a78bfa' },
+          }},
+          { label: '保存', icons: {
+            click:              { icon: 'bi-save',               color: '#94a3b8' },
+            ctrl:               { icon: 'bi-lock',               color: '#94a3b8' },
+            shift:              { icon: 'bi-clipboard-check',    color: '#f97316' },
+            alt:                { icon: 'bi-cloud-upload',       color: '#4a9eff' },
+            'ctrl+shift':       { icon: 'bi-save2',              color: '#22c55e' },
+            'ctrl+alt':         { icon: 'bi-lock-fill',          color: '#ef4444' },
+            'shift+alt':        { icon: 'bi-floppy2-fill',       color: '#eab308' },
+            'ctrl+shift+alt':   { icon: 'bi-safe-fill',          color: '#a78bfa' },
+          }},
         ],
       },
       {
         name: '效果', color: '#22c55e',
+        icon: 'bi-stars',
         buttons: [
-          { label: '发光', icons: { click: { icon: 'bi-stars', color: '#eab308' }, ctrl: { icon: 'bi-brightness-high', color: '#eab308' }, shift: { icon: 'bi-star', color: '#4a9eff' }, alt: { icon: 'bi-mask', color: '#a78bfa' } } },
-          { label: '模糊', icons: { click: { icon: 'bi-circle', color: '#4a9eff' }, ctrl: { icon: 'bi-rainbow', color: '#f97316' }, shift: { icon: 'bi-water', color: '#22c55e' }, alt: { icon: 'bi-eye', color: '#f97316' } } },
-          { label: '色彩', icons: { click: { icon: 'bi-palette', color: '#f97316' }, ctrl: { icon: 'bi-square', color: '#94a3b8' }, shift: { icon: 'bi-brush', color: '#f97316' }, alt: { icon: 'bi-film', color: '#4a9eff' } } },
-          { label: '遮罩', icons: { click: { icon: 'bi-square-fill', color: '#94a3b8' }, ctrl: { icon: 'bi-app', color: '#94a3b8' }, shift: { icon: 'bi-diamond', color: '#4a9eff' }, alt: { icon: 'bi-hexagon', color: '#eab308' } } },
-          { label: '变形', icons: { click: { icon: 'bi-triangle', color: '#22c55e' }, ctrl: { icon: 'bi-rulers', color: '#94a3b8' }, shift: { icon: 'bi-arrow-clockwise', color: '#22c55e' }, alt: { icon: 'bi-arrows-expand', color: '#4a9eff' } } },
+          { label: '发光', icons: {
+            click:              { icon: 'bi-stars',              color: '#eab308' },
+            ctrl:               { icon: 'bi-brightness-high',    color: '#eab308' },
+            shift:              { icon: 'bi-star',               color: '#4a9eff' },
+            alt:                { icon: 'bi-mask',               color: '#a78bfa' },
+            'ctrl+shift':       { icon: 'bi-brightness-high-fill', color: '#f97316' },
+            'ctrl+alt':         { icon: 'bi-sun',                color: '#eab308' },
+            'shift+alt':        { icon: 'bi-moon-stars',         color: '#4a9eff' },
+            'ctrl+shift+alt':   { icon: 'bi-magic',              color: '#a78bfa' },
+          }},
+          { label: '模糊', icons: {
+            click:              { icon: 'bi-circle',             color: '#4a9eff' },
+            ctrl:               { icon: 'bi-rainbow',            color: '#f97316' },
+            shift:              { icon: 'bi-water',              color: '#22c55e' },
+            alt:                { icon: 'bi-eye',                color: '#f97316' },
+            'ctrl+shift':       { icon: 'bi-circle-half',        color: '#94a3b8' },
+            'ctrl+alt':         { icon: 'bi-eye-slash',          color: '#94a3b8' },
+            'shift+alt':        { icon: 'bi-droplet-half',       color: '#4a9eff' },
+            'ctrl+shift+alt':   { icon: 'bi-cloud-fog2',         color: '#a78bfa' },
+          }},
+          { label: '色彩', icons: {
+            click:              { icon: 'bi-palette',            color: '#f97316' },
+            ctrl:               { icon: 'bi-square',             color: '#94a3b8' },
+            shift:              { icon: 'bi-brush',              color: '#f97316' },
+            alt:                { icon: 'bi-film',               color: '#4a9eff' },
+            'ctrl+shift':       { icon: 'bi-palette2',           color: '#a78bfa' },
+            'ctrl+alt':         { icon: 'bi-paint-bucket',       color: '#eab308' },
+            'shift+alt':        { icon: 'bi-brush-fill',         color: '#22c55e' },
+            'ctrl+shift+alt':   { icon: 'bi-eyedropper',         color: '#ef4444' },
+          }},
+          { label: '遮罩', icons: {
+            click:              { icon: 'bi-square-fill',        color: '#94a3b8' },
+            ctrl:               { icon: 'bi-app',                color: '#94a3b8' },
+            shift:              { icon: 'bi-diamond',            color: '#4a9eff' },
+            alt:                { icon: 'bi-hexagon',            color: '#eab308' },
+            'ctrl+shift':       { icon: 'bi-square-half',        color: '#a78bfa' },
+            'ctrl+alt':         { icon: 'bi-pentagon',           color: '#22c55e' },
+            'shift+alt':        { icon: 'bi-octagon',            color: '#f97316' },
+            'ctrl+shift+alt':   { icon: 'bi-intersect',          color: '#ef4444' },
+          }},
+          { label: '变形', icons: {
+            click:              { icon: 'bi-triangle',           color: '#22c55e' },
+            ctrl:               { icon: 'bi-rulers',             color: '#94a3b8' },
+            shift:              { icon: 'bi-arrow-clockwise',    color: '#22c55e' },
+            alt:                { icon: 'bi-arrows-expand',      color: '#4a9eff' },
+            'ctrl+shift':       { icon: 'bi-arrows-angle-expand', color: '#f97316' },
+            'ctrl+alt':         { icon: 'bi-arrows-fullscreen',  color: '#a78bfa' },
+            'shift+alt':        { icon: 'bi-bounding-box',       color: '#eab308' },
+            'ctrl+shift+alt':   { icon: 'bi-bounding-box-circles', color: '#22c55e' },
+          }},
         ],
       },
       {
         name: '预设', color: '#a78bfa',
+        icon: 'bi-camera-video',
         buttons: [
-          { label: '片头', icons: { click: { icon: 'bi-camera-video', color: '#a78bfa' }, ctrl: { icon: 'bi-box-seam', color: '#a78bfa' }, shift: { icon: 'bi-film', color: '#4a9eff' }, alt: { icon: 'bi-folder', color: '#eab308' } } },
-          { label: '文字', icons: { click: { icon: 'bi-fonts', color: '#4a9eff' }, ctrl: { icon: 'bi-arrow-repeat', color: '#94a3b8' }, shift: { icon: 'bi-pencil', color: '#4a9eff' }, alt: { icon: 'bi-plus-circle', color: '#22c55e' } } },
-          { label: '过渡', icons: { click: { icon: 'bi-water', color: '#22c55e' }, ctrl: { icon: 'bi-fast-forward', color: '#22c55e' }, shift: { icon: 'bi-shuffle', color: '#a78bfa' }, alt: { icon: 'bi-music-note', color: '#f97316' } } },
+          { label: '片头', icons: {
+            click:              { icon: 'bi-camera-video',       color: '#a78bfa' },
+            ctrl:               { icon: 'bi-box-seam',           color: '#a78bfa' },
+            shift:              { icon: 'bi-film',               color: '#4a9eff' },
+            alt:                { icon: 'bi-folder',             color: '#eab308' },
+            'ctrl+shift':       { icon: 'bi-camera-video-fill',  color: '#ef4444' },
+            'ctrl+alt':         { icon: 'bi-collection-play',    color: '#22c55e' },
+            'shift+alt':        { icon: 'bi-camera-reels',       color: '#f97316' },
+            'ctrl+shift+alt':   { icon: 'bi-camera-reels-fill',  color: '#a78bfa' },
+          }},
+          { label: '文字', icons: {
+            click:              { icon: 'bi-fonts',              color: '#4a9eff' },
+            ctrl:               { icon: 'bi-arrow-repeat',       color: '#94a3b8' },
+            shift:              { icon: 'bi-pencil',             color: '#4a9eff' },
+            alt:                { icon: 'bi-plus-circle',        color: '#22c55e' },
+            'ctrl+shift':       { icon: 'bi-type-bold',          color: '#eab308' },
+            'ctrl+alt':         { icon: 'bi-type-italic',        color: '#f97316' },
+            'shift+alt':        { icon: 'bi-type-underline',     color: '#a78bfa' },
+            'ctrl+shift+alt':   { icon: 'bi-type-h1',            color: '#4a9eff' },
+          }},
+          { label: '过渡', icons: {
+            click:              { icon: 'bi-water',              color: '#22c55e' },
+            ctrl:               { icon: 'bi-fast-forward',       color: '#22c55e' },
+            shift:              { icon: 'bi-shuffle',            color: '#a78bfa' },
+            alt:                { icon: 'bi-music-note',         color: '#f97316' },
+            'ctrl+shift':       { icon: 'bi-fast-forward-fill',  color: '#4a9eff' },
+            'ctrl+alt':         { icon: 'bi-rewind-fill',        color: '#eab308' },
+            'shift+alt':        { icon: 'bi-music-note-beamed',  color: '#a78bfa' },
+            'ctrl+shift+alt':   { icon: 'bi-soundwave',          color: '#22c55e' },
+          }},
         ],
       },
     ];
@@ -73,9 +240,104 @@ class CepPreview {
       viewMode: 'grid', // grid | list
     };
 
+    // 引导系统：记录哪些模式已激活过（不再显示引导）
+    this._guideDismissed = new Set();
+
+    // 各模式引导配置
+    this._guideConfig = {
+      panel: {
+        icon: 'bi-grid-3x3-gap',
+        iconColor: '#a78bfa',
+        title: '扩展面板模式',
+        desc: '将 Kkbar 作为独立面板嵌入 Adobe 软件侧边栏，点击按钮即可执行对应功能。',
+        hint: '点击任意位置开始体验',
+        tags: ['点击执行', '分类管理', '自定义布局'],
+        preview: `<div class="cep-guide__preview-btns">
+          <span class="cep-guide__preview-btn" style="background:#2d2d2d;border-color:#a78bfa"><i class="bi bi-play-fill" style="color:#22c55e"></i></span>
+          <span class="cep-guide__preview-btn"><i class="bi bi-scissors" style="color:#ef4444"></i></span>
+          <span class="cep-guide__preview-btn"><i class="bi bi-star-fill" style="color:#eab308"></i></span>
+          <span class="cep-guide__preview-btn"><i class="bi bi-gear" style="color:#94a3b8"></i></span>
+        </div>`,
+      },
+      hotkey: {
+        icon: 'bi-keyboard',
+        iconColor: '#4a9eff',
+        title: '热键触发模式',
+        desc: '按住 Ctrl / Shift / Alt 键，每个按钮会切换为对应的功能，一个按钮最多承载 4 种操作。',
+        hint: '点击任意位置开始体验',
+        tags: ['Ctrl', 'Shift', 'Alt', '组合键'],
+        preview: `<div class="cep-guide__hotkey-demo">
+          <div class="cep-guide__hotkey-row">
+            <span class="cep-guide__hk-key">默认</span>
+            <span class="cep-guide__hk-arrow">→</span>
+            <span class="cep-guide__preview-btn"><i class="bi bi-play-fill" style="color:#22c55e"></i></span>
+          </div>
+          <div class="cep-guide__hotkey-row">
+            <span class="cep-guide__hk-key cep-guide__hk-key--active">Ctrl</span>
+            <span class="cep-guide__hk-arrow">→</span>
+            <span class="cep-guide__preview-btn"><i class="bi bi-clipboard" style="color:#f97316"></i></span>
+          </div>
+          <div class="cep-guide__hotkey-row">
+            <span class="cep-guide__hk-key cep-guide__hk-key--shift">Shift</span>
+            <span class="cep-guide__hk-arrow">→</span>
+            <span class="cep-guide__preview-btn"><i class="bi bi-skip-backward-fill" style="color:#4a9eff"></i></span>
+          </div>
+        </div>`,
+      },
+      longpress: {
+        icon: 'bi-hand-index-thumb',
+        iconColor: '#f97316',
+        title: '长按菜单模式',
+        desc: '长按任意按钮，弹出扩展菜单。支持面板弹出和圆环两种交互形式。',
+        hint: '点击任意位置开始体验',
+        tags: ['长按触发', '面板模式', '圆环模式'],
+        preview: `<div class="cep-guide__longpress-demo">
+          <div class="cep-guide__lp-modes">
+            <div class="cep-guide__lp-mode cep-guide__lp-mode--active">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              <span>面板弹出</span>
+            </div>
+            <div class="cep-guide__lp-mode">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+              <span>圆环选择</span>
+            </div>
+          </div>
+        </div>`,
+      },
+      uisettings: {
+        icon: 'bi-sliders',
+        iconColor: '#22c55e',
+        title: 'UI 自定义设置',
+        desc: '自由调整图标大小、间距、视图模式，打造专属工作流布局。',
+        hint: '点击任意位置开始体验',
+        tags: ['图标大小', '间距调节', '网格/列表'],
+        preview: `<div class="cep-guide__ui-demo">
+          <div class="cep-guide__ui-row">
+            <span class="cep-guide__ui-label">大小</span>
+            <div class="cep-guide__ui-track"><div class="cep-guide__ui-fill" style="width:60%"></div></div>
+            <span class="cep-guide__ui-val">52</span>
+          </div>
+          <div class="cep-guide__ui-row">
+            <span class="cep-guide__ui-label">间距</span>
+            <div class="cep-guide__ui-track"><div class="cep-guide__ui-fill" style="width:30%"></div></div>
+            <span class="cep-guide__ui-val">6</span>
+          </div>
+          <div class="cep-guide__ui-row">
+            <span class="cep-guide__ui-label">视图</span>
+            <div class="cep-guide__ui-btns">
+              <span class="cep-guide__ui-btn cep-guide__ui-btn--active"><i class="bi bi-grid-3x3-gap"></i></span>
+              <span class="cep-guide__ui-btn"><i class="bi bi-view-list"></i></span>
+            </div>
+          </div>
+        </div>`,
+      },
+    };
+
     this._render();
     this._bindEvents();
     this._bindSidebarEvents();
+    // 初始显示 panel 模式引导
+    this._showGuide('panel');
   }
 
   // ─── render ────────────────────────────────────────────────
@@ -97,14 +359,14 @@ class CepPreview {
         <div class="cep-main-panel__toolbar">
           <div class="cep-cat-wrap" id="cep-cat-wrap">
             <button class="cep-main-panel__cat-select" id="cep-cat-select" type="button">
-              <span class="cep-main-panel__cat-dot" id="cep-cat-dot" style="background:${cat.color}"></span>
+              <i class="bi ${cat.icon}" style="color:${cat.color};font-size:14px"></i>
               <span class="cep-main-panel__cat-label" id="cep-cat-label">${cat.name}</span>
               <svg class="cep-main-panel__cat-arrow" id="cep-cat-arrow" width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L3 6h10z"/></svg>
             </button>
             <ul class="cep-cat-dropdown" id="cep-cat-dropdown">
               ${this._categories.map((c, i) => `
                 <li class="cep-cat-dropdown__item ${i === this._activeCatIdx ? 'cep-cat-dropdown__item--active' : ''}" data-cat-idx="${i}">
-                  <span class="cep-cat-dropdown__dot" style="background:${c.color}"></span>
+                  <i class="bi ${c.icon}" style="color:${c.color};font-size:12px"></i>
                   <span>${c.name}</span>
                 </li>
               `).join('')}
@@ -127,17 +389,22 @@ class CepPreview {
         </div>
 
         <div class="cep-main-panel__grid" id="cep-btn-grid">
-          ${this._renderButtons(cat.buttons, hk)}
+          ${this._renderButtons(cat.buttons, hk, cat.icon, cat.color)}
         </div>
 
         <!-- 热键栏：仅 hotkey 模式显示 -->
         <div class="cep-hotkey-bar ${this._mode === 'hotkey' ? 'cep-hotkey-bar--visible' : ''}" id="cep-hotkey-bar">
-          ${['ctrl', 'shift', 'alt'].map(k => `
-            <button class="cep-hotkey-key ${this._activeHotkeys.has(k) ? 'cep-hotkey-key--active' : ''}"
-                    data-hotkey="${k}" type="button">
-              ${k.toUpperCase()}
-            </button>
-          `).join('')}
+          <div class="cep-hotkey-bar__keys">
+            ${['ctrl', 'shift', 'alt'].map(k => `
+              <button class="cep-hotkey-key ${this._activeHotkeys.has(k) ? 'cep-hotkey-key--active' : ''}"
+                      data-hotkey="${k}" type="button">
+                ${k.toUpperCase()}
+              </button>
+            `).join('')}
+          </div>
+          <div class="cep-hotkey-bar__combo" id="cep-hotkey-combo">
+            <span class="cep-hotkey-combo__label">默认</span>
+          </div>
         </div>
 
         <!-- 长按模式栏：仅 longpress 模式显示 -->
@@ -212,8 +479,18 @@ class CepPreview {
     return combo;
   }
 
-  _renderButtons(buttons, hk) {
-    return buttons.map(b => {
+  _renderButtons(buttons, hk, catIcon, catColor) {
+    return buttons.map((b, idx) => {
+      // 第一个按钮使用分类图标
+      if (idx === 0 && catIcon) {
+        return `
+          <div class="cep-main-panel__btn" data-is-category-btn="true" title="${b.label}">
+            <div class="cep-main-panel__btn-icon">
+              <i class="bi ${catIcon}" style="color:${catColor};font-size:20px"></i>
+            </div>
+          </div>
+        `;
+      }
       // 优先组合键，fallback 到单键，再 fallback 到 click
       const state = b.icons[hk]
         || (this._activeHotkeys.size > 0 ? b.icons[[...this._activeHotkeys].sort()[0]] : null)
@@ -325,6 +602,9 @@ class CepPreview {
       const btn = e.target.closest('.cep-main-panel__btn');
       if (!btn) return;
       
+      btn.style.background = '#3b3b6e';
+      btn.style.borderColor = '#4b4b7e';
+      
       // 分类按钮的处理
       if (btn.dataset.isCategoryBtn) {
         if (this._mode === 'longpress') {
@@ -336,6 +616,14 @@ class CepPreview {
       // 普通按钮的长按处理
       if (this._mode === 'longpress') {
         this._startLongpress(btn);
+      }
+    });
+    
+    this.root.addEventListener('mouseup', (e) => {
+      const btn = e.target.closest('.cep-main-panel__btn');
+      if (btn) {
+        btn.style.background = '';
+        btn.style.borderColor = '';
       }
     });
     
@@ -352,8 +640,20 @@ class CepPreview {
       }
     });
     
-    this.root.addEventListener('mouseup', () => this._cancelLongpress());
-    this.root.addEventListener('mouseleave', () => this._cancelLongpress());
+    this.root.addEventListener('mouseup', () => {
+      this.root.querySelectorAll('.cep-main-panel__btn').forEach(btn => {
+        btn.style.background = '';
+        btn.style.borderColor = '';
+      });
+      this._cancelLongpress();
+    });
+    this.root.addEventListener('mouseleave', () => {
+      this.root.querySelectorAll('.cep-main-panel__btn').forEach(btn => {
+        btn.style.background = '';
+        btn.style.borderColor = '';
+      });
+      this._cancelLongpress();
+    });
   }
 
   /** 绑定左侧 sidebar 列表项 */
@@ -454,6 +754,11 @@ class CepPreview {
     if (lpBar) lpBar.classList.toggle('cep-longpress-bar--visible', mode === 'longpress');
     if (uiBar) uiBar.classList.toggle('cep-ui-settings-bar--visible', mode === 'uisettings');
     this._updateHotkeyBar();
+
+    // 切换模式时显示引导（每个模式只显示一次）
+    if (!this._guideDismissed.has(mode)) {
+      this._showGuide(mode);
+    }
   }
 
   // ─── uisettings ────────────────────────────────────────────
@@ -522,27 +827,57 @@ class CepPreview {
   }
 
   _showLongpressMenu(btnEl) {
-    // 检查是否是分类按钮
     const isCategoryBtn = btnEl.dataset.isCategoryBtn === 'true';
-    
+
     let actions;
     if (isCategoryBtn) {
-      // 分类按钮的固定功能菜单
+      // 分类按钮固定菜单
       actions = [
-        { id: 'category-switch', label: '切换分类', hotkey: 'Click', icon: 'bi-grid-3x3', color: '#4a9eff' },
-        { id: 'category-settings', label: '打开设置', hotkey: 'Ctrl', icon: 'bi-gear', color: '#94a3b8' },
-        { id: 'category-log', label: '打开日志', hotkey: 'Shift', icon: 'bi-file-earmark-text', color: '#f97316' },
-        { id: 'category-about', label: '打开关于', hotkey: 'Alt', icon: 'bi-info-circle', color: '#22c55e' },
-        { id: 'category-view', label: '切换视图', hotkey: 'Ctrl+Alt', icon: 'bi-view-list', color: '#a78bfa' },
+        { id: 'category-switch',    label: '切换分类', hotkey: 'Click',         icon: 'bi-grid-3x3',        color: '#4a9eff' },
+        { id: 'category-settings',  label: '打开设置', hotkey: 'Ctrl',          icon: 'bi-gear',            color: '#94a3b8' },
+        { id: 'category-log',       label: '打开日志', hotkey: 'Shift',         icon: 'bi-file-earmark-text', color: '#f97316' },
+        { id: 'category-about',     label: '打开关于', hotkey: 'Alt',           icon: 'bi-info-circle',     color: '#22c55e' },
+        { id: 'category-view',      label: '切换视图', hotkey: 'Ctrl+Alt',      icon: 'bi-view-list',       color: '#a78bfa' },
       ];
     } else {
-      // 普通按钮的功能菜单
-      actions = [
-        { id: '1', label: '执行动作', hotkey: 'Click', icon: 'bi-play-fill', color: '#22c55e' },
-        { id: '2', label: '编辑设置', hotkey: 'Ctrl', icon: 'bi-gear', color: '#94a3b8' },
-        { id: '3', label: '复制按钮', hotkey: 'Shift', icon: 'bi-clipboard', color: '#f97316' },
-        { id: '4', label: '删除按钮', hotkey: 'Alt', icon: 'bi-trash', color: '#ef4444' },
+      // 从按钮的 8 种形态数据动态生成
+      const bIdx = parseInt(btnEl.dataset.btnIdx, 10);
+      const cat = this._categories[this._activeCatIdx];
+      const btn = cat?.buttons[bIdx];
+
+      const hotkeyOrder = [
+        { key: 'click',           label: '默认',              shortLabel: 'Click' },
+        { key: 'ctrl',            label: 'Ctrl',              shortLabel: 'Ctrl' },
+        { key: 'shift',           label: 'Shift',             shortLabel: 'Shift' },
+        { key: 'alt',             label: 'Alt',               shortLabel: 'Alt' },
+        { key: 'ctrl+shift',      label: 'Ctrl + Shift',      shortLabel: 'C+S' },
+        { key: 'ctrl+alt',        label: 'Ctrl + Alt',        shortLabel: 'C+A' },
+        { key: 'shift+alt',       label: 'Shift + Alt',       shortLabel: 'S+A' },
+        { key: 'ctrl+shift+alt',  label: 'Ctrl+Shift+Alt',    shortLabel: 'C+S+A' },
       ];
+
+      if (btn) {
+        actions = hotkeyOrder
+          .filter(h => btn.icons[h.key])
+          .map(h => {
+            const state = btn.icons[h.key];
+            return {
+              id: h.key,
+              label: btn.label,
+              hotkey: h.shortLabel,
+              icon: state.icon,
+              color: state.color,
+            };
+          });
+      } else {
+        // fallback
+        actions = [
+          { id: '1', label: '执行动作', hotkey: 'Click', icon: 'bi-play-fill',  color: '#22c55e' },
+          { id: '2', label: '编辑设置', hotkey: 'Ctrl',  icon: 'bi-gear',       color: '#94a3b8' },
+          { id: '3', label: '复制按钮', hotkey: 'Shift', icon: 'bi-clipboard',  color: '#f97316' },
+          { id: '4', label: '删除按钮', hotkey: 'Alt',   icon: 'bi-trash',      color: '#ef4444' },
+        ];
+      }
     }
     
     if (this._longpressType === 'ring') {
@@ -739,6 +1074,22 @@ class CepPreview {
     this.root.querySelectorAll('.cep-hotkey-key').forEach(btn => {
       btn.classList.toggle('cep-hotkey-key--active', this._activeHotkeys.has(btn.dataset.hotkey));
     });
+    // 更新组合状态标签
+    const comboEl = this.root.querySelector('#cep-hotkey-combo');
+    if (!comboEl) return;
+    const hk = this._getHotkeyKey();
+    const labelMap = {
+      'click':           { text: '默认',              color: '#888' },
+      'ctrl':            { text: 'Ctrl',              color: '#4a9eff' },
+      'shift':           { text: 'Shift',             color: '#22c55e' },
+      'alt':             { text: 'Alt',               color: '#f97316' },
+      'ctrl+shift':      { text: 'Ctrl + Shift',      color: '#a78bfa' },
+      'ctrl+alt':        { text: 'Ctrl + Alt',        color: '#eab308' },
+      'shift+alt':       { text: 'Shift + Alt',       color: '#ef4444' },
+      'ctrl+shift+alt':  { text: 'Ctrl + Shift + Alt', color: '#f97316' },
+    };
+    const info = labelMap[hk] || { text: hk, color: '#888' };
+    comboEl.innerHTML = `<span class="cep-hotkey-combo__label" style="color:${info.color}">${info.text}</span>`;
   }
 
   /** 键盘按下：同步激活热键按钮（仅 hotkey 模式） */
@@ -785,10 +1136,14 @@ class CepPreview {
     this._activeCatIdx = idx;
     const cat = this._categories[idx];
 
-    const dot = this.root.querySelector('#cep-cat-dot');
-    const label = this.root.querySelector('#cep-cat-label');
-    if (dot) dot.style.background = cat.color;
-    if (label) label.textContent = cat.name;
+    const catSelect = this.root.querySelector('#cep-cat-select');
+    if (catSelect) {
+      catSelect.querySelector('.bi')?.remove();
+      const icon = document.createElement('i');
+      icon.className = `bi ${cat.icon}`;
+      icon.style.cssText = `color:${cat.color};font-size:14px`;
+      catSelect.insertBefore(icon, catSelect.querySelector('.cep-main-panel__cat-label'));
+    }
 
     this.root.querySelectorAll('.cep-cat-dropdown__item').forEach((el, i) => {
       el.classList.toggle('cep-cat-dropdown__item--active', i === idx);
@@ -810,7 +1165,7 @@ class CepPreview {
       // 清空并重新创建按钮
       grid.textContent = '';
       
-      // 第一个按钮：切换分类按钮（根据热键状态显示不同图标）
+      // 第一个按钮：使用分类图标
       const categoryBtn = document.createElement('div');
       categoryBtn.className = 'cep-main-panel__btn cep-main-panel__btn--category';
       categoryBtn.dataset.isCategoryBtn = 'true';
@@ -818,20 +1173,10 @@ class CepPreview {
       const categoryIconWrap = document.createElement('div');
       categoryIconWrap.className = 'cep-main-panel__btn-icon';
 
-      // 定义切换分类按钮的热键图标
-      const categoryIcons = {
-        click: { icon: 'bi-grid-3x3', label: '切换分类' },
-        ctrl: { icon: 'bi-gear', label: '打开设置' },
-        shift: { icon: 'bi-file-earmark-text', label: '打开日志' },
-        alt: { icon: 'bi-info-circle', label: '打开关于' },
-        'ctrl+alt': { icon: 'bi-view-list', label: '切换视图' },
-      };
-
-      const categoryState = categoryIcons[hk] || categoryIcons.click;
-      categoryBtn.title = categoryState.label;
+      categoryBtn.title = '切换分类';
 
       const categoryIcon = document.createElement('i');
-      categoryIcon.className = `bi ${categoryState.icon}`;
+      categoryIcon.className = `bi ${cat.icon}`;
       categoryIcon.style.color = cat.color;
       categoryIcon.style.fontSize = '20px';
 
@@ -848,7 +1193,7 @@ class CepPreview {
       grid.appendChild(categoryBtn);
 
       // 其他按钮
-      cat.buttons.forEach(b => {
+      cat.buttons.forEach((b, bIdx) => {
         const state = b.icons[hk]
           || (this._activeHotkeys.size > 0 ? b.icons[[...this._activeHotkeys].sort()[0]] : null)
           || b.icons.click;
@@ -856,11 +1201,11 @@ class CepPreview {
         const btn = document.createElement('div');
         btn.className = 'cep-main-panel__btn';
         btn.title = b.label;
+        btn.dataset.btnIdx = bIdx; // 存索引供长按菜单使用
 
         const iconWrap = document.createElement('div');
         iconWrap.className = 'cep-main-panel__btn-icon';
 
-        // 使用 Bootstrap Icons
         const icon = document.createElement('i');
         icon.className = `bi ${state.icon}`;
         icon.style.color = state.color;
@@ -895,5 +1240,71 @@ class CepPreview {
     // 应用导航栏显示状态
     const toolbar = this.root.querySelector('.cep-main-panel__toolbar');
     if (toolbar) toolbar.style.display = this._uiSettings.showToolbar ? 'flex' : 'none';
+  }
+
+  // ─── guide overlay ─────────────────────────────────────────
+
+  /** 显示指定模式的引导遮罩 */
+  _showGuide(mode) {
+    const cfg = this._guideConfig[mode];
+    if (!cfg) return;
+
+    // 移除已有引导层
+    const existing = this.root.querySelector('.cep-guide-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'cep-guide-overlay';
+    overlay.setAttribute('data-guide-mode', mode);
+
+    overlay.innerHTML = `
+      <div class="cep-guide-card">
+        <div class="cep-guide-card__header">
+          <div class="cep-guide-card__icon-wrap">
+            <i class="bi ${cfg.icon}" style="color:${cfg.iconColor}"></i>
+          </div>
+          <div class="cep-guide-card__title-group">
+            <h3 class="cep-guide-card__title">${cfg.title}</h3>
+            <div class="cep-guide-card__tags">
+              ${cfg.tags.map(t => `<span class="cep-guide-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <p class="cep-guide-card__desc">${cfg.desc}</p>
+        <div class="cep-guide-card__preview">
+          ${cfg.preview}
+        </div>
+        <button class="cep-guide-card__cta" type="button">
+          <i class="bi bi-cursor-fill"></i>
+          <span>${cfg.hint}</span>
+        </button>
+      </div>
+      <div class="cep-guide-pulse" style="border-color:${cfg.iconColor}"></div>
+    `;
+
+    // 插入到主面板区域
+    const panelWrap = this.root.querySelector('.cep-preview__main');
+    if (panelWrap) panelWrap.appendChild(overlay);
+
+    // 入场动画
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        overlay.classList.add('cep-guide-overlay--visible');
+      });
+    });
+
+    // 点击任意位置关闭
+    const dismiss = (e) => {
+      e.stopPropagation();
+      this._dismissGuide(overlay, mode);
+    };
+    overlay.addEventListener('click', dismiss, { once: true });
+  }
+
+  /** 关闭引导遮罩 */
+  _dismissGuide(overlay, mode) {
+    this._guideDismissed.add(mode);
+    overlay.classList.add('cep-guide-overlay--exit');
+    overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
   }
 }
