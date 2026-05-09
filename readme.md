@@ -22,7 +22,6 @@
 kkbar_doc/
 ├── docs/           # VitePress 文档站 (主要)
 ├── landing/        # Astro 落地页
-├── pixaai/         # 静态展示页
 └── assets/         # 公共资源
 ```
 
@@ -30,7 +29,6 @@ kkbar_doc/
 |------|--------|------|
 | `docs/` | VitePress + Vue 3 | 用户文档、指南、功能说明 |
 | `landing/` | Astro + Starlight | 营销落地页 |
-| `pixaai/` | Tailwind CSS | 产品展示页 |
 
 ## 快速开始
 
@@ -43,18 +41,13 @@ yarn install
 ### 启动文档站
 
 ```bash
-# 主文档站 (docs)
 yarn docs:dev
-
-# 或直接
-npx vitepress dev docs --port 4321
 ```
 
 ### 构建
 
 ```bash
 yarn docs:build
-npx vitepress build docs
 ```
 
 ### 预览
@@ -69,10 +62,7 @@ yarn docs:preview
 
 ```bash
 cd docs
-# 启动
 yarn dev
-# 构建
-yarn build
 ```
 
 ### landing - Astro 落地页
@@ -81,14 +71,6 @@ yarn build
 cd landing
 yarn install
 yarn dev
-```
-
-### pixaai - 静态页
-
-```bash
-cd pixaai
-yarn
-yarn start:tailwind
 ```
 
 ## 文档结构
@@ -106,7 +88,7 @@ docs/
 └── troubleshooting/    # 故障排除
 ```
 
-## 技术徽章
+## 技术栈
 
 | 徽章 | 说明 |
 |------|------|
