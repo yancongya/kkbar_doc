@@ -6,7 +6,7 @@ export default defineConfig({
   lang: 'zh-CN',
 
   head: [
-    ['link', { rel: 'icon', href: '/assets/logo/logo-animated.svg' }],
+    ['link', { rel: 'icon', href: '/assets/logo/logo-shared.svg' }],
     ['link', {
       rel: 'stylesheet',
       href: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css',
