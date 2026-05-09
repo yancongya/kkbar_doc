@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "vitepress dev docs --port 4321",
     "build": "vitepress build docs",
-    "preview": "vitepress preview docs --port 4321"
+    "preview": "vitepress preview docs --port 4321",
+    "docs:dev": "vitepress dev docs --port 4321",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs --port 4321"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",

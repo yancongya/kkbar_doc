@@ -1,61 +1,81 @@
-# Kkbar 文档站
+# Kkbar Docs
 
-Kkbar 官方文档项目，基于 VitePress 构建。
+<p align="center">
+  <img src="https://img.shields.io/badge/VitePress-1.6.3-blue?style=flat-square&logo=vite" alt="VitePress">
+  <img src="https://img.shields.io/badge/Astro-4.4.0-purple?style=flat-square&logo=astro" alt="Astro">
+  <img src="https://img.shields.io/badge/Vue-3.5-41b883?style=flat-square&logo=vuedotjs" alt="Vue">
+  <img src="https://img.shields.io/badge/Tailwind-3.4-38BDF8?style=flat-square&logo=tailwindcss" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
+</p>
+
+<p align="center">
+  <a href="https://kkbar-doc.pages.dev">📖 在线文档</a>
+  &nbsp;|&nbsp;
+  <a href="https://github.com/yancongya/kkbar_doc">GitHub</a>
+</p>
+
+> Kkbar 官方文档站，基于 VitePress 构建。
 
 ## 项目结构
 
 ```
 kkbar_doc/
-├── docs/           # VitePress 文档站（主项目）
+├── docs/           # VitePress 文档站 (主要)
 ├── landing/        # Astro 落地页
-├── pixaai/         # 独立展示页
-├── assets/         # 静态资源
-├── css/            # 公共样式
-└── scripts/        # 构建脚本
+├── pixaai/         # 静态展示页
+└── assets/         # 公共资源
 ```
+
+| 目录 | 技术栈 | 说明 |
+|------|--------|------|
+| `docs/` | VitePress + Vue 3 | 用户文档、指南、功能说明 |
+| `landing/` | Astro + Starlight | 营销落地页 |
+| `pixaai/` | Tailwind CSS | 产品展示页 |
 
 ## 快速开始
 
-### 安装依赖
+### 安装
 
 ```bash
 yarn install
 ```
 
-### 启动开发服务器
+### 启动文档站
 
 ```bash
-yarn dev
+# 主文档站 (docs)
+yarn docs:dev
+
+# 或直接
+npx vitepress dev docs --port 4321
 ```
 
-文档站地址：`http://localhost:4321`
-
-### 构建生产版本
+### 构建
 
 ```bash
-yarn build
-```
-
-### 预览生产版本
-
-```bash
-yarn preview
-```
-
-## 子项目详情
-
-### 📚 docs - VitePress 文档站
-
-用户文档，包含指南、功能说明、图标库、设置和故障排除。
-
-```bash
-# 仅构建文档
+yarn docs:build
 npx vitepress build docs
 ```
 
-### 🌐 landing - Astro 落地页
+### 预览
 
-营销落地页面，展示 Kkbar 产品特性。
+```bash
+yarn docs:preview
+```
+
+## 子项目
+
+### docs - VitePress 文档站
+
+```bash
+cd docs
+# 启动
+yarn dev
+# 构建
+yarn build
+```
+
+### landing - Astro 落地页
 
 ```bash
 cd landing
@@ -63,31 +83,21 @@ yarn install
 yarn dev
 ```
 
-### 🎨 pixaai - 展示页
-
-独立的产品展示页面。
+### pixaai - 静态页
 
 ```bash
 cd pixaai
-yarn install
-yarn dev
+yarn
+yarn start:tailwind
 ```
 
-## 技术栈
-
-| 模块 | 框架 | 说明 |
-|------|------|------|
-| docs | VitePress | Vue 3 文档框架 |
-| landing | Astro | 静态站点框架 |
-| pixaai | - | 静态 HTML + CSS |
-
-## 目录结构
+## 文档结构
 
 ```
 docs/
 ├── .vitepress/
 │   ├── config.mts      # VitePress 配置
-│   ├── public/         # 公共静态资源
+│   ├── public/         # 静态资源
 │   └── theme/          # 自定义主题
 ├── guides/             # 用户指南
 ├── features/           # 功能文档
@@ -96,13 +106,21 @@ docs/
 └── troubleshooting/    # 故障排除
 ```
 
-## 贡献指南
+## 技术徽章
+
+| 徽章 | 说明 |
+|------|------|
+| ![VitePress](https://img.shields.io/badge/VitePress-1.6.3-blue) | 文档框架 |
+| ![Astro](https://img.shields.io/badge/Astro-4.4.0-purple) | 静态站点 |
+| ![Vue](https://img.shields.io/badge/Vue-3.5-41b883) | UI 框架 |
+| ![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38BDF8) | CSS 框架 |
+| ![License](https://img.shields.io/badge/License-MIT-green) | 开源协议 |
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
 
 1. 文档修改在 `docs/` 目录下进行
 2. 遵循 VitePress Markdown 规范
 3. 图片放入 `docs/public/assets/` 目录
-4. 提交前运行 `yarn build` 确保构建通过
-
-## 许可证
-
-MIT License - 详见 [license.txt](./license.txt)
+4. 提交前运行 `yarn docs:build` 确保构建通过
