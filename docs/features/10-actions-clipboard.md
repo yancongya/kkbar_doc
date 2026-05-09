@@ -1,4 +1,4 @@
-# 10. 剪贴板
+# 剪贴板
 
 将预设的文本内容一键复制到系统剪贴板，或执行文件导入操作，方便快速复制常用内容和管理素材。
 
@@ -12,6 +12,7 @@
 
 ## 核心特点
 
+- 既可以作为笔记，也可作为资源库的存储调用
 - **一键复制**：无需手动复制粘贴，点击按钮即可复制预设文本
 - **文件导入**：支持文件/文件夹，自动导入到 AE 项目
 - **多种导入模式**：可配置导入行为（仅导入、加入合成、放到时间点）
@@ -39,10 +40,7 @@
 这是一个备注
 ```
 
-适用场景：
-
-- 常用文本、数值或者笔记快速复制
-- 代码片段快速复制
+适用场景：常用文本、数值或者笔记快速复制，代码片段快速复制。
 
 ### 2. 文件导入
 
@@ -58,7 +56,7 @@ $FOLDER:D:\Assets
 除了手动输入路径，还可以直接将文件或文件夹拖拽到文本框中，系统会自动识别路径前缀并插入：
 
 | 拖拽类型 | 插入内容 | 说明 |
-|----------|---------|------|
+|---------|---------|------|
 | 文件 | `$FILE:E:\path\to\file` | 导入单个文件 |
 | 文件夹 | `$FOLDER:E:\path\to\folder` | 导入文件夹中所有素材 |
 
@@ -66,71 +64,77 @@ $FOLDER:D:\Assets
 
 支持以下动态变量，在执行时自动替换：
 
-| 变量                | 说明                           |
-| ------------------- | ------------------------------ |
-| `$PROJECT_PATH`     | 当前 AE 项目文件完整路径       |
-| `$SELECTION_FILE`   | 当前选中素材的完整路径         |
-| `$SELECTION_FOLDER` | 当前选中素材所在的文件夹路径   |
-| `$PROJECT_NAME`     | 当前项目名称（不含 .aep 后缀） |
-| `$AE_APP_PATH`      | Adobe After Effects 安装目录   |
+| 变量 | 说明 |
+|------|------|
+| `$PROJECT_PATH` | 当前 AE 项目文件完整路径 |
+| `$SELECTION_FILE` | 当前选中素材的完整路径 |
+| `$SELECTION_FOLDER` | 当前选中素材所在的文件夹路径 |
+| `$PROJECT_NAME` | 当前项目名称（不含 .aep 后缀） |
+| `$AE_APP_PATH` | Adobe After Effects 安装目录 |
 
 ### 4. 导入示例
 
+:::details 基础导入
 ```
-# ========== 指令前缀 ==========
-# $FILE   - 导入单个文件或文件夹中的所有素材
-# $FOLDER - 导入文件夹中的所有素材（递归子文件夹）
-
-# ========== 导入模式 ==========
-# 无后缀   - 仅导入到项目面板
-# @footage - 复制到项目目录旁的 footage 文件夹
-# @0       - 仅导入到项目面板（与默认相同）
-# @1       - 导入并加入当前打开的合成
-# @2       - 导入并放到当前时间点
-
-# ========== 完整示例 ==========
-
-# 基础导入
 $FILE:D:\Projects\video.mp4                    # 导入单个视频
 $FILE:D:\Assets\images                         # 导入图片文件夹（所有图片）
 $FOLDER:D:\素材\                                # 递归导入整个素材文件夹
-
-# 导入 + footage 文件夹
-$FILE:D:\Projects\footage@footage             # 导入到 footage 文件夹
-$FILE:D:\素材\@footage                          # 导入到 footage（使用变量路径）
-
-# 导入 + 加入合成
-$FILE:D:\Projects\video.mp4@1                 # 导入视频并加入当前合成
-$FILE:D:\Assets\序列@1                        # 导入序列并加入合成
-
-# 导入 + 放到时间点
-$FILE:D:\video.mp4@2                          # 导入视频并放到当前时间点
-
-# 组合模式
-$FILE:D:\footage@footage-1                    # 导入到 footage-1 并加入合成
-
-# 使用变量
-$FILE:$SELECTION_FILE                          # 导入当前选中的素材
-$FILE:$SELECTION_FOLDER                       # 导入选中素材所在的文件夹
-$FOLDER:$PROJECT_PATH\footage                  # 导入项目目录下的 footage 文件夹
-
-# 绝对路径示例
-$FILE:E:\AE Projects\assets\backgrounds       # 导入背景图文件夹
-$FOLDER:E:\Stock Videos\@footage                # 导入库存视频到 footage
-$FILE:E:\ footage\mood.mp4@2                   # 导入并放到时间点
 ```
+:::
 
-## AI 辅助生成
+:::details 导入到 footage 文件夹
+```
+$FILE:D:\Projects\footage@footage              # 导入到 footage 文件夹
+$FILE:D:\素材\@footage                          # 导入到 footage（使用变量路径）
+```
+:::
 
+:::details 导入并加入合成
+```
+$FILE:D:\Projects\video.mp4@1                  # 导入视频并加入当前合成
+$FILE:D:\Assets\序列@1                          # 导入序列并加入合成
+```
+:::
+
+:::details 导入并放到时间点
+```
+$FILE:D:\video.mp4@2                           # 导入视频并放到当前时间点
+```
+:::
+
+:::details 组合模式
+```
+$FILE:D:\footage@footage-1                     # 导入到 footage-1 并加入合成
+```
+:::
+
+:::details 使用变量
+```
+$FILE:$SELECTION_FILE                           # 导入当前选中的素材
+$FILE:$SELECTION_FOLDER                         # 导入选中素材所在的文件夹
+$FOLDER:$PROJECT_PATH\footage                   # 导入项目目录下的 footage 文件夹
+```
+:::
+
+:::details 绝对路径示例
+```
+$FILE:E:\AE Projects\assets\backgrounds        # 导入背景图文件夹
+$FOLDER:E:\Stock Videos\@footage                # 导入库存视频到 footage
+$FILE:E:\footage\mood.mp4@2                     # 导入并放到时间点
+```
+:::
+
+:::tip AI 辅助生成
 点击文本框上方的 **?** 按钮，会将指令模板复制到剪贴板：
 
-- **复制剪贴板指令模板**：包含所有用法说明和示例
-- 打开 AI 网页（如 DeepSeek、通义千问等）
-- 粘贴模板，描述你的需求
-- AI 生成后复制回来即可使用
+1. **复制剪贴板指令模板**：包含所有用法说明和示例
+2. 打开 AI 网页（如 DeepSeek、通义千问等）
+3. 粘贴模板，描述你的需求
+4. AI 生成后复制回来即可使用
+:::
 
-## 执行前提
-
+:::warning 执行前提
 - 文本内容或导入路径已正确配置
 - 如需导入文件，项目必须已保存
 - 导入模式 `@1` 和 `@2` 需要当前有打开的合成
+:::

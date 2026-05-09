@@ -43,9 +43,9 @@ html.dark {
   --hero-bg-img: url("../assets/images/background/dots-dark.svg");
 
   --theme-accent: #4a9eff;
-  --theme-primary: #f5f5f5;
-  --theme-bg: #232323;
-  --theme-border: #3f3f46;
+  --theme-primary: #232323;
+  --theme-bg: #f5f5f5;
+  --theme-border: #d4d4d4;
 
 }
 
@@ -122,6 +122,15 @@ html.dark {
   border-radius: 0;
   padding: 0 5%;
   height: 52px;
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(16px) saturate(200%) brightness(1.05) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(200%) brightness(1.05) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 4px 30px rgba(0,0,0,0.06) !important;
+}
+
+.tw-dark #main-header.scrolled {
+  background: rgba(10, 10, 12, 0.72) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 30px rgba(0,0,0,0.3) !important;
 }
 
 /* Logo */
@@ -134,11 +143,6 @@ html.dark {
   color: inherit;
 }
 
-/* VitePress Logo - 直接隐藏默认图片 */
-.VPNavBarTitle img {
-  display: none !important;
-}
-
 /* Logo 容器 */
 .logo-container {
   display: flex;
@@ -146,41 +150,37 @@ html.dark {
   margin-right: 4px;
 }
 
-/* SVG logo 显示 */
-.logo-container svg {
+/* Logo 容器内图片 */
+.logo-container > img {
+  display: block;
   width: 24px;
   height: 24px;
 }
 
-/* 暗色模式 */
-.dark .logo-container svg path {
-  fill: #e0e0e0;
+/* 默认显示深色 logo */
+.logo-container > .logo-dark,
+#header-logo .logo-dark,
+.logo-svg.logo-dark {
+  display: block;
 }
-.dark .logo-container svg .logo-draw {
-  stroke: #9ca3af;
-}
-.dark .logo-container svg .logo-fill {
-  fill: #374151;
-}
-.dark .logo-container svg .logo-shadow {
-  stroke: #9ca3af;
+.logo-container > .logo-light,
+#header-logo .logo-light,
+.logo-svg.logo-light {
+  display: none;
 }
 
-/* 亮色模式 */
-html:not(.dark) .logo-container svg path {
-  fill: #1a1a1a;
+/* 暗色模式 - 显示浅色 logo */
+.dark .logo-container > .logo-dark,
+.dark #header-logo .logo-dark,
+.dark .logo-svg.logo-dark {
+  display: none;
 }
-html:not(.dark) .logo-container svg .logo-draw {
-  stroke: #1a1a1a;
-}
-html:not(.dark) .logo-container svg .logo-fill {
-  fill: #374151;
-}
-html:not(.dark) .logo-container svg .logo-shadow {
-  stroke: #1a1a1a;
+.dark .logo-container > .logo-light,
+.dark #header-logo .logo-light,
+.dark .logo-svg.logo-light {
+  display: block;
 }
 
-/* Logo SVG */
 .logo-svg {
   height: 28px;
   width: auto;
@@ -924,6 +924,19 @@ button.btn:hover {
   gap: 8px;
   margin: 0 30px;
   vertical-align: middle;
+  filter: grayscale(1) opacity(0.5);
+  transition: filter 0.3s ease;
+}
+
+.carousel-img:hover {
+  filter: grayscale(0) opacity(1);
+}
+
+.carousel-img img {
+  height: 40px !important;
+  width: auto !important;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 @keyframes scroll {

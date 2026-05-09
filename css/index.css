@@ -90,10 +90,21 @@
     height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     background-color 0.35s ease,
     box-shadow 0.35s ease,
-    backdrop-filter 0.35s ease;
+    backdrop-filter 0.35s ease,
+    -webkit-backdrop-filter 0.35s ease;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.04);
 }
 
-/* scrolled: stretch full width, flush to top, stronger glass */
+/* dark mode initial */
+.tw-dark #main-header {
+  background-color: rgba(17, 17, 20, 0.82) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25), 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* scrolled: stretch full width, flush to top, frosted glass */
 #main-header.scrolled {
   max-width: 100vw !important;
   top: 0 !important;
@@ -104,16 +115,16 @@
   padding-right: 5%;
   justify-content: space-between;
   height: 48px !important;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.18) !important;
-  background-color: rgba(23, 24, 27, 0.88) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(16px) saturate(200%) brightness(1.05) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(200%) brightness(1.05) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 4px 30px rgba(0,0,0,0.06) !important;
 }
 
-/* light mode scrolled */
-html:not(.tw-dark) #main-header.scrolled {
-  background-color: rgba(255, 255, 255, 0.88) !important;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 24px rgba(0,0,0,0.08) !important;
+/* dark mode scrolled */
+.tw-dark #main-header.scrolled {
+  background-color: rgba(10, 10, 12, 0.72) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 30px rgba(0,0,0,0.3) !important;
 }
 
 /* Scrolled: smaller logo */
@@ -292,6 +303,23 @@ hr {
   background: linear-gradient(180deg, var(--hero-gradient) 23%, rgba(0, 0, 0, 0) 87%, var(--hero-gradient) 97%);
 }
 
+.hero-gradient-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+
+.tw-dark .hero-gradient-canvas {
+  opacity: 0.4;
+  mix-blend-mode: screen;
+}
+
 
 .gradient-text {
   background: rgb(215, 215, 215);
@@ -449,6 +477,19 @@ button.btn:hover {
   gap: 8px;
   margin: 0 30px;
   vertical-align: middle;
+  filter: grayscale(1) opacity(0.5);
+  transition: filter 0.3s ease;
+}
+
+.carousel-img:hover {
+  filter: grayscale(0) opacity(1);
+}
+
+.carousel-img img {
+  height: 40px !important;
+  width: auto !important;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 @keyframes scroll {

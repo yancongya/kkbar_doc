@@ -17,14 +17,14 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: '/assets/logo/logo-shared.svg',
+    // logo 由 Layout.vue 中的自定义组件渲染，支持亮暗模式切换
 
     nav: [
       { text: '首页', link: '/' },
       { text: '指南', link: '/guides/01-introduction/' },
       { text: '功能', link: '/features/01-buttons/' },
       { text: '图标库', link: '/icons/01-icons/' },
-      { text: '设置', link: '/settings/01-ui-settings/' },
+      { text: '设置', link: '/settings/01-themes/' },
       { text: '故障排除', link: '/troubleshooting/01-faq/' },
     ],
 
@@ -35,6 +35,7 @@ export default defineConfig({
           { text: '简介', link: '/guides/01-introduction/' },
           { text: '安装', link: '/guides/02-installation/' },
           { text: '快速上手', link: '/guides/03-quickstart/' },
+          { text: '免费版与付费版', link: '/guides/04-free-vs-pro/' },
         ],
       },
       {
@@ -58,18 +59,19 @@ export default defineConfig({
         items: [
           { text: '图标系统', link: '/icons/01-icons/' },
           { text: '内置图标', link: '/icons/02-icons-builtin/' },
-          { text: 'FontAwesome 图标', link: '/icons/03-icons-fontawesome/' },
-          { text: '导入图标', link: '/icons/04-icons-import/' },
-          { text: '图标颜色', link: '/icons/05-icons-color/' },
+          { text: 'FontAwesome', link: '/icons/03-icons-fontawesome/' },
+          { text: 'Bootstrap Icons', link: '/icons/04-icons-bootstrap/' },
+          { text: '导入图标', link: '/icons/05-icons-import/' },
+          { text: 'SVG 生成器', link: '/icons/06-icons-generator/' },
+          { text: '图标颜色', link: '/icons/07-icons-color/' },
         ],
       },
       {
         text: '设置',
         items: [
-          { text: '界面设置', link: '/settings/01-ui-settings/' },
-          { text: '主题与外观', link: '/settings/02-themes/' },
-          { text: '数据库设置', link: '/settings/03-db-settings/' },
-          { text: '云备份', link: '/settings/04-cloud-backup/' },
+          { text: '主题与外观', link: '/settings/01-themes/' },
+          { text: '数据库设置', link: '/settings/02-db-settings/' },
+          { text: '云备份', link: '/settings/03-cloud-backup/' },
         ],
       },
       {

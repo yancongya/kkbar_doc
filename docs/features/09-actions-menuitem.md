@@ -1,4 +1,4 @@
-# 09. 菜单命令
+# 调用 AE 内置菜单命令
 
 调用 After Effects 内部菜单命令，快速执行标准操作。
 
@@ -18,10 +18,10 @@
 - **智能交互**：搜索框复用为结果展示框，点击即选中，输入即重置
 - **版本隔离**：支持切换不同 AE 版本的命令集，确保兼容性
 
-## 执行前提
-
+:::warning 执行前提
 - 当前 AE 版本有对应的菜单命令数据文件
 - 如果搜索不到目标命令，可能是当前 AE 版本的数据文件未包含该命令
+:::
 
 ## 适用场景
 
@@ -33,8 +33,8 @@
 
 菜单命令数据来自 GitHub 仓库 **[hyperbrew/after-effects-command-ids](https://github.com/hyperbrew/after-effects-command-ids)**，该项目维护了 After Effects 各版本的完整菜单命令 ID 列表。
 
-- **在线搜索工具**：[https://hyperbrew.github.io/after-effects-command-ids/](https://hyperbrew.github.io/after-effects-command-ids/)
-- **GitHub 仓库**：[https://github.com/hyperbrew/after-effects-command-ids](https://github.com/hyperbrew/after-effects-command-ids)
-- **JSON 数据文件**：[https://github.com/hyperbrew/after-effects-command-ids/tree/master/json](https://github.com/hyperbrew/after-effects-command-ids/tree/master/json)
+- **在线搜索工具**：[hyperbrew.github.io/after-effects-command-ids](https://hyperbrew.github.io/after-effects-command-ids/)
+- **GitHub 仓库**：[hyperbrew/after-effects-command-ids](https://github.com/hyperbrew/after-effects-command-ids)
+- **JSON 数据文件**：[tree/master/json](https://github.com/hyperbrew/after-effects-command-ids/tree/master/json)
 
 Kkbar 内置了 AE 2015 ~ 2025 共 11 个版本的命令数据，共 909 条命令。

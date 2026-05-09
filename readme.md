@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://kkbar-doc.pages.dev">📖 在线文档</a>
+  <a href="https://kkbar-doc.vercel.app/">📖 在线文档</a>
   &nbsp;|&nbsp;
   <a href="https://github.com/yancongya/kkbar_doc">GitHub</a>
 </p>
