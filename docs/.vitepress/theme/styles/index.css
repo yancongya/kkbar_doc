@@ -134,14 +134,65 @@ html.dark {
   color: inherit;
 }
 
+/* VitePress Logo - 直接隐藏默认图片 */
+.VPNavBarTitle img {
+  display: none !important;
+}
+
+/* Logo 容器 */
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+/* SVG logo 显示 */
+.logo-container svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* 暗色模式 */
+.dark .logo-container path {
+  fill: #e0e0e0;
+}
+
+/* 亮色模式 */
+html:not(.dark) .logo-container path {
+  fill: #1a1a1a;
+}
+
+/* Logo SVG */
+.logo-svg {
+  height: 28px;
+  width: auto;
+}
+
+.logo-path {
+  fill: #1a1a1a;
+  transition: fill 0.3s ease;
+}
+
+.tw-dark .logo-path {
+  fill: #e0e0e0;
+}
+
+#main-header.scrolled .logo-svg {
+  height: 22px;
+}
+
+#main-header.scrolled .logo-path {
+  fill: #1a1a1a;
+}
+
+.tw-dark #main-header.scrolled .logo-path {
+  fill: #e0e0e0;
+}
+
 #header-logo img {
   height: 28px;
   width: auto;
   object-fit: contain;
-}
-
-.tw-dark #header-logo img {
-  filter: invert(1);
 }
 
 #header-logo span {
