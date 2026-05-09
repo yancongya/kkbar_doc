@@ -9,8 +9,8 @@ export default defineConfig({
       title: "Kkbar",
       description: "Adobe After Effects 快捷工具栏扩展",
       logo: {
-        light: "./src/assets/logo-light.svg",
-        dark: "./src/assets/logo-dark.svg",
+        light: "../docs/public/assets/logo/logo-shared.svg",
+        dark: "../docs/public/assets/logo/logo-shared.svg",
         replacesTitle: false,
       },
       social: {

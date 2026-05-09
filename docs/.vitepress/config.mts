@@ -17,7 +17,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: '/assets/logo/logo-animated.svg',
+    logo: '/assets/logo/logo-shared.svg',
 
     nav: [
       { text: '首页', link: '/' },
