@@ -153,13 +153,31 @@ html.dark {
 }
 
 /* 暗色模式 */
-.dark .logo-container path {
+.dark .logo-container svg path {
   fill: #e0e0e0;
+}
+.dark .logo-container svg .logo-draw {
+  stroke: #9ca3af;
+}
+.dark .logo-container svg .logo-fill {
+  fill: #374151;
+}
+.dark .logo-container svg .logo-shadow {
+  stroke: #9ca3af;
 }
 
 /* 亮色模式 */
-html:not(.dark) .logo-container path {
+html:not(.dark) .logo-container svg path {
   fill: #1a1a1a;
+}
+html:not(.dark) .logo-container svg .logo-draw {
+  stroke: #1a1a1a;
+}
+html:not(.dark) .logo-container svg .logo-fill {
+  fill: #374151;
+}
+html:not(.dark) .logo-container svg .logo-shadow {
+  stroke: #1a1a1a;
 }
 
 /* Logo SVG */

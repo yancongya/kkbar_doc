@@ -1,5 +1,4 @@
 import { defineConfig } from 'vitepress'
-import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   title: 'Kkbar',
@@ -7,8 +6,7 @@ export default defineConfig({
   lang: 'zh-CN',
 
   head: [
-    ['link', { rel: 'icon', href: '/assets/logo/kkbar-logo-dark.svg' }],
-    ['link', { rel: 'icon', href: '/assets/logo/kkbar-logo.svg', media: '(prefers-color-scheme: light)' }],
+    ['link', { rel: 'icon', href: '/assets/logo/logo-animated.svg' }],
     ['link', {
       rel: 'stylesheet',
       href: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css',
@@ -18,8 +16,8 @@ export default defineConfig({
     }],
   ],
 
-themeConfig: {
-    logo: '/assets/logo/kkbar-logo.svg',
+  themeConfig: {
+    logo: '/assets/logo/logo-animated.svg',
 
     nav: [
       { text: '首页', link: '/' },
@@ -82,7 +80,6 @@ themeConfig: {
           { text: '错误代码', link: '/troubleshooting/03-error-codes/' },
         ],
       },
-      
     ],
 
     socialLinks: [
