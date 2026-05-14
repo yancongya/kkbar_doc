@@ -240,7 +240,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .why-title {
@@ -262,7 +262,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   max-width: 700px;
-  height: 500px;
+  height: 560px;
   perspective: 1200px;
   cursor: grab;
   user-select: none;
@@ -416,8 +416,10 @@ onUnmounted(() => {
 /* ── 响应式 ── */
 @media (max-width: 768px) {
   .sphere-viewport {
-    height: 400px;
+    height: 360px;
     perspective: 900px;
+    transform: scale(0.6);
+    transform-origin: center center;
   }
 
   .sphere-card {
@@ -434,7 +436,7 @@ onUnmounted(() => {
   }
 
   .why-section {
-    padding: 48px 16px 64px;
+    padding: 24px 16px 40px;
   }
 }
 
