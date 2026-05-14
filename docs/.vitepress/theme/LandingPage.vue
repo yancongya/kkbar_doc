@@ -24,7 +24,17 @@ function toggleTheme() {
 
 const isVideoOpen = ref(false)
 const carouselRef = ref<HTMLElement | null>(null)
+const carouselSlide = ref(0)
 let carouselTimer: ReturnType<typeof setInterval> | null = null
+
+function scrollToSlide(idx: number) {
+  if (!carouselRef.value) return
+  const children = carouselRef.value.children
+  if (!children[idx]) return
+  const itemW = children[0].offsetWidth + 24 // gap-6 = 24px
+  carouselRef.value.scrollTo({ left: idx * itemW, behavior: 'smooth' })
+  carouselSlide.value = idx
+}
 
 function openVideo() {
   isVideoOpen.value = true
@@ -162,12 +172,29 @@ const faqList = [
 ]
 
 const articleList = [
-  { img: '/assets/images/actions.png', title: '九大动作类型' },
-  { img: '/assets/images/buttons.png', title: '自定义按钮' },
+  { img: '/assets/images/intro.png', title: '功能简介' },
+  { img: '/assets/images/install.png', title: '安装指南' },
   { img: '/assets/images/cep.png', title: 'CEP 面板预览' },
-  { img: '/assets/images/icons0.png', title: '图标系统' },
-  { img: '/assets/images/presets0.png', title: '预设管理' },
+  { img: '/assets/images/buttons.png', title: '自定义按钮' },
+  { img: '/assets/images/actions.png', title: '九大动作类型' },
   { img: '/assets/images/jsx0.png', title: '脚本执行' },
+  { img: '/assets/images/presets0.png', title: '预设管理' },
+  { img: '/assets/images/eefect.png', title: '效果特效' },
+  { img: '/assets/images/exp.png', title: '表达式' },
+  { img: '/assets/images/scripttlet0.png', title: '脚本片段' },
+  { img: '/assets/images/panel.png', title: '扩展面板' },
+  { img: '/assets/images/clipboard0.png', title: '剪贴板 - 复制' },
+  { img: '/assets/images/clipboard1.png', title: '剪贴板 - 粘贴' },
+  { img: '/assets/images/clipboard2.png', title: '剪贴板 - 管理' },
+  { img: '/assets/images/shell0.png', title: 'Shell 命令 - 配置' },
+  { img: '/assets/images/shell1.png', title: 'Shell 命令 - 执行' },
+  { img: '/assets/images/shell2.png', title: 'Shell 命令 - 结果' },
+  { img: '/assets/images/icons0.png', title: '图标库 - 内置' },
+  { img: '/assets/images/icons1.png', title: '图标库 - FontAwesome' },
+  { img: '/assets/images/icons2.png', title: '图标库 - Bootstrap' },
+  { img: '/assets/images/icons3.png', title: '图标库 - 自定义' },
+  { img: '/assets/images/transfrom.png', title: '界面设置' },
+  { img: '/assets/images/vs.png', title: '功能对比' },
 ]
 
 const additionalFeatures = [
@@ -421,6 +448,14 @@ onMounted(async () => {
         const direction = e.deltaY > 0 ? 1 : -1
         el.scrollBy({ left: direction * 320, behavior: 'smooth' })
       }, { passive: false })
+
+      // 监听滚动更新当前索引
+      el.addEventListener('scroll', () => {
+        const children = el.children
+        if (!children.length) return
+        const itemW = children[0].offsetWidth + 24 // gap-6 = 24px
+        carouselSlide.value = Math.round(el.scrollLeft / itemW)
+      })
 
       carouselTimer = setInterval(() => {
         if (paused) return
@@ -748,6 +783,14 @@ onUnmounted(() => {
             </div>
             <h3 class="tw-mt-3 tw-font-medium tw-text-lg tw-text-center">{{ article.title }}</h3>
           </div>
+        </div>
+        <!-- 圆点指示器 -->
+        <div class="tw-flex tw-justify-center tw-gap-2 tw-mt-4">
+          <button v-for="(_, idx) in articleList" :key="idx"
+            class="tw-w-2 tw-h-2 tw-rounded-full tw-transition-all tw-duration-300 tw-cursor-pointer"
+            :class="carouselSlide === idx ? 'tw-bg-purple-500 tw-w-6' : 'tw-bg-gray-400 dark:tw-bg-gray-600'"
+            @click="scrollToSlide(idx)"
+            :aria-label="'跳转到第' + (idx + 1) + '张'" />
         </div>
       </div>
     </section>
