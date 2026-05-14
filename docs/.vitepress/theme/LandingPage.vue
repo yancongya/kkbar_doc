@@ -415,6 +415,13 @@ onMounted(async () => {
       el.addEventListener('mouseenter', () => { paused = true })
       el.addEventListener('mouseleave', () => { paused = false })
 
+      // 鼠标滚轮切换图片
+      el.addEventListener('wheel', (e) => {
+        e.preventDefault()
+        const direction = e.deltaY > 0 ? 1 : -1
+        el.scrollBy({ left: direction * 320, behavior: 'smooth' })
+      }, { passive: false })
+
       carouselTimer = setInterval(() => {
         if (paused) return
         const maxScroll = el.scrollWidth - el.clientWidth
