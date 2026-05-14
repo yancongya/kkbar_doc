@@ -159,6 +159,12 @@ const faqList = [
   { q: 'Kkbar 是免费使用的吗？', a: '您可以免费开始使用 Kkbar，然后升级您的计划以访问所有功能。' },
 ]
 
+const articleList = [
+  { img: '/assets/images/home/article1.png', cat: '机器学习', date: '2024年7月17日', title: '最新AI工具' },
+  { img: '/assets/images/home/article2.jpg', cat: '公告', date: '2024年6月22日', title: 'Kkbar 发布新技术' },
+  { img: '/assets/images/home/article3.png', cat: '公告', date: '2024年4月27日', title: '推出 Kkbar 工具' },
+]
+
 const additionalFeatures = [
   { img: '/assets/images/piont/1.png', title: '自定义工具栏', desc: '自由排列按钮、调整图标大小和间距，打造专属的工作面板布局。' },
   { img: '/assets/images/piont/2.png', title: '脚本一键执行', desc: '管理并运行 JSX 脚本，支持撤销，快速调用常用 AE/PS 自动化流程。' },
@@ -695,6 +701,23 @@ onUnmounted(() => {
             <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">{{ item.desc }}</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Blog -->
+    <section class="tw-mt-5 tw-flex tw-min-h-[80vh] tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-p-[2%] max-lg:tw-p-3">
+      <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl">阅读专家资源</h3>
+      <div class="reveal-up tw-mt-10 tw-flex tw-flex-wrap tw-place-content-center tw-gap-10 max-lg:tw-flex-col">
+        <a v-for="article in articleList" :key="article.title" href="#" class="tw-flex tw-h-[500px] tw-w-[400px] tw-flex-col tw-gap-2 tw-overflow-clip tw-rounded-lg tw-p-4 max-lg:tw-w-[350px]">
+          <div class="tw-h-[350px] tw-min-h-[350px] tw-w-full tw-overflow-hidden tw-rounded-2xl">
+            <img :src="article.img" alt="article image" class="tw-h-full tw-w-full tw-object-cover tw-transition-transform tw-duration-700 hover:tw-scale-[1.3]" />
+          </div>
+          <div class="tw-text-gray-600 dark:tw-text-gray-300 tw-justify-between tw-flex tw-gap-2">
+            <div class="tw-text-gray-800 dark:tw-text-gray-200">{{ article.cat }}</div>
+            <div class="tw-text-gray-600 dark:tw-text-gray-400">{{ article.date }}</div>
+          </div>
+          <h3 class="tw-mt-1 tw-font-medium tw-text-xl max-md:tw-text-xl">{{ article.title }}</h3>
+        </a>
       </div>
     </section>
 
