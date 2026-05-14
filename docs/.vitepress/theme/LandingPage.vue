@@ -4,6 +4,7 @@ import CepPreview from './components/CepPreview.vue'
 
 import DialogMockup from './components/DialogMockup.vue';
 import WorkflowDiagram from './components/WorkflowDiagram.vue';
+import WhyKkbar from './components/WhyKkbar.vue';
 
 const isDark = ref(true)
 const isHeaderCollapsed = ref(true)
@@ -755,6 +756,9 @@ onUnmounted(() => {
         </div>
       </div>
     </section>
+
+    <!-- 为什么选择 Kkbar -->
+    <WhyKkbar />
 
     <!-- Additional Features -->
     <section class="tw-relative tw-flex tw-w-full tw-min-h-[auto] tw-py-8 tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
