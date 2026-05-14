@@ -23,6 +23,8 @@ function toggleTheme() {
 }
 
 const isVideoOpen = ref(false)
+const carouselRef = ref<HTMLElement | null>(null)
+let carouselTimer: ReturnType<typeof setInterval> | null = null
 
 function openVideo() {
   isVideoOpen.value = true
@@ -160,9 +162,12 @@ const faqList = [
 ]
 
 const articleList = [
-  { img: '/assets/images/home/article1.png', cat: '机器学习', date: '2024年7月17日', title: '最新AI工具' },
-  { img: '/assets/images/home/article2.jpg', cat: '公告', date: '2024年6月22日', title: 'Kkbar 发布新技术' },
-  { img: '/assets/images/home/article3.png', cat: '公告', date: '2024年4月27日', title: '推出 Kkbar 工具' },
+  { img: '/assets/images/actions.png', title: '九大动作类型' },
+  { img: '/assets/images/buttons.png', title: '自定义按钮' },
+  { img: '/assets/images/cep.png', title: 'CEP 面板预览' },
+  { img: '/assets/images/icons0.png', title: '图标系统' },
+  { img: '/assets/images/presets0.png', title: '预设管理' },
+  { img: '/assets/images/jsx0.png', title: '脚本执行' },
 ]
 
 const additionalFeatures = [
@@ -400,11 +405,32 @@ onMounted(async () => {
     } catch (e) {
       console.warn('GSAP not available, animations disabled:', e)
     }
+
+    // 自动轮播
+    if (carouselRef.value) {
+      const el = carouselRef.value
+      const speed = 1
+      let paused = false
+
+      el.addEventListener('mouseenter', () => { paused = true })
+      el.addEventListener('mouseleave', () => { paused = false })
+
+      carouselTimer = setInterval(() => {
+        if (paused) return
+        const maxScroll = el.scrollWidth - el.clientWidth
+        if (el.scrollLeft >= maxScroll - 2) {
+          el.scrollTo({ left: 0, behavior: 'smooth' })
+        } else {
+          el.scrollBy({ left: speed * 320, behavior: 'smooth' })
+        }
+      }, 3000)
+    }
   })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   document.removeEventListener('click', onDocumentClick)
+  if (carouselTimer) clearInterval(carouselTimer)
   if (scrollTriggerInstance) {
     scrollTriggerInstance.getAll().forEach((t: any) => t.kill())
   }
@@ -705,19 +731,17 @@ onUnmounted(() => {
     </section>
 
     <!-- Blog -->
-    <section class="tw-mt-5 tw-flex tw-min-h-[80vh] tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-p-[2%] max-lg:tw-p-3">
-      <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl">阅读专家资源</h3>
-      <div class="reveal-up tw-mt-10 tw-flex tw-flex-wrap tw-place-content-center tw-gap-10 max-lg:tw-flex-col">
-        <a v-for="article in articleList" :key="article.title" href="#" class="tw-flex tw-h-[500px] tw-w-[400px] tw-flex-col tw-gap-2 tw-overflow-clip tw-rounded-lg tw-p-4 max-lg:tw-w-[350px]">
-          <div class="tw-h-[350px] tw-min-h-[350px] tw-w-full tw-overflow-hidden tw-rounded-2xl">
-            <img :src="article.img" alt="article image" class="tw-h-full tw-w-full tw-object-cover tw-transition-transform tw-duration-700 hover:tw-scale-[1.3]" />
+    <section class="tw-mt-5 tw-flex tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-p-[2%] max-lg:tw-p-3">
+      <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl">更多</h3>
+      <div class="reveal-up tw-mt-10 tw-w-full tw-max-w-[1200px] tw-overflow-hidden tw-px-4">
+        <div ref="carouselRef" class="tw-flex tw-gap-6 tw-overflow-x-auto tw-scroll-smooth tw-snap-x tw-snap-mandatory tw-pb-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+          <div v-for="(article, idx) in articleList" :key="idx" class="tw-flex-shrink-0 tw-w-[80vw] md:tw-w-[60vw] lg:tw-w-[45vw] tw-snap-center tw-rounded-xl tw-overflow-hidden">
+            <div class="tw-aspect-video tw-overflow-hidden tw-rounded-xl">
+              <img :src="article.img" :alt="article.title" class="tw-w-full tw-h-full tw-object-cover tw-transition-transform tw-duration-700 hover:tw-scale-105" />
+            </div>
+            <h3 class="tw-mt-3 tw-font-medium tw-text-lg tw-text-center">{{ article.title }}</h3>
           </div>
-          <div class="tw-text-gray-600 dark:tw-text-gray-300 tw-justify-between tw-flex tw-gap-2">
-            <div class="tw-text-gray-800 dark:tw-text-gray-200">{{ article.cat }}</div>
-            <div class="tw-text-gray-600 dark:tw-text-gray-400">{{ article.date }}</div>
-          </div>
-          <h3 class="tw-mt-1 tw-font-medium tw-text-xl max-md:tw-text-xl">{{ article.title }}</h3>
-        </a>
+        </div>
       </div>
     </section>
 
@@ -848,60 +872,7 @@ onUnmounted(() => {
   }
 }
 
-.feature-nav-arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: transparent;
-  border: 1px solid #d1d5db;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-}
-
-.feature-nav-arrow:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-  color: #374151;
-}
-
-html.dark .feature-nav-arrow {
-  border-color: #4b5563;
-  color: #9ca3af;
-}
-
-html.dark .feature-nav-arrow:hover {
-  background: #374151;
-  border-color: #6b7280;
-  color: #e5e7eb;
-}
-
-.feature-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #d1d5db;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.feature-dot--active {
-  background: #8b5cf6;
-  width: 24px;
-  border-radius: 4px;
-}
-
-html.dark .feature-dot {
-  background: #4b5563;
-}
-
-html.dark .feature-dot--active {
-  background: #a78bfa;
+div::-webkit-scrollbar {
+  display: none;
 }
 </style>
