@@ -25,6 +25,15 @@
             color: var(--theme-primary) !important;
             box-shadow: none !important;
         }
+        
+        #platform-toggle:hover {
+            background-color: #3d3d4f !important;
+        }
+        
+        #shell-input-area {
+            line-height: 1.6;
+            tab-size: 4;
+        }
     </style>
 
     <link rel="stylesheet"
@@ -630,6 +639,37 @@
                     <!-- 功能预览图 -->
                     <img src="" alt="" id="preview-img" style="display:none; opacity:0"
                         class="tw-w-full tw-h-[180px] tw-mt-6 tw-object-contain">
+                    <!-- Shell 命令交互面板 -->
+                    <div id="shell-panel" style="display:none; opacity:0"
+                        class="tw-mt-6 tw-w-full tw-max-w-[90%] tw-bg-[#1e1e2e] tw-rounded-xl tw-p-4 tw-shadow-lg">
+                        <div class="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+                            <button id="platform-toggle" 
+                                class="tw-flex tw-items-center tw-gap-1 tw-px-2 tw-py-1 tw-rounded tw-bg-[#2d2d3f] tw-hover:bg-[#3d3d4f] tw-transition-colors"
+                                title="点击切换平台">
+                                <svg id="platform-icon-win" viewBox="0 0 24 24" width="16" height="16">
+                                    <path fill="#00A4EF" d="M3 12V6.75L9 5.43V11.91L3 12M20 3V11.75L10 11.9V5.21L20 3M3 13L9 13.09V19.9L3 18.75V13M20 13.25V22L10 20.09V13.1L20 13.25Z"/>
+                                </svg>
+                                <svg id="platform-icon-mac" viewBox="0 0 24 24" width="16" height="16" style="display:none">
+                                    <path fill="#999999" d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 22C7.78997 22.05 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.7 19.67 18.12 18.71 19.5M13.41 9.89C13.36 10.33 13.3 10.76 13.25 11.19C13.2 11.63 13.15 12.06 13.1 12.5C12.95 12.46 12.8 12.42 12.65 12.38C12.5 12.35 12.35 12.31 12.2 12.27C12.22 11.83 12.24 11.4 12.26 10.97C12.29 10.53 12.31 10.1 12.33 9.66C12.35 9.69 12.37 9.72 12.39 9.75C12.41 9.78 12.43 9.81 12.45 9.84C12.56 9.85 12.68 9.87 12.79 9.88C12.93 9.89 13.07 9.89 13.21 9.9C13.28 9.9 13.35 9.89 13.41 9.89Z"/>
+                                </svg>
+                                <span id="platform-text" class="tw-text-xs tw-text-gray-300">Windows</span>
+                            </button>
+                            <div class="tw-flex tw-gap-1">
+                                <button class="tw-px-2 tw-py-1 tw-rounded tw-bg-[#2d2d3f] tw-text-xs tw-text-gray-400" title="PowerShell 前缀">⚡</button>
+                                <button class="tw-px-2 tw-py-1 tw-rounded tw-bg-[#2d2d3f] tw-text-xs tw-text-gray-400" title="项目路径">📁</button>
+                                <button class="tw-px-2 tw-py-1 tw-rounded tw-bg-[#2d2d3f] tw-text-xs tw-text-gray-400" title="选中素材">📄</button>
+                                <button class="tw-px-2 tw-py-1 tw-rounded tw-bg-[#2d2d3f] tw-text-xs tw-text-gray-400" title="素材文件夹">📂</button>
+                            </div>
+                        </div>
+                        <div id="shell-input-area" class="tw-bg-[#0d0d1a] tw-rounded-lg tw-p-3 tw-font-mono tw-text-sm tw-text-gray-300 tw-min-h-[80px] tw-whitespace-pre-wrap"># CMD 命令
+# notepad.exe | calc.exe | explorer . | ipconfig
+
+# PowerShell
+# powershell -Command "..."
+
+# VSCode
+# code .</div>
+                    </div>
                     <!-- 描述文本 -->
                     <p id="preview-desc" class="tw-mt-4 tw-text-center tw-text-sm tw-text-gray-500 tw-max-w-[80%]"
                         style="display:none; opacity:0"></p>
@@ -921,29 +961,70 @@
             }
         };
 
+        // 当前平台状态
+        var currentPlatform = 'win';
+
+        // 切换平台
+        function togglePlatform() {
+            currentPlatform = currentPlatform === 'win' ? 'mac' : 'win';
+            var winIcon = document.getElementById('platform-icon-win');
+            var macIcon = document.getElementById('platform-icon-mac');
+            var platformText = document.getElementById('platform-text');
+            var shellInput = document.getElementById('shell-input-area');
+
+            if (currentPlatform === 'win') {
+                winIcon.style.display = 'block';
+                macIcon.style.display = 'none';
+                platformText.textContent = 'Windows';
+                shellInput.textContent = '# CMD 命令\n# notepad.exe | calc.exe | explorer . | ipconfig\n\n# PowerShell\n# powershell -Command "..."\n\n# VSCode\n# code .';
+            } else {
+                winIcon.style.display = 'none';
+                macIcon.style.display = 'block';
+                platformText.textContent = 'macOS';
+                shellInput.textContent = '# Terminal\n# open -a "Safari" | open . | ls -la\n\n# 脚本\n# ./xxx.sh | bash xxx.sh\n\n# VSCode\n# code .';
+            }
+        }
+
         // 显示功能预览
         function showFeature(feature) {
             var data = featureData[feature];
             if (data) {
                 var previewImg = document.getElementById('preview-img');
                 var previewDesc = document.getElementById('preview-desc');
+                var shellPanel = document.getElementById('shell-panel');
 
-                if (previewImg && previewDesc) {
-                    // 先设置过渡效果
+                // 隐藏所有预览内容
+                previewImg.style.display = 'none';
+                shellPanel.style.display = 'none';
+
+                if (feature === 'shell') {
+                    // 显示 shell 交互面板
+                    shellPanel.style.transition = 'opacity 0.8s ease-in-out';
+                    previewDesc.style.transition = 'opacity 0.8s ease-in-out';
+                    
+                    shellPanel.style.opacity = '0';
+                    previewDesc.style.opacity = '0';
+                    shellPanel.style.display = 'block';
+                    previewDesc.style.display = 'block';
+                    previewDesc.textContent = data.desc;
+
+                    setTimeout(function () {
+                        shellPanel.style.opacity = '1';
+                        previewDesc.style.opacity = '1';
+                    }, 100);
+                } else {
+                    // 显示静态图片
                     previewImg.style.transition = 'opacity 0.8s ease-in-out';
                     previewDesc.style.transition = 'opacity 0.8s ease-in-out';
 
-                    // 设置新内容
                     previewImg.src = './assets/images/features/' + feature + '.svg';
                     previewDesc.textContent = data.desc;
 
-                    // 先显示并设为透明
                     previewImg.style.opacity = '0';
                     previewDesc.style.opacity = '0';
                     previewImg.style.display = 'block';
                     previewDesc.style.display = 'block';
 
-                    // 延迟后淡入
                     setTimeout(function () {
                         previewImg.style.opacity = '1';
                         previewDesc.style.opacity = '1';
@@ -955,6 +1036,12 @@
         // 页面加载完成后执行
         (function () {
             showFeature('jsx');
+            
+            // 绑定平台切换按钮事件
+            var platformToggle = document.getElementById('platform-toggle');
+            if (platformToggle) {
+                platformToggle.addEventListener('click', togglePlatform);
+            }
         })();
     </script>
 
@@ -965,7 +1052,7 @@
                         tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
 
             <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">
-                附加功能
+                特点
             </h3>
 
             <div
@@ -973,122 +1060,80 @@
 
 
                 <div
-                    class="reveal-up  tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3
+                    class="reveal-up tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3
                                  tw-bg-[#f2f3f4] max-md:tw-w-[260px] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-
-                    <div class="tw-w-full tw-h-[180px]
-                                    tw-p-3
-                                    tw-rounded-xl 
-                                     tw-backdrop-blur-2xl
-                                     tw-overflow-hidden tw-flex tw-place-content-center">
-                        <img src="./assets/images/home/prompts2.png" alt="Prompt library"
+                    <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
+                        <img src="./assets/images/piont/1.png" alt="自定义工具栏"
                             class="tw-w-auto tw-h-full tw-object-contain">
                     </div>
-                    <h3 class="tw-text-xl">
-                        提示词库
-                    </h3>
+                    <h3 class="tw-text-xl">自定义工具栏</h3>
                     <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">
-                        无需编写自己的提示词，使用提示词模板，提升工作效率。
+                        自由排列按钮、调整图标大小和间距，打造专属的工作面板布局。
                     </p>
                 </div>
 
                 <div
                     class="reveal-up tw-w-[280px] max-md:tw-w-[260px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3
                                  tw-bg-[#f2f3f4] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-
-                    <div class="tw-w-full tw-h-[180px]
-                                    tw-p-3
-                                    tw-rounded-xl 
-                                     tw-backdrop-blur-2xl
-                                     tw-overflow-hidden tw-flex tw-place-content-center">
-                        <img src="./assets/images/home/search.png" alt="Web search"
+                    <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
+                        <img src="./assets/images/piont/2.png" alt="脚本一键执行"
                             class="tw-w-auto tw-h-full tw-object-contain">
                     </div>
-                    <h3 class="tw-text-xl">
-                        实时网络搜索
-                    </h3>
+                    <h3 class="tw-text-xl">脚本一键执行</h3>
                     <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">
-                        我们的实时网络搜索AI机器人直接在AI聊天 playground 中提供即时、实时的搜索结果。
+                        管理并运行 JSX 脚本，支持撤销，快速调用常用 AE/PS 自动化流程。
                     </p>
                 </div>
 
                 <div
                     class="reveal-up tw-w-[280px] max-md:tw-w-[260px] tw-border-[1px] tw-h-[320px] tw-rounded-lg tw-place-items-center tw-p-3
                                  tw-bg-[#f2f3f4] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-
-                    <div class="tw-w-full tw-h-[180px]
-                                    tw-p-3
-                                    tw-rounded-xl 
-                                     tw-backdrop-blur-2xl
-                                     tw-overflow-hidden tw-flex tw-place-content-center">
-                        <img src="./assets/images/home/image.png" alt="Image generation"
+                    <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
+                        <img src="./assets/images/piont/3.png" alt="预设与特效"
                             class="tw-w-auto tw-h-full tw-object-contain">
                     </div>
-                    <h3 class="tw-text-xl">
-                        图像生成
-                    </h3>
+                    <h3 class="tw-text-xl">预设与特效</h3>
                     <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">
-                        立即从多个模型生成图像，从文本描述或模板创建视觉内容。
+                        一键应用预设文件和内置效果到选中图层，支持批量操作。
                     </p>
                 </div>
 
                 <div
                     class="reveal-up tw-w-[280px] max-md:tw-w-[260px] tw-border-[1px] tw-h-[320px] tw-rounded-lg tw-place-items-center tw-p-3
                                  tw-bg-[#f2f3f4] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-
-                    <div class="tw-w-full tw-h-[180px]
-                                     tw-p-3
-                                     tw-rounded-xl 
-                                      tw-backdrop-blur-2xl
-                                      tw-overflow-hidden tw-flex tw-place-content-center">
-                        <img src="./assets/images/home/history.png" alt="History"
+                    <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
+                        <img src="./assets/images/piont/4.png" alt="多动作类型"
                             class="tw-w-auto tw-h-full tw-object-contain">
                     </div>
-                    <h3 class="tw-text-xl">
-                        历史记录
-                    </h3>
+                    <h3 class="tw-text-xl">多动作类型</h3>
                     <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">
-                        所有模型都能记住之前的主题，您可以随时继续对话。
+                        支持脚本、预设、效果、表达式、剪贴板、Shell 命令等九大动作类型。
                     </p>
                 </div>
 
                 <div
                     class="reveal-up tw-w-[280px] max-md:tw-w-[260px] tw-border-[1px] tw-h-[320px] tw-rounded-lg tw-place-items-center tw-p-3
                                  tw-bg-[#f2f3f4] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-
-                    <div class="tw-w-full tw-h-[180px]
-                                    tw-p-3
-                                    tw-rounded-xl 
-                                     tw-backdrop-blur-2xl
-                                     tw-overflow-hidden tw-flex tw-place-content-center">
-                        <img src="./assets/images/home/import.png" alt="Import content"
+                    <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
+                        <img src="./assets/images/piont/5.png" alt="配置导入导出"
                             class="tw-w-auto tw-h-full tw-object-contain">
                     </div>
-                    <h3 class="tw-text-xl">
-                        导入内容
-                    </h3>
+                    <h3 class="tw-text-xl">配置导入导出</h3>
                     <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">
-                        轻松导入PDF、图像和文档。使用AI提问、提取信息和总结文档。
+                        导出工具栏配置为文件，在多台设备间同步，或分享给团队成员。
                     </p>
                 </div>
 
                 <div
                     class="reveal-up tw-w-[280px] max-md:tw-w-[260px] tw-border-[1px] tw-h-[320px] tw-rounded-lg tw-place-items-center tw-p-3
                                  tw-bg-[#f2f3f4] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-
-                    <div class="tw-w-full tw-h-[180px]
-                                    tw-p-3
-                                    tw-rounded-xl 
-                                     tw-backdrop-blur-2xl
-                                     tw-overflow-hidden tw-flex tw-place-content-center">
-                        <img src="./assets/images/home/multilingual.png" alt="Multilingual"
+                    <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
+                        <img src="./assets/images/piont/6.png" alt="多主题切换"
                             class="tw-w-auto tw-h-full tw-object-contain">
                     </div>
-                    <h3 class="tw-text-xl">
-                        多语言支持
-                    </h3>
+                    <h3 class="tw-text-xl">多主题切换</h3>
                     <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">
-                        ChatGPT 和 Gemini 能理解和用超过100种语言回应。
+                        内置多套主题配色，支持亮色与暗色模式，适配不同工作环境。
                     </p>
                 </div>
 

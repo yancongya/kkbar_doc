@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import CepPreview from './components/CepPreview.vue'
+
+import DialogMockup from './components/DialogMockup.vue';
+import WorkflowDiagram from './components/WorkflowDiagram.vue';
 
 const isDark = ref(true)
 const isHeaderCollapsed = ref(true)
 const isNavDropdownOpen = ref(false)
+const workflowDirection = ref('ltr')
+
+function onFlowChange(direction) {
+  workflowDirection.value = direction
+}
 
 function toggleTheme() {
   isDark.value = !isDark.value
@@ -24,23 +32,125 @@ function closeVideo() {
   isVideoOpen.value = false
 }
 
-const featureData: Record<string, { title: string; desc: string }> = {
-  jsx: { title: 'JSX 脚本', desc: '执行本地 .jsx/.jsxbin 脚本文件，调用 AE/PS 完整 API，支持 Undo 撤销。' },
-  preset: { title: '预设应用', desc: '应用 .prfpset 预设文件到选中图层，支持批量应用和撤销。' },
-  clipboard: { title: '剪贴板', desc: '一键复制预设文本到剪贴板，支持代码片段、文件路径、AE 属性引用等。' },
-  effect: { title: '效果特效', desc: '快速应用 AE/PS 内置效果到图层，支持效果参数预设。' },
-  expression: { title: '表达式', desc: '为属性添加动画表达式，支持代码编辑器和常用表达式模板。' },
-  scriptlet: { title: '脚本片段', desc: '直接在配置面板输入代码片段，点击按钮立即执行。' },
-  panel: { title: '扩展面板', desc: '打开其他 CEP 扩展面板，快速切换工作区。' },
-  menuItem: { title: '菜单命令', desc: '调用 AE/PS 菜单命令，快速执行常用操作。' },
-  shell: { title: 'Shell 命令', desc: '执行 PowerShell/CMD 命令，自动化文件系统操作。' },
+const featureData: Record<string, { title: string; desc: string; link: string }> = {
+  jsx: { title: 'JSX 脚本', desc: '执行本地 .jsx/.jsxbin 脚本文件，调用 AE/PS 完整 API，支持 Undo 撤销。', link: '/features/03-actions-jsx/' },
+  preset: { title: '预设应用', desc: '应用 .prfpset 预设文件到选中图层，支持批量应用和撤销。', link: '/features/04-actions-preset/' },
+  effect: { title: '效果特效', desc: '快速应用 AE/PS 内置效果到图层，支持效果参数预设。', link: '/features/05-actions-effect/' },
+  expression: { title: '表达式', desc: '为属性添加动画表达式，支持代码编辑器和常用表达式模板。', link: '/features/06-actions-expression/' },
+  scriptlet: { title: '脚本片段', desc: '直接在配置面板输入代码片段，点击按钮立即执行。', link: '/features/07-actions-scriptlet/' },
+  panel: { title: '扩展面板', desc: '打开其他 CEP 扩展面板，快速切换工作区。', link: '/features/08-actions-panel/' },
+  menuItem: { title: '菜单命令', desc: '调用 AE/PS 菜单命令，快速执行常用操作。', link: '/features/09-actions-menuitem/' },
+  clipboard: { title: '剪贴板', desc: '一键复制预设文本到剪贴板，支持代码片段、文件路径、AE 属性引用等。', link: '/features/10-actions-clipboard/' },
+  shell: { title: 'Shell 命令', desc: '执行 PowerShell/CMD 命令，自动化文件系统操作。', link: '/features/11-actions-shell/' },
 }
 
 const activeFeature = ref('jsx')
+const featureKeys = Object.keys(featureData)
+const activeFeatureIndex = computed(() => featureKeys.indexOf(activeFeature.value))
+let isManualNavigation = false
+let manualNavTimeout: ReturnType<typeof setTimeout> | null = null
 
 function showFeature(feature: string) {
   activeFeature.value = feature
 }
+
+function prevFeature() {
+  const idx = activeFeatureIndex.value
+  const prevIdx = (idx - 1 + featureKeys.length) % featureKeys.length
+  navigateToFeature(featureKeys[prevIdx])
+}
+
+function nextFeature() {
+  const idx = activeFeatureIndex.value
+  const nextIdx = (idx + 1) % featureKeys.length
+  navigateToFeature(featureKeys[nextIdx])
+}
+
+function navigateToFeature(key: string) {
+  isManualNavigation = true
+  if (manualNavTimeout) clearTimeout(manualNavTimeout)
+  activeFeature.value = key
+  manualNavTimeout = setTimeout(() => {
+    isManualNavigation = false
+  }, 800)
+}
+
+// DialogMockup 等比缩放
+const dialogViewportRef = ref<HTMLElement | null>(null)
+const dialogScale = ref(1)
+const DIALOG_NATURAL_WIDTH = 500
+
+let resizeObserver: ResizeObserver | null = null
+
+function updateDialogScale() {
+  if (dialogViewportRef.value) {
+    const containerWidth = dialogViewportRef.value.clientWidth
+    dialogScale.value = Math.min(containerWidth / DIALOG_NATURAL_WIDTH, 1)
+  }
+}
+
+onMounted(() => {
+  updateDialogScale()
+  if (dialogViewportRef.value) {
+    resizeObserver = new ResizeObserver(() => updateDialogScale())
+    resizeObserver.observe(dialogViewportRef.value)
+  }
+  
+  // 手机端：拖拽时实时切换面板
+  setTimeout(() => {
+    const cardList = document.getElementById('feature-card-list')
+    if (cardList) {
+      let rafId: number
+      let scrollEndTimer: ReturnType<typeof setTimeout> | null = null
+
+      const updateActiveFromScroll = () => {
+        if (isManualNavigation) return
+        const containerCenter = cardList.scrollLeft + cardList.clientWidth / 2
+        let minDist = Infinity
+        let closestKey = activeFeature.value
+        Object.keys(featureData).forEach((key) => {
+          const card = document.getElementById('feature-card-' + key)
+          if (card) {
+            const cardCenter = card.offsetLeft + card.offsetWidth / 2
+            const dist = Math.abs(containerCenter - cardCenter)
+            if (dist < minDist) {
+              minDist = dist
+              closestKey = key
+            }
+          }
+        })
+        if (closestKey !== activeFeature.value) {
+          activeFeature.value = closestKey
+        }
+      }
+
+      cardList.addEventListener('scroll', () => {
+        if (isManualNavigation) return
+        if (rafId) cancelAnimationFrame(rafId)
+        rafId = requestAnimationFrame(updateActiveFromScroll)
+
+        // 滚动结束时再更新一次，确保最终位置正确
+        if (scrollEndTimer) clearTimeout(scrollEndTimer)
+        scrollEndTimer = setTimeout(updateActiveFromScroll, 100)
+      })
+    }
+  }, 300)
+})
+
+onUnmounted(() => {
+  resizeObserver?.disconnect()
+})
+
+// 监听 activeFeature 变化，滚动到对应的卡片
+watch(activeFeature, (newFeature) => {
+  setTimeout(() => {
+    const card = document.getElementById('feature-card-' + newFeature)
+    if (card) {
+      const isMobile = window.innerWidth < 1024
+      card.scrollIntoView({ behavior: 'smooth', block: isMobile ? 'nearest' : 'center', inline: isMobile ? 'center' : 'nearest' })
+    }
+  }, 100)
+})
 
 const faqList = [
   { q: '什么是 Kkbar 工具？', a: 'Kkbar 工具是一个集成的 Web 应用，可无缝测试不同的大语言模型，如 GPT4、Claude、Gemini 等。' },
@@ -49,28 +159,13 @@ const faqList = [
   { q: 'Kkbar 是免费使用的吗？', a: '您可以免费开始使用 Kkbar，然后升级您的计划以访问所有功能。' },
 ]
 
-const testimonialList = [
-  { name: 'Mante', role: 'Glu, cto', img: '/assets/images/people/man2.jpg', text: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam dolore deleniti iusto Numquam!' },
-  { name: 'Trich B', role: 'AMI, ceo', img: '/assets/images/people/women.jpg', text: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem ipsum dolor sit amet.' },
-  { name: 'John B', role: 'Benz, ceo', img: '/assets/images/people/man.jpg', text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Ea, expedita nihil repellendus accusamus itaque facere labore.' },
-  { name: 'Ben Alfert B', role: 'XZ tech, cto', img: '/assets/images/people/man2.jpg', text: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero.' },
-  { name: 'Rachel', role: 'Gem, cto', img: '/assets/images/people/women.jpg', text: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae, vero. Lorem, ipsum dolor.' },
-  { name: 'Jamie', role: 'SnapFist.ai, ceo', img: '/assets/images/people/man.jpg', text: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Est, nihil vitae fuga ab reiciendis optio et corporis dolorem alias deserunt.' },
-]
-
-const articleList = [
-  { img: '/assets/images/home/article1.png', cat: '机器学习', date: '2024年7月17日', title: '最新AI工具' },
-  { img: '/assets/images/home/article2.jpg', cat: '公告', date: '2024年6月22日', title: 'Kkbar 发布新技术' },
-  { img: '/assets/images/home/article3.png', cat: '公告', date: '2024年4月27日', title: '推出 Kkbar 工具' },
-]
-
 const additionalFeatures = [
-  { img: '/assets/images/home/prompts2.png', title: '提示词库', desc: '无需编写自己的提示词，使用提示词模板，提升工作效率。' },
-  { img: '/assets/images/home/search.png', title: '实时网络搜索', desc: '我们的实时网络搜索AI机器人直接在AI聊天 playground 中提供即时、实时的搜索结果。' },
-  { img: '/assets/images/home/image.png', title: '图像生成', desc: '立即从多个模型生成图像，从文本描述或模板创建视觉内容。' },
-  { img: '/assets/images/home/history.png', title: '历史记录', desc: '所有模型都能记住之前的主题，您可以随时继续对话。' },
-  { img: '/assets/images/home/import.png', title: '导入内容', desc: '轻松导入PDF、图像和文档。使用AI提问、提取信息和总结文档。' },
-  { img: '/assets/images/home/multilingual.png', title: '多语言支持', desc: 'ChatGPT 和 Gemini 能理解和用超过100种语言回应。' },
+  { img: '/assets/images/piont/1.png', title: '自定义工具栏', desc: '自由排列按钮、调整图标大小和间距，打造专属的工作面板布局。' },
+  { img: '/assets/images/piont/2.png', title: '脚本一键执行', desc: '管理并运行 JSX 脚本，支持撤销，快速调用常用 AE/PS 自动化流程。' },
+  { img: '/assets/images/piont/3.png', title: '预设与特效', desc: '一键应用预设文件和内置效果到选中图层，支持批量操作。' },
+  { img: '/assets/images/piont/4.png', title: '多动作类型', desc: '支持脚本、预设、效果、表达式、剪贴板、Shell 命令等九大动作类型。' },
+  { img: '/assets/images/piont/5.png', title: '配置导入导出', desc: '导出工具栏配置为文件，在多台设备间同步，或分享给团队成员。' },
+  { img: '/assets/images/piont/6.png', title: '多主题切换', desc: '内置多套主题配色，支持亮色与暗色模式，适配不同工作环境。' },
 ]
 
 function toggleFaq(e: Event) {
@@ -115,6 +210,18 @@ function replayLogo(e: MouseEvent) {
 let gsapInstance: any = null
 let scrollTriggerInstance: any = null
 
+// ScrollTrigger 统一配置
+const scrollTriggerConfig = {
+  dashboard: { trigger: '#hero-section', start: 'top 20%', end: 'center center', scrub: true },
+  workflowScale: { trigger: '#workflow-section', start: 'top 80%', end: 'center center', scrub: 1 },
+  workflowCards: { trigger: '#workflow-section', start: 'top 60%', toggleActions: 'play none none reverse' },
+  workflowCenter: { trigger: '#workflow-section', start: 'top 55%', toggleActions: 'play none none reverse' },
+  workflowRight: { trigger: '#workflow-section', start: 'top 50%', toggleActions: 'play none none reverse' },
+  workflowLines: { trigger: '#workflow-section', start: 'top 45%', toggleActions: 'play none none reverse' },
+  workflowTitle: { trigger: '#workflow-section', start: 'top 70%', toggleActions: 'play none none reverse' },
+  revealUp: { start: '10% 80%', end: '20% 90%' },
+}
+
 onMounted(async () => {
   // 优先从 VitePress 读取，其次读取 kkbar-dark
   const vitepressDark = localStorage.getItem('vitepress-theme-appearance')
@@ -135,55 +242,159 @@ onMounted(async () => {
 
   await nextTick()
 
-  // Load GSAP dynamically
-  try {
-    const gsapModule = await import('gsap')
-    const stModule = await import('gsap/ScrollTrigger')
-    const gsap = gsapModule.default || gsapModule.gsap
-    const ScrollTrigger = stModule.ScrollTrigger || stModule.default
+  // Scroll to hash section on load
+  if (window.location.hash) {
+    const target = document.querySelector(window.location.hash)
+    if (target) {
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 300)
+    }
+  }
 
-    gsap.registerPlugin(ScrollTrigger)
-    gsapInstance = gsap
-    scrollTriggerInstance = ScrollTrigger
-
-    gsap.to('.reveal-up', { opacity: 0, y: '100%' })
-
-    gsap.fromTo('#dashboard', {
-      transform: 'perspective(1200px) rotateX(60deg) scale(0.3)',
-      opacity: 0.3,
-    }, {
-      transform: 'perspective(1200px) rotateX(0deg) scale(1)',
-      opacity: 1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '#hero-section',
-        start: 'top 20%',
-        end: 'center center',
-        scrub: true,
-      },
+  // 等待图片加载完成后再初始化动画
+  const images = document.querySelectorAll('img')
+  await Promise.all([...images].map(img =>
+    img.complete ? Promise.resolve() : new Promise<void>(resolve => {
+      img.onload = () => resolve()
+      img.onerror = () => resolve()
     })
+  ))
 
-    const sections = gsap.utils.toArray('section')
-    sections.forEach((sec: any) => {
-      const tl = gsap.timeline({
-        paused: true,
-        scrollTrigger: {
-          trigger: sec,
-          start: '10% 80%',
-          end: '20% 90%',
-        },
+    // Load GSAP dynamically
+    try {
+      const gsapModule = await import('gsap')
+      const stModule = await import('gsap/ScrollTrigger')
+      const gsap = gsapModule.default || gsapModule.gsap
+      const ScrollTrigger = stModule.ScrollTrigger || stModule.default
+
+      gsap.registerPlugin(ScrollTrigger)
+      gsapInstance = gsap
+      scrollTriggerInstance = ScrollTrigger
+
+      // 检测手机模式（≤768px 对应 WorkflowDiagram.vue 的 MOBILE_BREAKPOINT）
+      const isMobileMode = window.innerWidth <= 768
+
+      gsap.to('.reveal-up', { opacity: 0, y: '100%' })
+
+      gsap.fromTo('#dashboard', {
+        transform: 'perspective(1200px) rotateX(60deg) scale(0.3)',
+        opacity: 0.3,
+      }, {
+        transform: 'perspective(1200px) rotateX(0deg) scale(1)',
+        opacity: 1,
+        ease: 'none',
+        scrollTrigger: scrollTriggerConfig.dashboard,
       })
-      tl.to(sec.querySelectorAll('.reveal-up'), {
+
+      // 仅在非手机模式下执行桌面版工作流动画
+      if (!isMobileMode) {
+        // Workflow section parallax effect
+        gsap.fromTo('#workflow-section .workflow-scale', {
+          y: 50,
+          opacity: 0.5,
+        }, {
+          y: 0,
+          opacity: 1,
+          ease: 'none',
+          scrollTrigger: scrollTriggerConfig.workflowScale,
+        })
+
+        // Workflow left cards slide in from left
+        gsap.fromTo('#workflow-section .workflow-left .terminal-card', {
+          x: -80,
+          opacity: 0,
+        }, {
+          x: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: scrollTriggerConfig.workflowCards,
+        })
+
+      // Workflow center button scale in
+      gsap.fromTo('#workflow-section .workflow-center', {
+        scale: 0,
+        opacity: 0,
+      }, {
+        scale: 1,
         opacity: 1,
         duration: 0.8,
-        y: '0%',
-        stagger: 0.2,
+        ease: 'back.out(1.7)',
+        scrollTrigger: scrollTriggerConfig.workflowCenter,
       })
-    })
-  } catch (e) {
-    console.warn('GSAP not available, animations disabled:', e)
-  }
-})
+
+      // Workflow right panel slide in from right
+      gsap.fromTo('#workflow-section .workflow-right', {
+        x: 80,
+        opacity: 0,
+      }, {
+        x: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power2.out',
+        scrollTrigger: scrollTriggerConfig.workflowRight,
+      })
+
+        // Workflow lines draw animation
+        gsap.fromTo('#workflow-section .flow-line', {
+          strokeDashoffset: 100,
+          opacity: 0,
+        }, {
+          strokeDashoffset: 0,
+          opacity: 0.6,
+          duration: 1.2,
+          stagger: 0.1,
+          ease: 'none',
+          scrollTrigger: scrollTriggerConfig.workflowLines,
+        })
+
+        // Workflow title and description fade in with stagger
+        gsap.fromTo('#workflow-section h2, #workflow-section p', {
+          y: 30,
+          opacity: 0,
+        }, {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power2.out',
+          scrollTrigger: scrollTriggerConfig.workflowTitle,
+        })
+      } // end if (!isMobileMode)
+
+      const sections = gsap.utils.toArray('section')
+      sections.forEach((sec: any) => {
+        const revealElements = sec.querySelectorAll('.reveal-up')
+        if (revealElements.length === 0) return
+        
+        const tl = gsap.timeline({
+          paused: true,
+          scrollTrigger: {
+            trigger: sec,
+            ...scrollTriggerConfig.revealUp,
+          },
+        })
+        tl.to(revealElements, {
+          opacity: 1,
+          duration: 0.8,
+          y: '0%',
+          stagger: 0.2,
+        })
+      })
+
+      // Refresh ScrollTrigger after all animations are set up
+      ScrollTrigger.refresh()
+
+// 监听 resize 事件刷新 ScrollTrigger
+      window.addEventListener('resize', () => {
+        ScrollTrigger.refresh()
+      })
+    } catch (e) {
+      console.warn('GSAP not available, animations disabled:', e)
+    }
+  })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
@@ -293,7 +504,7 @@ onUnmounted(() => {
     </header>
 
     <!-- Hero Section -->
-    <section class="hero-section tw-relative tw-mt-20 tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden max-lg:tw-mt-[100px]" id="hero-section">
+    <section class="hero-section tw-relative tw-mt-20 tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden max-lg:tw-mt-[100px] max-md:tw-mt-0" id="hero-section">
       <!-- Video Modal -->
       <div class="tw-fixed tw-bg-[#000000af] dark:tw-bg-[#80808085] tw-top-0 tw-left-1/2 tw--translate-x-1/2 tw-z-20 tw-transition-opacity tw-duration-300 tw-p-2 tw-w-full tw-h-full tw-flex tw-place-content-center tw-place-items-center"
         :class="isVideoOpen ? 'tw-scale-100 tw-opacity-100' : 'tw-scale-0 tw-opacity-0'" @click.self="closeVideo">
@@ -390,93 +601,40 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <!-- API Section -->
-    <section class="tw-relative tw-flex tw-w-full tw-min-h-[100vh] max-lg:tw-min-h-[80vh] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
-      <div class="tw-w-full tw-place-content-center tw-items-center tw-flex tw-flex-col tw-max-w-[900px] tw-gap-4 tw-p-4">
-        <div class="purple-bg-grad reveal-up tw-absolute tw-right-[20%] tw-top-[20%] tw-h-[200px] tw-w-[200px]"></div>
-        <h2 class="reveal-up tw-text-6xl max-lg:tw-text-4xl tw-text-center tw-leading-normal tw-uppercase">
-          <span class="tw-font-semibold">基于Kkbar API</span><br />
-          <span class="tw-font-serif">构建您自己的AI应用</span>
-        </h2>
-        <p class="reveal-up tw-mt-8 tw-max-w-[650px] tw-text-gray-900 dark:tw-text-gray-200 tw-text-center max-md:tw-text-sm">
-          Kkbar Playground 由 Kkbar 尖端的大语言模型 API 驱动。强大的模型简化任务自动化，提供先进的摘要、文本生成和问答处理能力。
-        </p>
-        <div class="reveal-up tw-flex tw-mt-8">
-          <a href="javascript:void(0)" target="_blank" rel="noopener" class="tw-shadow-md hover:tw-shadow-xl dark:tw-shadow-gray-800 tw-transition-all tw-duration-300 tw-border-[1px] tw-p-3 tw-px-4 tw-border-black dark:tw-border-white tw-rounded-md">查看 Kkbar API</a>
+    <!-- Workflow Diagram -->
+    <section id="workflow-section" class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-py-16 tw-px-4" style="overflow: visible;">
+      <h2 class="reveal-up tw-text-4xl max-md:tw-text-2xl tw-text-center tw-mb-6 tw-font-semibold">工作流程示意</h2>
+      <p class="reveal-up tw-text-base tw-text-center tw-text-gray-500 dark:tw-text-gray-400 tw-mb-8 tw-max-w-[600px]">
+        {{ workflowDirection === 'ltr' ? '把零散的脚本、扩展面板、预设、素材库等统一使用 Kkbar 面板进行管理' : '一个面板即可触发多个功能' }}
+      </p>
+      <div class="reveal-up workflow-viewport">
+        <div class="workflow-scale">
+          <WorkflowDiagram :is-dark="isDark" @flow-change="onFlowChange" />
         </div>
       </div>
-    </section>
-
-    <!-- Core Features -->
-    <section class="tw-relative tw-flex tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
-      <div class="tw-mt-8 tw-flex tw-flex-col tw-w-full tw-h-full tw-place-items-center tw-gap-5">
-        <div class="reveal-up tw-mt-5 tw-flex tw-flex-col tw-gap-3 tw-text-center">
-          <h2 class="tw-text-6xl tw-font-medium max-md:tw-text-3xl tw-p-2">体验AI的无限可能</h2>
-        </div>
-        <div class="tw-mt-6 tw-flex tw-flex-col tw-max-w-[1150px] max-lg:tw-max-w-full tw-h-full tw-p-4 max-lg:tw-place-content-center tw-gap-8">
-          <div class="max-xl:tw-flex max-xl:tw-flex-col tw-place-items-center tw-grid tw-grid-cols-3 tw-gap-8 tw-place-content-center tw-auto-rows-auto">
-            <div class="reveal-up tw-w-[350px] tw-h-[540px] tw-flex max-md:tw-w-full">
-              <a href="javascript:void(0)" class="tw-relative tw-p-10 tw-transition-all tw-duration-300 tw-group/card tw-gap-5 tw-flex tw-flex-col tw-w-full tw-h-full tw-bg-[#f6f7fb] dark:tw-bg-[#171717] tw-rounded-3xl hover:tw-scale-[1.02]">
-                <div class="tw-overflow-hidden tw-w-full tw-min-h-[180px] tw-h-[180px]">
-                  <img src="/assets/images/home/api.png" class="tw-w-full tw-object-contain tw-h-auto" alt="unified interface" />
-                </div>
-                <h2 class="tw-text-3xl max-md:tw-text-2xl tw-font-medium">统一接口</h2>
-                <p class="tw-text-base tw-leading-normal tw-text-gray-800 dark:tw-text-gray-200">我们是唯一的统一AI接口工具，将您喜爱的所有聊天模型汇集到一个无缝平台。不再需要在不同AI系统之间切换——轻松从一个界面管理和交互多个聊天机器人。</p>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto"><span>了解更多</span><i class="bi bi-arrow-right tw-transform tw-transition-transform tw-duration-300 group-hover/card:tw-translate-x-2"></i></div>
-              </a>
-            </div>
-            <div class="reveal-up tw-w-[350px] tw-h-[540px] tw-flex max-md:tw-w-full">
-              <a href="javascript:void(0)" class="tw-relative tw-p-10 tw-transition-all tw-duration-300 tw-group/card tw-gap-5 tw-flex tw-flex-col tw-w-full tw-h-full tw-bg-[#f6f7fb] dark:tw-bg-[#171717] tw-rounded-3xl hover:tw-scale-[1.02]">
-                <div class="tw-w-full tw-min-h-[180px] tw-h-[180px] tw-overflow-hidden">
-                  <img src="/assets/images/home/api.png" alt="API" class="tw-w-full tw-h-auto tw-object-contain" />
-                </div>
-                <h2 class="tw-text-3xl max-md:tw-text-2xl tw-font-medium">API访问</h2>
-                <p class="tw-leading-normal tw-text-gray-800 dark:tw-text-gray-200">Kkbar 的大语言模型API提供先进的摘要、文本生成和问答功能。轻松集成，支持JSON、HTML、Markdown和纯文本，为您的应用增添强大的语言工具。</p>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto"><span>了解更多</span><i class="bi bi-arrow-right tw-transform tw-transition-transform tw-duration-300 group-hover/card:tw-translate-x-2"></i></div>
-              </a>
-            </div>
-            <div class="reveal-up tw-w-[350px] tw-h-[540px] tw-flex max-md:tw-w-full">
-              <a href="javascript:void(0)" class="tw-relative tw-p-10 tw-transition-all tw-duration-300 tw-group/card tw-gap-5 tw-flex tw-flex-col tw-w-full tw-h-full tw-bg-[#f6f7fb] dark:tw-bg-[#171717] tw-rounded-3xl hover:tw-scale-[1.02]">
-                <div class="tw-w-full tw-flex tw-place-contet-center tw-min-h-[180px] tw-h-[180px] tw-rounded-xl tw-overflow-hidden">
-                  <img src="/assets/images/home/integrations1.png" class="tw-w-full tw-h-auto tw-object-contain" alt="Prebuilt integrations" />
-                </div>
-                <h2 class="tw-text-3xl max-md:tw-text-2xl tw-font-medium">预构建工具</h2>
-                <p class="tw-leading-normal tw-text-gray-800 dark:tw-text-gray-200">Kkbar 为各种创意任务提供预构建的AI集成，包括图像、视频、音乐和PDF生成，简化高级功能集成到您的应用中。</p>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto"><span>了解更多</span><i class="bi bi-arrow-right tw-transform tw-transition-transform tw-duration-300 group-hover/card:tw-translate-x-2"></i></div>
-              </a>
-            </div>
-          </div>
-          <div class="reveal-up tw-w-full md:tw-h-[350px] max-md:tw-min-h-[350px] tw-flex">
-            <a href="javascript:void(0)" class="tw-relative tw-p-10 tw-transition-all tw-duration-300 tw-group/card tw-gap-5 tw-flex max-md:tw-flex-col tw-w-full tw-h-full tw-bg-[#f6f7fb] dark:tw-bg-[#171717] tw-rounded-3xl hover:tw-scale-[1.02]">
-              <div class="tw-text-6xl tw-overflow-hidden tw-rounded-xl tw-w-full tw-h-full max-md:tw-h-[180px]">
-                <img src="/assets/images/home/ai-models.png" class="tw-w-full tw-object-contain tw-h-full" alt="AI models" />
-              </div>
-              <div class="tw-flex tw-flex-col tw-gap-4">
-                <h2 class="tw-text-3xl max-md:tw-text-2xl tw-font-medium">多种AI模型</h2>
-                <p class="tw-leading-normal tw-text-gray-800 dark:tw-text-gray-200">Kkbar 支持多种AI模型，包括ChatGPT、Gemini、Claude、Mistral等，为各种语言和创意任务提供先进的处理能力。</p>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto"><span>了解更多</span><i class="bi bi-arrow-right tw-transform tw-transition-transform tw-duration-300 group-hover/card:tw-translate-x-2"></i></div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
+      <p class="reveal-up tw-mt-6 tw-text-center tw-text-sm tw-text-gray-400 dark:tw-text-gray-500 max-md:tw-hidden">
+        点击中间按钮切换流向 · 双击复位卡片 · 点击标题栏切换面板版本
+      </p>
     </section>
 
     <!-- Nine Button Features -->
-    <section class="tw-relative tw-mt-10 tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-items-center lg:tw-p-6">
-      <div class="reveal-up tw-mt-[5%] tw-flex tw-h-full tw-w-full tw-place-content-center tw-gap-2 tw-p-4 max-lg:tw-max-w-full max-lg:tw-flex-col">
-        <div class="tw-relative tw-flex tw-max-w-[30%] max-lg:tw-max-w-full tw-flex-col tw-place-items-start tw-gap-4 tw-p-2 max-lg:tw-place-items-center max-lg:tw-place-content-center max-lg:tw-w-full">
-          <div class="tw-top-40 tw-flex tw-flex-col lg:tw-sticky tw-place-items-center tw-max-h-fit tw-max-w-[850px] max-lg:tw-max-h-fit max-lg:tw-max-w-[320px]" id="feature-sticky-header">
+    <section class="tw-relative tw-mt-10 tw-flex tw-min-h-[auto] tw-py-8 tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-items-center lg:tw-p-6" style="overscroll-behavior: none;">
+      <div class="reveal-up tw-flex tw-w-full tw-place-content-center tw-gap-2 tw-p-4 max-lg:tw-max-w-full max-lg:tw-flex-col" style="overscroll-behavior: none;">
+        <div class="tw-relative tw-flex tw-max-w-[30%] max-lg:tw-max-w-full tw-flex-col tw-place-items-start tw-gap-4 tw-p-2 max-lg:tw-place-items-center max-lg:tw-place-content-center max-lg:tw-w-full max-lg:tw-flex-shrink-0">
+          <div class="tw-top-40 tw-flex tw-flex-col lg:tw-sticky tw-place-items-center tw-max-h-fit tw-max-w-[850px] max-lg:tw-w-full max-lg:tw-px-4" id="feature-sticky-header">
             <h2 class="tw-text-5xl tw-font-serif tw-text-center tw-font-medium max-md:tw-text-3xl">九大按钮功能</h2>
-            <img :src="'/assets/images/features/' + activeFeature + '.svg'" :alt="activeFeature"
-              class="tw-w-full tw-h-[180px] tw-mt-6 tw-object-contain tw-transition-opacity tw-duration-300" />
+            <div class="tw-mt-6 tw-w-full dialog-transition" ref="dialogViewportRef">
+              <div :style="{ width: DIALOG_NATURAL_WIDTH + 'px', zoom: dialogScale, marginLeft: 'auto', marginRight: 'auto' }">
+                <DialogMockup :key="activeFeature" :type="activeFeature" @update:type="activeFeature = $event" />
+              </div>
+            </div>
             <p v-if="featureData[activeFeature]" class="tw-mt-4 tw-text-center tw-text-sm tw-text-gray-500 tw-max-w-[80%]">{{ featureData[activeFeature].desc }}</p>
           </div>
         </div>
-        <div id="feature-card-list" class="tw-flex tw-flex-col tw-gap-10 tw-h-full tw-max-w-1/2 max-lg:tw-max-w-full tw-px-[10%] max-lg:tw-px-4 max-lg:tw-gap-3 max-lg:tw-w-full lg:tw-top-[20%] tw-place-items-center">
-          <div v-for="(item, key) in featureData" :key="key" class="reveal-up tw-h-[200px] tw-w-[450px] max-md:tw-h-auto max-md:tw-w-full">
-            <a href="javascript:void(0)" @click="showFeature(key)" class="tw-flex tw-w-full tw-h-full tw-gap-8 tw-rounded-xl hover:tw-shadow-lg dark:tw-shadow-[#171717] tw-duration-300 tw-transition-all tw-p-8 tw-group/card">
-              <div class="tw-text-4xl max-md:tw-text-2xl">
+        <div id="feature-card-list" class="tw-flex tw-flex-col tw-gap-10 tw-h-full tw-max-w-1/2 max-lg:tw-max-w-full tw-px-[10%] max-lg:tw-px-4 max-lg:tw-gap-3 max-lg:tw-w-full lg:tw-top-[20%] tw-place-items-center max-lg:tw-flex-row max-lg:tw-overflow-x-auto max-lg:tw-flex-shrink-0 max-lg:tw-flex-1 max-lg:tw-place-items-stretch max-lg:tw-snap-x max-lg:tw-snap-proximity">
+          <div v-for="(item, key) in featureData" :key="key" :id="'feature-card-' + key" class="reveal-up tw-h-auto tw-w-[450px] max-lg:tw-w-[72vw] max-lg:tw-flex-shrink-0 max-lg:tw-snap-center">
+            <div @click="navigateToFeature(key)" class="tw-flex tw-w-full tw-h-full tw-gap-3 tw-rounded-lg hover:tw-shadow-lg dark:tw-shadow-[#171717] tw-duration-300 tw-transition-all tw-p-3 tw-group/card tw-cursor-pointer">
+              <div class="tw-text-2xl max-md:tw-text-xl tw-flex-shrink-0">
                 <i class="bi" :class="{
                   'bi-file-code-fill': key === 'jsx',
                   'bi-layers-fill': key === 'preset',
@@ -489,16 +647,37 @@ onUnmounted(() => {
                   'bi-shell': key === 'shell',
                 }"></i>
               </div>
-              <div class="tw-flex tw-flex-col tw-gap-4">
-                <h3 class="tw-text-2xl max-md:tw-text-xl">{{ item.title }}</h3>
-                <p class="tw-text-gray-800 dark:tw-text-gray-100 max-md:tw-text-sm">{{ item.desc }}</p>
-                <div class="tw-mt-auto tw-flex tw-gap-2 tw-underline tw-underline-offset-4">
-                  <span>了解更多</span>
-                  <i class="bi bi-arrow-up-right group-hover/card:tw--translate-y-1 group-hover/card:tw-translate-x-1 tw-duration-300 tw-transition-transform"></i>
-                </div>
+              <div class="tw-flex tw-flex-col tw-gap-1 tw-flex-1">
+                <h3 class="tw-text-base max-md:tw-text-sm">{{ item.title }}</h3>
+                <p class="tw-text-gray-800 dark:tw-text-gray-100 tw-text-xs tw-line-clamp-2">{{ item.desc }}</p>
+                <a :href="item.link" @click.stop class="tw-text-xs tw-text-purple-500 tw-mt-1">了解更多</a>
               </div>
-            </a>
+            </div>
           </div>
+        </div>
+
+        <!-- Mobile Navigation: Dots + Arrows -->
+        <div class="feature-nav-dots lg:tw-hidden tw-flex tw-items-center tw-justify-center tw-gap-4 tw-mt-4 tw-w-full">
+          <button class="feature-nav-arrow" @click="prevFeature" aria-label="上一个">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <div class="feature-dots tw-flex tw-items-center tw-gap-2">
+            <button
+              v-for="(key, index) in featureKeys"
+              :key="key"
+              class="feature-dot"
+              :class="{ 'feature-dot--active': activeFeatureIndex === index }"
+              @click="navigateToFeature(key)"
+              :aria-label="featureData[key].title"
+            />
+          </div>
+          <button class="feature-nav-arrow" @click="nextFeature" aria-label="下一个">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
         </div>
       </div>
     </section>
@@ -506,7 +685,7 @@ onUnmounted(() => {
     <!-- Additional Features -->
     <section class="tw-relative tw-flex tw-w-full tw-min-h-[auto] tw-py-8 tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
       <div class="tw-w-full max-lg:tw-max-w-full tw-place-content-center tw-items-center tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
-        <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">附加功能</h3>
+        <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">特点</h3>
         <div class="tw-mt-6 tw-relative tw-gap-6 tw-p-4 tw-grid tw-place-items-center tw-grid-cols-3 max-lg:tw-grid max-lg:tw-grid-cols-2 max-md:tw-grid max-md:tw-grid-cols-2 max-[480px]:tw-grid-cols-1">
           <div v-for="item in additionalFeatures" :key="item.title" class="reveal-up tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3 tw-bg-[#f2f3f4] max-md:tw-w-[260px] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
             <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
@@ -515,44 +694,6 @@ onUnmounted(() => {
             <h3 class="tw-text-xl">{{ item.title }}</h3>
             <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">{{ item.desc }}</p>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Subscription Comparison -->
-    <section class="tw-relative tw-flex tw-w-full tw-min-h-[100vh] max-md:tw-min-h-[80vh] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
-      <div class="tw-w-full max-lg:tw-max-w-full tw-place-content-center tw-place-items-center tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
-        <h3 class="reveal-up tw-text-5xl tw-font-medium max-md:tw-text-3xl tw-text-center tw-leading-normal">一个订阅，尽享所有</h3>
-        <p class="reveal-up tw-mt-3 tw-max-w-[600px] tw-text-center">为什么为一个订阅支付多个昂贵订阅的费用？访问多种AI模型，每年节省数千美元。</p>
-        <div class="tw-mt-8 tw-relative tw-flex max-lg:tw-flex-col tw-gap-5">
-          <div class="reveal-up tw-flex tw-w-full tw-max-w-[650px] max-md:tw-max-w-full tw-flex-col tw-place-items-center tw-gap-2 tw-rounded-lg tw-border-[1px] tw-border-outlineColor tw-bg-white dark:tw-bg-[#080808] dark:tw-border-[#1f2123] tw-p-2 tw-shadow-xl max-lg:tw-w-[320px]">
-            <img src="/assets/images/home/multi-sub.png" alt="Multi sub" />
-          </div>
-          <div class="reveal-up tw-flex tw-w-full tw-max-w-[650px] tw-flex-col tw-place-items-center tw-gap-2 tw-rounded-lg tw-border-[1px] tw-border-outlineColor tw-bg-white dark:tw-bg-[#080808] dark:tw-border-[#1f2123] tw-p-2 tw-shadow-xl max-lg:tw-w-[320px]">
-            <img src="/assets/images/home/single-sub.jpg" alt="Single sub" />
-          </div>
-        </div>
-        <a href="javascript:void(0)" class="reveal-up tw-group tw-shadow-xl btn tw-flex tw-gap-2 tw-mt-10">
-          <span>开始聊天</span><i class="bi bi-arrow-right tw-duration-300 group-hover:tw-translate-x-1"></i>
-        </a>
-      </div>
-    </section>
-
-    <!-- Testimonials -->
-    <section class="tw-flex tw-min-h-[100vh] tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-p-[2%]">
-      <h3 class="reveal-up tw-text-4xl tw-font-medium tw-text-center max-md:tw-text-2xl">加入使用 Kkbar 的专业人士</h3>
-      <div class="tw-mt-20 tw-gap-10 tw-space-y-8 max-md:tw-columns-1 lg:tw-columns-2 xl:tw-columns-3">
-        <div v-for="t in testimonialList" :key="t.name" class="reveal-up tw-flex tw-h-fit tw-w-[350px] tw-break-inside-avoid tw-flex-col tw-gap-4 tw-rounded-lg tw-border-[1px] tw-bg-[#f6f7fb] dark:tw-bg-[#080808] dark:tw-border-[#1f2123] tw-p-4 max-lg:tw-w-[320px]">
-          <div class="tw-flex tw-place-items-center tw-gap-3">
-            <div class="tw-h-[50px] tw-w-[50px] tw-overflow-hidden tw-rounded-full">
-              <img :src="t.img" class="tw-h-full tw-w-full tw-object-cover" :alt="t.name" />
-            </div>
-            <div class="tw-flex tw-flex-col tw-gap-1">
-              <div class="tw-font-semibold">{{ t.name }}</div>
-              <div class="tw-text-gray-700 dark:tw-text-gray-300">{{ t.role }}</div>
-            </div>
-          </div>
-          <p class="tw-mt-4 tw-text-gray-800 dark:tw-text-gray-200">{{ t.text }}</p>
         </div>
       </div>
     </section>
@@ -601,23 +742,6 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <!-- Blog -->
-    <section class="tw-mt-5 tw-flex tw-min-h-[80vh] tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-p-[2%] max-lg:tw-p-3">
-      <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl">阅读专家资源</h3>
-      <div class="reveal-up tw-mt-10 tw-flex tw-flex-wrap tw-place-content-center tw-gap-10 max-lg:tw-flex-col">
-        <a v-for="article in articleList" :key="article.title" href="#" class="tw-flex tw-h-[500px] tw-w-[400px] tw-flex-col tw-gap-2 tw-overflow-clip tw-rounded-lg tw-p-4 max-lg:tw-w-[350px]">
-          <div class="tw-h-[350px] tw-min-h-[350px] tw-w-full tw-overflow-hidden tw-rounded-2xl">
-            <img :src="article.img" alt="article image" class="tw-h-full tw-w-full tw-object-cover tw-transition-transform tw-duration-700 hover:tw-scale-[1.3]" />
-          </div>
-          <div class="tw-text-gray-600 dark:tw-text-gray-300 tw-justify-between tw-flex tw-gap-2">
-            <div class="tw-text-gray-800 dark:tw-text-gray-200">{{ article.cat }}</div>
-            <div class="tw-text-gray-600 dark:tw-text-gray-400">{{ article.date }}</div>
-          </div>
-          <h3 class="tw-mt-1 tw-font-medium tw-text-xl max-md:tw-text-xl">{{ article.title }}</h3>
-        </a>
-      </div>
-    </section>
-
     <!-- FAQ -->
     <section class="tw-relative tw-flex tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-gap-[10%] tw-p-[5%] tw-px-[10%]">
       <h3 class="tw-text-4xl tw-font-medium max-md:tw-text-2xl">常见问题</h3>
@@ -632,30 +756,6 @@ onUnmounted(() => {
         </div>
       </div>
       <div class="purple-bg-grad max-md:tw-hidden reveal-up tw-absolute tw-bottom-14 tw-right-[20%] tw-h-[150px] tw-w-[150px] tw-rounded-full"></div>
-    </section>
-
-    <!-- CTA -->
-    <section class="tw-relative tw-flex tw-p-2 tw-w-full tw-min-h-[60vh] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
-      <div class="reveal-up tw-w-full tw-h-full tw-min-h-[450px] max-lg:tw-max-w-full tw-rounded-md lg:tw-py-[5%] tw-bg-[#f6f7fb] dark:tw-bg-[#171717] tw-place-content-center tw-items-center tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
-        <h3 class="reveal-up tw-text-5xl tw-font-medium max-md:tw-text-3xl tw-text-center tw-leading-normal">访问和比较多种AI模型</h3>
-        <div class="tw-mt-8 tw-relative tw-flex max-lg:tw-flex-col tw-gap-5">
-          <a href="javascript:void(0)" class="btn reveal-up !tw-rounded-full !tw-p-4 tw-font-medium">启动工具</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Newsletter -->
-    <section class="tw-flex tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-gap-[10%] tw-p-[5%] tw-px-[10%] max-md:tw-px-2">
-      <div class="tw-flex tw-w-full tw-max-w-[80%] tw-place-content-center tw-place-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-bg-[#F6F7FB] dark:tw-bg-[#171717] tw-p-6 max-md:tw-max-w-full max-md:tw-flex-col">
-        <div class="tw-flex tw-flex-col max-lg:tw-text-center tw-gap-1">
-          <h2 class="tw-text-2xl tw-text-gray-800 dark:tw-text-gray-200 max-md:tw-text-xl">加入我们的通讯</h2>
-          <div class="tw-text-gray-700 dark:tw-text-gray-300">获取产品见解和更新。</div>
-        </div>
-        <div class="tw-flex tw-h-[60px] tw-place-items-center tw-gap-2 tw-overflow-hidden tw-p-2">
-          <input type="email" class="input tw-h-full tw-w-full !tw-border-gray-600 tw-p-2 tw-outline-none" placeholder="邮箱" />
-          <a class="btn !tw-rounded-full !tw-border-[1px] !tw-text-black !tw-border-solid !tw-border-black dark:!tw-text-white dark:!tw-border-gray-300 !tw-bg-transparent tw-transition-colors tw-duration-[0.3s]" href="">注册</a>
-        </div>
-      </div>
     </section>
 
     <!-- Footer -->
@@ -713,3 +813,72 @@ onUnmounted(() => {
     </footer>
   </div>
 </template>
+
+<style scoped>
+.feature-nav-dots {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .feature-nav-dots {
+    display: flex;
+  }
+}
+
+.feature-nav-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.feature-nav-arrow:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+html.dark .feature-nav-arrow {
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+html.dark .feature-nav-arrow:hover {
+  background: #374151;
+  border-color: #6b7280;
+  color: #e5e7eb;
+}
+
+.feature-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.feature-dot--active {
+  background: #8b5cf6;
+  width: 24px;
+  border-radius: 4px;
+}
+
+html.dark .feature-dot {
+  background: #4b5563;
+}
+
+html.dark .feature-dot--active {
+  background: #a78bfa;
+}
+</style>
