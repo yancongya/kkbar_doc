@@ -1,45 +1,47 @@
 <template>
   <section class="why-section">
-    <h2 class="why-title reveal-up">为什么选择 Kkbar</h2>
-    <p class="why-subtitle reveal-up">告别混乱，拥抱高效</p>
+    <h2 class="why-title">为什么选择 Kkbar</h2>
+    <p class="why-subtitle">拖拽旋转 · 点击卡片查看详情</p>
 
-    <div class="why-layout">
-      <!-- 左侧卡片列 -->
-      <div class="why-col why-col--left">
-        <div v-for="(card, idx) in leftCards" :key="idx"
-             class="terminal-card reveal-up"
-             :class="{ 'terminal-card--pulse': false }">
-          <div class="terminal-card__header">
-            <i class="bi terminal-card__icon" :class="card.icon" :style="{ color: card.color }"></i>
-            <span class="terminal-card__title">{{ card.title }}</span>
+    <div class="sphere-viewport"
+         ref="viewportRef"
+         @mousedown="onDragStart"
+         @mousemove="onDragMove"
+         @mouseup="onDragEnd"
+         @mouseleave="onDragEnd"
+         @touchstart.passive="onTouchStart"
+         @touchmove.passive="onTouchMove"
+         @touchend="onDragEnd">
+
+      <!-- SVG 连线 -->
+      <svg class="sphere-lines" ref="svgRef">
+        <line v-for="(line, i) in lines" :key="i"
+          :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2"
+          class="sphere-line" />
+      </svg>
+
+      <div class="sphere-scene" :style="sphereStyle">
+        <div v-for="(card, idx) in painPoints" :key="idx"
+             class="sphere-card"
+             :style="cardTransform(idx)">
+          <div class="terminal-card">
+            <div class="terminal-card__header">
+              <i class="bi terminal-card__icon" :class="card.icon" :style="{ color: card.color }"></i>
+              <span class="terminal-card__title">{{ card.pain }}</span>
+            </div>
+            <div class="terminal-card__body">
+              <div class="terminal-card__line terminal-card__pain">{{ card.pain }}</div>
+              <div class="terminal-card__line terminal-card__solution">{{ card.solution }}</div>
+            </div>
           </div>
-          <div class="terminal-card__body">
-            <div class="terminal-card__line">{{ card.desc }}</div>
-          </div>
-          <span class="terminal-card__io"></span>
         </div>
       </div>
 
-      <!-- 中间 Kkbar Logo -->
-      <div class="why-center reveal-up">
+      <!-- 中心 Logo -->
+      <div class="sphere-center">
         <div class="center-btn">
-          <img src="/assets/logo/logo_animated.svg" class="center-btn__logo" alt="Kkbar" />
-        </div>
-      </div>
-
-      <!-- 右侧卡片列 -->
-      <div class="why-col why-col--right">
-        <div v-for="(card, idx) in rightCards" :key="idx"
-             class="terminal-card reveal-up"
-             :class="{ 'terminal-card--pulse': false }">
-          <div class="terminal-card__header">
-            <i class="bi terminal-card__icon" :class="card.icon" :style="{ color: card.color }"></i>
-            <span class="terminal-card__title">{{ card.title }}</span>
-          </div>
-          <div class="terminal-card__body">
-            <div class="terminal-card__line">{{ card.desc }}</div>
-          </div>
-          <span class="terminal-card__io terminal-card__io--left"></span>
+          <img v-if="isDark" src="/assets/logo/logo_animated.svg" class="center-btn__logo" alt="Kkbar" />
+          <img v-else src="/assets/logo/logo_animated-light.svg" class="center-btn__logo" alt="Kkbar" />
         </div>
       </div>
     </div>
@@ -47,42 +49,186 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const leftCards = [
-  { icon: 'bi-translate', title: '全中文界面', desc: 'Kbar 原版纯英文，Kkbar 完整汉化', color: '#818cf8' },
-  { icon: 'bi-palette2', title: '高级 UI/UX', desc: '多主题 · 毛玻璃 · 流畅动画', color: '#c084fc' },
-  { icon: 'bi-lightning-charge', title: '更多高级功能', desc: '九大动作类型覆盖全场景', color: '#fbbf24' },
-  { icon: 'bi-folder2-open', title: '脚本扩展管理', desc: '分类 · 搜索 · 收藏 · 一键直达', color: '#34d399' },
-  { icon: 'bi-layout-wtf', title: 'AE 界面整理', desc: '统一工具栏替代零散面板', color: '#60a5fa' },
-  { icon: 'bi-cloud-arrow-up', title: '数据备份', desc: '一键导出配置，随时恢复', color: '#22d3ee' },
+defineProps({ isDark: { type: Boolean, default: true } })
+
+const painPoints = [
+  { icon: 'bi-translate', pain: 'Kbar 原版纯英文', solution: 'Kkbar 完整汉化', color: '#818cf8' },
+  { icon: 'bi-palette2', pain: 'UI 简陋，交互生硬', solution: '多主题 · 毛玻璃 · 流畅动画', color: '#c084fc' },
+  { icon: 'bi-lightning-charge', pain: '原版功能单一', solution: '九大动作类型覆盖全场景', color: '#fbbf24' },
+  { icon: 'bi-folder2-open', pain: '脚本扩展太多太乱', solution: '分类 · 搜索 · 收藏 · 一键直达', color: '#34d399' },
+  { icon: 'bi-layout-wtf', pain: 'AE 界面布局凌乱', solution: '统一工具栏替代零散面板', color: '#60a5fa' },
+  { icon: 'bi-cloud-arrow-up', pain: '数据备份麻烦', solution: '一键导出配置，随时恢复', color: '#22d3ee' },
+  { icon: 'bi-phone-laptop', pain: '跨设备同步麻烦', solution: '导出/导入配置，无缝迁移', color: '#a78bfa' },
+  { icon: 'bi-braces', pain: '脚本代码片段无法快速测试', solution: 'Scriptlet 即时执行代码片段', color: '#2dd4bf' },
+  { icon: 'bi-code-slash', pain: '表达式调试效率低', solution: '一键应用表达式，快速迭代', color: '#fb923c' },
+  { icon: 'bi-window-stack', pain: '已安装扩展藏在菜单深处', solution: '面板动作一键打开 CEP 扩展', color: '#60a5fa' },
+  { icon: 'bi-clipboard-data', pain: '常用文本反复手动输入', solution: '剪贴板存储常用内容，一键粘贴', color: '#f472b6' },
+  { icon: 'bi-collection-play', pain: '素材分散各处难管理', solution: '统一入口管理所有素材资源', color: '#a3e635' },
 ]
 
-const rightCards = [
-  { icon: 'bi-phone-laptop', title: '跨设备同步', desc: '导出/导入配置，无缝迁移', color: '#a78bfa' },
-  { icon: 'bi-braces', title: '脚本片段测试', desc: 'Scriptlet 即时执行代码片段', color: '#2dd4bf' },
-  { icon: 'bi-code-slash', title: '表达式测试', desc: '一键应用表达式，快速调试', color: '#fb923c' },
-  { icon: 'bi-window-stack', title: '快速打开扩展', desc: '面板动作一键打开 CEP 扩展', color: '#60a5fa' },
-  { icon: 'bi-clipboard-data', title: '剪贴板管理', desc: '常用内容存储，一键粘贴', color: '#f472b6' },
-  { icon: 'bi-collection-play', title: '素材管理', desc: '统一入口管理所有素材资源', color: '#a3e635' },
-]
+const count = painPoints.length
+const radiusX = 360
+const radiusY = 220
+const radiusZ = 300
+const viewportRef = ref(null)
+const svgRef = ref(null)
+const lines = ref([])
+
+// 使用斐波那契球面均匀分布
+function fibonacciSphere(n, rx, ry, rz) {
+  const points = []
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5))
+  for (let i = 0; i < n; i++) {
+    const y = 1 - (i / (n - 1)) * 2
+    const rAtY = Math.sqrt(1 - y * y)
+    const theta = goldenAngle * i
+    points.push({
+      x: Math.cos(theta) * rAtY * rx,
+      y: y * ry,
+      z: Math.sin(theta) * rAtY * rz,
+    })
+  }
+  return points
+}
+
+const spherePoints = fibonacciSphere(count, radiusX, radiusY, radiusZ)
+
+// 旋转状态
+const rotX = ref(-15)
+const rotY = ref(0)
+const targetRotX = ref(-15)
+const targetRotY = ref(0)
+const isDragging = ref(false)
+const dragStart = { x: 0, y: 0 }
+const dragStartRot = { x: 0, y: 0 }
+
+let autoTimer = null
+let raf = null
+
+const sphereStyle = computed(() => ({
+  transform: `rotateX(${rotX.value}deg) rotateY(${rotY.value}deg)`,
+}))
+
+function cardTransform(idx) {
+  const p = spherePoints[idx]
+  // 先定位到球面位置，再反向旋转使卡片始终朝向镜头
+  return {
+    transform: `translate3d(${p.x}px, ${p.y}px, ${p.z}px) rotateY(${-rotY.value}deg) rotateX(${-rotX.value}deg)`,
+  }
+}
+
+function project3D(x, y, z, rx, ry, perspective, cx, cy) {
+  // 弧度
+  const rxR = (rx * Math.PI) / 180
+  const ryR = (ry * Math.PI) / 180
+  // 绕 Y 轴旋转
+  let x1 = x * Math.cos(ryR) + z * Math.sin(ryR)
+  let z1 = -x * Math.sin(ryR) + z * Math.cos(ryR)
+  // 绕 X 轴旋转
+  let y1 = y * Math.cos(rxR) - z1 * Math.sin(rxR)
+  let z2 = y * Math.sin(rxR) + z1 * Math.cos(rxR)
+  // 透视投影
+  const scale = perspective / (perspective + z2)
+  return {
+    x: cx + x1 * scale,
+    y: cy + y1 * scale,
+  }
+}
+
+function updateLines() {
+  if (!viewportRef.value) return
+  const vpRect = viewportRef.value.getBoundingClientRect()
+  const cx = vpRect.width / 2
+  const cy = vpRect.height / 2
+  const cards = viewportRef.value.querySelectorAll('.sphere-card')
+  const newLines = []
+  cards.forEach((card) => {
+    const r = card.getBoundingClientRect()
+    const x2 = r.left + r.width / 2 - vpRect.left
+    const y2 = r.top + r.height / 2 - vpRect.top
+    newLines.push({ x1: cx, y1: cy, x2, y2 })
+  })
+  lines.value = newLines
+}
+
+function onDragStart(e) {
+  isDragging.value = true
+  dragStart.x = e.clientX
+  dragStart.y = e.clientY
+  dragStartRot.x = rotX.value
+  dragStartRot.y = rotY.value
+  stopAuto()
+}
+
+function onDragMove(e) {
+  if (!isDragging.value) return
+  const dx = e.clientX - dragStart.x
+  const dy = e.clientY - dragStart.y
+  targetRotY.value = dragStartRot.y + dx * 0.4
+  targetRotX.value = Math.max(-60, Math.min(60, dragStartRot.x - dy * 0.4))
+}
+
+function onDragEnd() {
+  isDragging.value = false
+  startAuto()
+}
+
+function onTouchStart(e) {
+  if (e.touches.length === 1) {
+    onDragStart({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })
+  }
+}
+
+function onTouchMove(e) {
+  if (e.touches.length === 1) {
+    onDragMove({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })
+  }
+}
+
+function toggleCard(idx) {
+  // 点击卡片时短暂放大效果
+}
+
+function startAuto() {
+  stopAuto()
+  autoTimer = setInterval(() => {
+    if (!isDragging.value) {
+      targetRotY.value += 0.15
+    }
+  }, 16)
+}
+
+function stopAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer)
+    autoTimer = null
+  }
+}
+
+function animate() {
+  rotX.value += (targetRotX.value - rotX.value) * 0.08
+  rotY.value += (targetRotY.value - rotY.value) * 0.08
+  raf = requestAnimationFrame(animate)
+}
+
+let lineTimer = null
 
 onMounted(() => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible')
-        }
-      })
-    },
-    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-  )
+  animate()
+  startAuto()
+  // 连线更新（低频，避免布局抖动）
+  setTimeout(() => {
+    updateLines()
+    lineTimer = setInterval(updateLines, 100)
+  }, 500)
+})
 
-  document.querySelectorAll('.why-section .reveal-up').forEach((el, idx) => {
-    el.style.transitionDelay = `${idx * 60}ms`
-    observer.observe(el)
-  })
+onUnmounted(() => {
+  stopAuto()
+  if (lineTimer) clearInterval(lineTimer)
+  if (raf) cancelAnimationFrame(raf)
 })
 </script>
 
@@ -105,77 +251,79 @@ onMounted(() => {
 }
 
 .why-subtitle {
-  font-size: 1rem;
-  color: #888;
+  font-size: 0.9rem;
+  color: #666;
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 32px;
 }
 
-/* 三列布局 */
-.why-layout {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 40px;
-  max-width: 960px;
-  width: 100%;
-}
-
-.why-col {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-  max-width: 260px;
-}
-
-.why-col--left { align-items: flex-end; }
-.why-col--right { align-items: flex-start; }
-
-/* 中间 Logo */
-.why-center {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.center-btn {
+/* 球体视口 */
+.sphere-viewport {
   position: relative;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  width: 100%;
+  max-width: 700px;
+  height: 500px;
+  perspective: 1200px;
+  cursor: grab;
+  user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.35);
-  animation: center-pulse 3s ease-in-out infinite;
 }
 
-.center-btn__logo {
-  width: 38px;
-  height: 38px;
+.sphere-viewport:active {
+  cursor: grabbing;
 }
 
-@keyframes center-pulse {
-  0%, 100% { box-shadow: 0 8px 32px rgba(167, 139, 250, 0.35); }
-  50% { box-shadow: 0 8px 48px rgba(167, 139, 250, 0.55); }
+/* SVG 连线 */
+.sphere-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* ── Terminal Card（复用 WorkflowDiagram 风格） ── */
+.sphere-line {
+  stroke: rgba(167, 139, 250, 0.15);
+  stroke-width: 1;
+}
+
+/* 球体场景 */
+.sphere-scene {
+  position: relative;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transition: none;
+  z-index: 2;
+}
+
+/* 卡片定位 */
+.sphere-card {
+  position: absolute;
+  left: -95px;
+  top: -28px;
+  transform-style: preserve-3d;
+}
+
+/* ── Terminal Card ── */
 .terminal-card {
   position: relative;
-  width: 220px;
-  background: #1e1e2e;
+  width: 190px;
+  background: rgba(30, 30, 46, 0.92);
   border-radius: 5px;
-  z-index: 10;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
 }
 
 .terminal-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: scale(1.08);
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.3);
+  border-color: rgba(167, 139, 250, 0.3);
 }
 
 .terminal-card__header {
@@ -183,7 +331,7 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   padding: 4px 6px;
-  background: #2d2d3f;
+  background: rgba(45, 45, 63, 0.9);
 }
 
 .terminal-card__icon {
@@ -203,57 +351,82 @@ onMounted(() => {
   font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
 }
 
-.terminal-card__body { padding: 4px 6px; }
+.terminal-card__body {
+  padding: 4px 6px;
+  min-height: 28px;
+}
 
 .terminal-card__line {
   font-size: 9px;
   font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
   color: #a0a0b0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-/* IO 指示灯 */
-.terminal-card__io {
+.terminal-card__pain {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.terminal-card__solution {
+  opacity: 0;
+  transform: translateY(4px);
+  color: #10b981;
+}
+
+.terminal-card:hover .terminal-card__pain {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.terminal-card:hover .terminal-card__solution {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 浅色主题 */
+.sphere-center {
   position: absolute;
-  right: -4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 7px;
-  height: 7px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.center-btn {
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: #a78bfa;
-  z-index: 2;
-  animation: io-breathe 2s ease-in-out infinite;
+  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(167, 139, 250, 0.4);
+  animation: center-pulse 3s ease-in-out infinite;
 }
 
-.terminal-card__io--left {
-  right: auto;
-  left: -4px;
+.center-btn__logo {
+  width: 38px;
+  height: 38px;
 }
 
-@keyframes io-breathe {
-  0%, 100% { opacity: 0.6; transform: translateY(-50%) scale(1); }
-  50% { opacity: 1; transform: translateY(-50%) scale(1.2); }
+@keyframes center-pulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(167, 139, 250, 0.4); }
+  50% { box-shadow: 0 8px 56px rgba(167, 139, 250, 0.65); }
 }
 
 /* ── 响应式 ── */
 @media (max-width: 768px) {
-  .why-layout {
-    flex-direction: column;
-    gap: 24px;
+  .sphere-viewport {
+    height: 400px;
+    perspective: 900px;
   }
 
-  .why-col {
-    max-width: 100%;
-    align-items: center;
-  }
-
-  .why-col--left,
-  .why-col--right {
-    align-items: center;
+  .sphere-card {
+    left: -80px;
+    top: -24px;
   }
 
   .terminal-card {
-    width: 260px;
+    width: 160px;
   }
 
   .why-title {
@@ -266,40 +439,39 @@ onMounted(() => {
 }
 
 /* 浅色主题 */
-:global(.tw-light) .terminal-card,
-:global([data-theme="light"]) .terminal-card {
-  background: #f0f0f4;
+html:not(.dark) .terminal-card {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  border: none;
 }
-
-:global(.tw-light) .terminal-card__header,
-:global([data-theme="light"]) .terminal-card__header {
-  background: #e0e0e8;
+html:not(.dark) .terminal-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(99, 102, 241, 0.15);
+  border: none;
 }
-
-:global(.tw-light) .terminal-card__title,
-:global([data-theme="light"]) .terminal-card__title {
+html:not(.dark) .terminal-card__header {
+  background: linear-gradient(to bottom, #f8f9fa, #f1f3f5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+html:not(.dark) .terminal-card__title {
   color: #1a1a2e;
 }
-
-:global(.tw-light) .terminal-card__line,
-:global([data-theme="light"]) .terminal-card__line {
-  color: #555;
+html:not(.dark) .terminal-card__line {
+  color: #495057;
 }
-
-:global(.tw-light) .why-subtitle,
-:global([data-theme="light"]) .why-subtitle {
-  color: #666;
+html:not(.dark) .terminal-card__solution {
+  color: #059669;
 }
-
-/* 进场动画 */
-.reveal-up {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+html:not(.dark) .terminal-card__icon {
+  opacity: 0.9;
 }
-
-.reveal-up.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+html:not(.dark) .why-subtitle {
+  color: #888;
+}
+html:not(.dark) .sphere-line {
+  stroke: rgba(99, 102, 241, 0.15);
+}
+html:not(.dark) .center-btn {
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25);
 }
 </style>

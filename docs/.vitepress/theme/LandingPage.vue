@@ -758,7 +758,7 @@ onUnmounted(() => {
     </section>
 
     <!-- 为什么选择 Kkbar -->
-    <WhyKkbar />
+    <WhyKkbar :is-dark="isDark" />
 
     <!-- Additional Features -->
     <section class="tw-relative tw-flex tw-w-full tw-min-h-[auto] tw-py-8 tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
