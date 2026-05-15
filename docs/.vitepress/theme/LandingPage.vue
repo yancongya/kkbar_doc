@@ -1161,7 +1161,13 @@ div::-webkit-scrollbar {
 }
 
 .feature-item__img {
-  transition: transform 0.5s ease;
+  transition: transform 0.5s ease, filter 0.3s ease;
+  filter: invert(1) brightness(0.9);
+}
+
+html.dark .feature-item__img,
+html.tw-dark .feature-item__img {
+  filter: none;
 }
 
 .feature-item__img-wrap:hover .feature-item__img {
