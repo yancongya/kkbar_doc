@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
+import { useData } from 'vitepress'
 import CepPreview from './components/CepPreview.vue'
 import ThemeSwitch from './components/ThemeSwitch.vue'
 
@@ -8,7 +9,9 @@ import WorkflowDiagram from './components/WorkflowDiagram.vue';
 import WhyKkbar from './components/WhyKkbar.vue';
 import DownloadPage from './components/DownloadPage.vue';
 
-const isDark = ref(true)
+// 使用 VitePress 的 isDark 实现全局同步
+const { isDark } = useData()
+
 const isHeaderCollapsed = ref(true)
 const isNavDropdownOpen = ref(false)
 const workflowDirection = ref('ltr')
@@ -17,13 +20,11 @@ function onFlowChange(direction) {
   workflowDirection.value = direction
 }
 
-// 主题切换
+// 主题切换 - 同步到 localStorage 和 CSS 类
 watch(isDark, (dark) => {
   document.documentElement.classList.toggle('tw-dark', dark)
-  document.documentElement.classList.toggle('dark', dark)
   localStorage.setItem('kkbar-dark', String(dark))
-  localStorage.setItem('vitepress-theme-appearance', dark ? 'dark' : 'light')
-})
+}, { immediate: true })
 
 const isVideoOpen = ref(false)
 const showSupportQr = ref(false)
@@ -313,19 +314,8 @@ const scrollTriggerConfig = {
 }
 
 onMounted(async () => {
-  // 读取主题设置
-  const kkbarDark = localStorage.getItem('kkbar-dark')
-  const vitepressDark = localStorage.getItem('vitepress-theme-appearance')
-  
-  if (vitepressDark !== null) {
-    isDark.value = vitepressDark === 'dark'
-  } else if (kkbarDark !== null) {
-    isDark.value = kkbarDark === 'true'
-  }
-  
-  // 应用主题
+  // 主题由 Layout.vue 统一管理，这里只需同步 tw-dark 类
   document.documentElement.classList.toggle('tw-dark', isDark.value)
-  document.documentElement.classList.toggle('dark', isDark.value)
 
   window.addEventListener('scroll', onScroll, { passive: true })
   document.addEventListener('click', onDocumentClick)
