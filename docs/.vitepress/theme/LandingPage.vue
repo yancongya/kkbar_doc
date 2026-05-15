@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import CepPreview from './components/CepPreview.vue'
-import ThemeRing from './components/ThemeRing.vue'
+import ThemeSwitch from './components/ThemeSwitch.vue'
 
 import DialogMockup from './components/DialogMockup.vue';
 import WorkflowDiagram from './components/WorkflowDiagram.vue';
@@ -9,7 +9,6 @@ import WhyKkbar from './components/WhyKkbar.vue';
 import DownloadPage from './components/DownloadPage.vue';
 
 const isDark = ref(true)
-const themeMode = ref('dark')
 const isHeaderCollapsed = ref(true)
 const isNavDropdownOpen = ref(false)
 const workflowDirection = ref('ltr')
@@ -18,35 +17,13 @@ function onFlowChange(direction) {
   workflowDirection.value = direction
 }
 
-// 主题模式切换
-watch(themeMode, (mode) => {
-  let dark = false
-  if (mode === 'dark') {
-    dark = true
-  } else if (mode === 'auto') {
-    dark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  }
-  isDark.value = dark
+// 主题切换
+watch(isDark, (dark) => {
   document.documentElement.classList.toggle('tw-dark', dark)
   document.documentElement.classList.toggle('dark', dark)
-  localStorage.setItem('kkbar-theme-mode', mode)
   localStorage.setItem('kkbar-dark', String(dark))
   localStorage.setItem('vitepress-theme-appearance', dark ? 'dark' : 'light')
 })
-
-// 监听系统主题变化（auto模式）
-const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-const onSystemThemeChange = () => {
-  if (themeMode.value === 'auto') {
-    isDark.value = mediaQuery.matches
-    document.documentElement.classList.toggle('tw-dark', isDark.value)
-    document.documentElement.classList.toggle('dark', isDark.value)
-  }
-}
-
-function toggleTheme() {
-  themeMode.value = isDark.value ? 'light' : 'dark'
-}
 
 const isVideoOpen = ref(false)
 const showSupportQr = ref(false)
@@ -219,7 +196,6 @@ onMounted(() => {
 onUnmounted(() => {
   resizeObserver?.disconnect()
   document.removeEventListener('keydown', onEscKey)
-  mediaQuery.removeEventListener('change', onSystemThemeChange)
 })
 
 // 监听 activeFeature 变化，滚动到对应的卡片
@@ -337,32 +313,19 @@ const scrollTriggerConfig = {
 }
 
 onMounted(async () => {
-  // 优先读取主题模式，其次读取 kkbar-dark
-  const savedMode = localStorage.getItem('kkbar-theme-mode')
+  // 读取主题设置
   const kkbarDark = localStorage.getItem('kkbar-dark')
   const vitepressDark = localStorage.getItem('vitepress-theme-appearance')
   
-  if (savedMode && ['dark', 'light', 'auto'].includes(savedMode)) {
-    themeMode.value = savedMode
-  } else if (vitepressDark !== null) {
-    themeMode.value = vitepressDark === 'dark' ? 'dark' : 'light'
+  if (vitepressDark !== null) {
+    isDark.value = vitepressDark === 'dark'
   } else if (kkbarDark !== null) {
-    themeMode.value = kkbarDark === 'true' ? 'dark' : 'light'
+    isDark.value = kkbarDark === 'true'
   }
   
   // 应用主题
-  let dark = false
-  if (themeMode.value === 'dark') {
-    dark = true
-  } else if (themeMode.value === 'auto') {
-    dark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  }
-  isDark.value = dark
-  document.documentElement.classList.toggle('tw-dark', dark)
-  document.documentElement.classList.toggle('dark', dark)
-  
-  // 监听系统主题变化
-  mediaQuery.addEventListener('change', onSystemThemeChange)
+  document.documentElement.classList.toggle('tw-dark', isDark.value)
+  document.documentElement.classList.toggle('dark', isDark.value)
 
   window.addEventListener('scroll', onScroll, { passive: true })
   document.addEventListener('click', onDocumentClick)
@@ -591,7 +554,7 @@ onUnmounted(() => {
 
       <!-- Actions -->
       <div id="header-actions">
-        <ThemeRing v-model="themeMode" />
+        <ThemeSwitch v-model="isDark" />
         <a id="header-cta" href="#download">
           <span>开始下载</span>
           <i class="bi bi-arrow-right"></i>
@@ -633,7 +596,7 @@ onUnmounted(() => {
             </a>
           </nav>
           <div id="drawer-footer">
-            <ThemeRing v-model="themeMode" />
+            <ThemeSwitch v-model="isDark" />
             <a id="drawer-cta" href="#download" @click="isHeaderCollapsed = true">
               <span>开始下载</span>
               <i class="bi bi-arrow-right"></i>
