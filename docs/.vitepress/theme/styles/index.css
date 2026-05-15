@@ -3561,12 +3561,21 @@ html:not(.dark) .cep-ring-item--hover {
 /* ── 推荐版特殊样式 ── */
 .pricing-card--featured {
   border-color: #a78bfa;
-  background: linear-gradient(160deg, #0d0d14 0%, #0d0d0d 100%);
+  background: linear-gradient(160deg, #f5f3ff 0%, #fff 100%);
   box-shadow: 0 4px 24px rgba(167, 139, 250, 0.15), 0 0 0 1px rgba(167, 139, 250, 0.3);
 }
 
 .pricing-card--featured:hover {
   transform: translateY(-8px);
+  box-shadow: 0 20px 48px rgba(167, 139, 250, 0.2), 0 0 0 1px rgba(167, 139, 250, 0.5);
+}
+
+.tw-dark .pricing-card--featured {
+  background: linear-gradient(160deg, #0d0d14 0%, #0d0d0d 100%);
+  box-shadow: 0 4px 24px rgba(167, 139, 250, 0.15), 0 0 0 1px rgba(167, 139, 250, 0.3);
+}
+
+.tw-dark .pricing-card--featured:hover {
   box-shadow: 0 20px 48px rgba(167, 139, 250, 0.25), 0 0 0 1px rgba(167, 139, 250, 0.5);
 }
 
@@ -3614,6 +3623,10 @@ html:not(.dark) .cep-ring-item--hover {
 }
 
 .pricing-card--featured .pricing-card__tier {
+  color: #7c3aed;
+}
+
+.tw-dark .pricing-card--featured .pricing-card__tier {
   color: #a78bfa;
 }
 
@@ -3637,6 +3650,10 @@ html:not(.dark) .cep-ring-item--hover {
 }
 
 .pricing-card--featured .pricing-card__amount {
+  color: #4c1d95;
+}
+
+.tw-dark .pricing-card--featured .pricing-card__amount {
   color: #fff;
 }
 
@@ -3653,6 +3670,10 @@ html:not(.dark) .cep-ring-item--hover {
 }
 
 .pricing-card--featured .pricing-card__desc {
+  color: #6b7280;
+}
+
+.tw-dark .pricing-card--featured .pricing-card__desc {
   color: #aaa;
 }
 
@@ -3668,6 +3689,10 @@ html:not(.dark) .cep-ring-item--hover {
 }
 
 .pricing-card--featured .pricing-card__divider {
+  background: rgba(124, 58, 237, 0.15);
+}
+
+.tw-dark .pricing-card--featured .pricing-card__divider {
   background: rgba(167, 139, 250, 0.2);
 }
 
@@ -3695,6 +3720,10 @@ html:not(.dark) .cep-ring-item--hover {
 }
 
 .pricing-card--featured .pricing-card__feature {
+  color: #374151;
+}
+
+.tw-dark .pricing-card--featured .pricing-card__feature {
   color: #ddd;
 }
 
@@ -4021,4 +4050,121 @@ html:not(.dark) .cep-ring-item--hover {
   margin: 16px auto;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   下载页面亮色模式
+   ══════════════════════════════════════════════════════════════ */
+html:not(.dark) .download-hero__title {
+  color: #1a1a2e;
+}
+
+html:not(.dark) .download-hero__desc {
+  color: #666;
+}
+
+html:not(.dark) .download-hero__badge {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: #666;
+}
+
+html:not(.dark) .download-hero__orb {
+  background: #ddd;
+  opacity: 0.5;
+}
+
+html:not(.dark) .download-btn {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+html:not(.dark) .download-btn:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  color: #fff;
+}
+
+html:not(.dark) .download-btn__size {
+  color: rgba(255,255,255,0.7);
+}
+
+html:not(.dark) .download-hero__meta {
+  color: #888;
+}
+
+html:not(.dark) .dot {
+  color: #ccc;
+}
+
+html:not(.dark) .download-card {
+  background: #fff;
+  border-color: #eee;
+}
+
+html:not(.dark) .download-card:hover {
+  border-color: #ddd;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+html:not(.dark) .download-card__header {
+  border-bottom-color: #eee;
+  color: #333;
+}
+
+html:not(.dark) .download-card__header:last-of-type {
+  border-top-color: #eee;
+}
+
+html:not(.dark) .download-card__header i {
+  color: #888;
+}
+
+html:not(.dark) .changelog-tag {
+  background: rgba(0,0,0,0.06);
+  color: #666;
+}
+
+html:not(.dark) .changelog-date {
+  color: #999;
+}
+
+html:not(.dark) .changelog-item li {
+  color: #666;
+}
+
+html:not(.dark) .req-list li {
+  color: #666;
+}
+
+html:not(.dark) .req-list i {
+  color: #22c55e;
+}
+
+html:not(.dark) .steps-list li {
+  color: #666;
+}
+
+html:not(.dark) .faq-item {
+  border-bottom-color: #eee;
+}
+
+html:not(.dark) .faq-item:hover {
+  background: rgba(0,0,0,0.02);
+}
+
+html:not(.dark) .faq-item__q {
+  color: #333;
+}
+
+html:not(.dark) .faq-item__q i {
+  color: #999;
+}
+
+html:not(.dark) .faq-item--open .faq-item__q i {
+  color: #666;
+}
+
+html:not(.dark) .faq-item__a p {
+  color: #666;
 }
