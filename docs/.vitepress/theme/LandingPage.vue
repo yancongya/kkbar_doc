@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import CepPreview from './components/CepPreview.vue'
+import ThemeRing from './components/ThemeRing.vue'
 
 import DialogMockup from './components/DialogMockup.vue';
 import WorkflowDiagram from './components/WorkflowDiagram.vue';
@@ -8,6 +9,7 @@ import WhyKkbar from './components/WhyKkbar.vue';
 import DownloadPage from './components/DownloadPage.vue';
 
 const isDark = ref(true)
+const themeMode = ref('dark')
 const isHeaderCollapsed = ref(true)
 const isNavDropdownOpen = ref(false)
 const workflowDirection = ref('ltr')
@@ -16,12 +18,34 @@ function onFlowChange(direction) {
   workflowDirection.value = direction
 }
 
+// 主题模式切换
+watch(themeMode, (mode) => {
+  let dark = false
+  if (mode === 'dark') {
+    dark = true
+  } else if (mode === 'auto') {
+    dark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  isDark.value = dark
+  document.documentElement.classList.toggle('tw-dark', dark)
+  document.documentElement.classList.toggle('dark', dark)
+  localStorage.setItem('kkbar-theme-mode', mode)
+  localStorage.setItem('kkbar-dark', String(dark))
+  localStorage.setItem('vitepress-theme-appearance', dark ? 'dark' : 'light')
+})
+
+// 监听系统主题变化（auto模式）
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+const onSystemThemeChange = () => {
+  if (themeMode.value === 'auto') {
+    isDark.value = mediaQuery.matches
+    document.documentElement.classList.toggle('tw-dark', isDark.value)
+    document.documentElement.classList.toggle('dark', isDark.value)
+  }
+}
+
 function toggleTheme() {
-  isDark.value = !isDark.value
-  document.documentElement.classList.toggle('tw-dark', isDark.value)
-  document.documentElement.classList.toggle('dark', isDark.value)
-  localStorage.setItem('kkbar-dark', String(isDark.value))
-  localStorage.setItem('vitepress-theme-appearance', isDark.value ? 'dark' : 'light')
+  themeMode.value = isDark.value ? 'light' : 'dark'
 }
 
 const isVideoOpen = ref(false)
@@ -195,6 +219,7 @@ onMounted(() => {
 onUnmounted(() => {
   resizeObserver?.disconnect()
   document.removeEventListener('keydown', onEscKey)
+  mediaQuery.removeEventListener('change', onSystemThemeChange)
 })
 
 // 监听 activeFeature 变化，滚动到对应的卡片
@@ -312,19 +337,32 @@ const scrollTriggerConfig = {
 }
 
 onMounted(async () => {
-  // 优先从 VitePress 读取，其次读取 kkbar-dark
-  const vitepressDark = localStorage.getItem('vitepress-theme-appearance')
+  // 优先读取主题模式，其次读取 kkbar-dark
+  const savedMode = localStorage.getItem('kkbar-theme-mode')
   const kkbarDark = localStorage.getItem('kkbar-dark')
-  if (vitepressDark !== null) {
-    isDark.value = vitepressDark === 'dark'
+  const vitepressDark = localStorage.getItem('vitepress-theme-appearance')
+  
+  if (savedMode && ['dark', 'light', 'auto'].includes(savedMode)) {
+    themeMode.value = savedMode
+  } else if (vitepressDark !== null) {
+    themeMode.value = vitepressDark === 'dark' ? 'dark' : 'light'
   } else if (kkbarDark !== null) {
-    isDark.value = kkbarDark === 'true'
+    themeMode.value = kkbarDark === 'true' ? 'dark' : 'light'
   }
-  if (isDark.value) {
-    document.documentElement.classList.add('tw-dark', 'dark')
-  } else {
-    document.documentElement.classList.remove('tw-dark', 'dark')
+  
+  // 应用主题
+  let dark = false
+  if (themeMode.value === 'dark') {
+    dark = true
+  } else if (themeMode.value === 'auto') {
+    dark = window.matchMedia('(prefers-color-scheme: dark)').matches
   }
+  isDark.value = dark
+  document.documentElement.classList.toggle('tw-dark', dark)
+  document.documentElement.classList.toggle('dark', dark)
+  
+  // 监听系统主题变化
+  mediaQuery.addEventListener('change', onSystemThemeChange)
 
   window.addEventListener('scroll', onScroll, { passive: true })
   document.addEventListener('click', onDocumentClick)
@@ -553,9 +591,7 @@ onUnmounted(() => {
 
       <!-- Actions -->
       <div id="header-actions">
-        <button id="theme-toggle" @click="toggleTheme" type="button" :title="isDark ? '切换到浅色' : '切换到深色'">
-          <i class="bi" :class="isDark ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
-        </button>
+        <ThemeRing v-model="themeMode" />
         <a id="header-cta" href="#download">
           <span>开始下载</span>
           <i class="bi bi-arrow-right"></i>
@@ -597,10 +633,7 @@ onUnmounted(() => {
             </a>
           </nav>
           <div id="drawer-footer">
-            <button id="drawer-theme" @click="toggleTheme" type="button">
-              <i class="bi" :class="isDark ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
-              <span>{{ isDark ? '浅色模式' : '深色模式' }}</span>
-            </button>
+            <ThemeRing v-model="themeMode" />
             <a id="drawer-cta" href="#download" @click="isHeaderCollapsed = true">
               <span>开始下载</span>
               <i class="bi bi-arrow-right"></i>
