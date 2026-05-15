@@ -5,6 +5,7 @@ import CepPreview from './components/CepPreview.vue'
 import DialogMockup from './components/DialogMockup.vue';
 import WorkflowDiagram from './components/WorkflowDiagram.vue';
 import WhyKkbar from './components/WhyKkbar.vue';
+import DownloadPage from './components/DownloadPage.vue';
 
 const isDark = ref(true)
 const isHeaderCollapsed = ref(true)
@@ -24,6 +25,10 @@ function toggleTheme() {
 }
 
 const isVideoOpen = ref(false)
+const showSupportQr = ref(false)
+const fullscreenImage = ref<string | null>(null)
+let hoverTimer: ReturnType<typeof setTimeout> | null = null
+const showEmailToast = ref(false)
 const carouselRef = ref<HTMLElement | null>(null)
 const carouselSlide = ref(0)
 let carouselTimer: ReturnType<typeof setInterval> | null = null
@@ -43,6 +48,43 @@ function openVideo() {
 
 function closeVideo() {
   isVideoOpen.value = false
+}
+
+function startHoverTimer(img: string) {
+  hoverTimer = setTimeout(() => {
+    fullscreenImage.value = img
+  }, 800)
+}
+
+function cancelHoverTimer() {
+  if (hoverTimer) {
+    clearTimeout(hoverTimer)
+    hoverTimer = null
+  }
+}
+
+function closeFullscreen() {
+  fullscreenImage.value = null
+}
+
+function onEscKey(e: KeyboardEvent) {
+  if (e.key === 'Escape' && fullscreenImage.value) {
+    fullscreenImage.value = null
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', onEscKey)
+})
+
+async function copyEmail() {
+  try {
+    await navigator.clipboard.writeText('2655283737@qq.com')
+    showEmailToast.value = true
+    setTimeout(() => { showEmailToast.value = false }, 2000)
+  } catch {
+    alert('复制失败')
+  }
 }
 
 const featureData: Record<string, { title: string; desc: string; link: string }> = {
@@ -152,6 +194,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   resizeObserver?.disconnect()
+  document.removeEventListener('keydown', onEscKey)
 })
 
 // 监听 activeFeature 变化，滚动到对应的卡片
@@ -230,6 +273,13 @@ const mainHeader = ref<HTMLElement | null>(null)
 function onScroll() {
   if (mainHeader.value) {
     mainHeader.value.classList.toggle('scrolled', window.scrollY > SCROLL_THRESHOLD)
+  }
+  // Hero区域波点动画
+  const heroSection = document.querySelector('.hero-section')
+  if (heroSection) {
+    const rect = heroSection.getBoundingClientRect()
+    const isVisible = rect.top < window.innerHeight * 0.8
+    heroSection.classList.toggle('section-visible', isVisible)
   }
 }
 
@@ -494,24 +544,11 @@ onUnmounted(() => {
       <!-- Desktop Nav -->
       <nav id="header-nav">
         <a class="header-link" href="/guides/01-introduction/">文档</a>
-        <div class="header-dropdown" :class="{ 'header-dropdown--open': isNavDropdownOpen }">
-          <button class="header-link header-dropdown__toggle" @click="isNavDropdownOpen = !isNavDropdownOpen" type="button">
-            <span>功能</span>
-            <i class="bi bi-chevron-down"></i>
-          </button>
-          <div class="header-dropdown__panel" @click.stop>
-            <div class="header-dropdown__grid">
-              <a class="header-dropdown__item" href="#"><i class="bi bi-list-columns-reverse"></i><div><strong>提示词库</strong><p>内置预制提示词模板</p></div></a>
-              <a class="header-dropdown__item" href="#"><i class="bi bi-grid-1x2-fill"></i><div><strong>统一接口</strong><p>在一个界面中测试多种AI模型</p></div></a>
-              <a class="header-dropdown__item" href="#"><i class="bi bi-globe"></i><div><strong>实时网络搜索</strong><p>实时搜索互联网</p></div></a>
-              <a class="header-dropdown__item" href="#"><i class="bi bi-image-fill"></i><div><strong>图像生成</strong><p>从提示词生成图像</p></div></a>
-              <a class="header-dropdown__item" href="#"><i class="bi bi-calendar-range"></i><div><strong>历史记录</strong><p>从中断处继续对话</p></div></a>
-              <a class="header-dropdown__item" href="#"><i class="bi bi-translate"></i><div><strong>多语言支持</strong><p>支持多语言对话</p></div></a>
-            </div>
-          </div>
-        </div>
+        <a class="header-link" href="#dashboard-container">拟态面板</a>
+        <a class="header-link" href="#why-kkbar">为什么选择</a>
+        <a class="header-link" href="#workflow-section">流程图</a>
+        <a class="header-link" href="#features">功能</a>
         <a class="header-link" href="#pricing">价格</a>
-        <a class="header-link" href="#">博客</a>
       </nav>
 
       <!-- Actions -->
@@ -519,8 +556,8 @@ onUnmounted(() => {
         <button id="theme-toggle" @click="toggleTheme" type="button" :title="isDark ? '切换到浅色' : '切换到深色'">
           <i class="bi" :class="isDark ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
         </button>
-        <a id="header-cta" href="#hero-section">
-          <span>试用工具</span>
+        <a id="header-cta" href="#download">
+          <span>开始下载</span>
           <i class="bi bi-arrow-right"></i>
         </a>
       </div>
@@ -543,25 +580,20 @@ onUnmounted(() => {
             <a class="drawer-link" href="/guides/01-introduction/" @click="isHeaderCollapsed = true">
               <i class="bi bi-book"></i><span>文档</span>
             </a>
-            <button class="drawer-link" @click="isNavDropdownOpen = !isNavDropdownOpen" type="button">
+            <a class="drawer-link" href="#dashboard-container" @click="isHeaderCollapsed = true">
+              <i class="bi bi-window"></i><span>拟态面板</span>
+            </a>
+            <a class="drawer-link" href="#why-kkbar" @click="isHeaderCollapsed = true">
+              <i class="bi bi-question-circle"></i><span>为什么选择</span>
+            </a>
+            <a class="drawer-link" href="#workflow-section" @click="isHeaderCollapsed = true">
+              <i class="bi bi-diagram-3"></i><span>流程图</span>
+            </a>
+            <a class="drawer-link" href="#features" @click="isHeaderCollapsed = true">
               <i class="bi bi-grid-3x3-gap"></i><span>功能</span>
-              <i class="bi bi-chevron-down drawer-link__arrow" :class="{ 'drawer-link__arrow--open': isNavDropdownOpen }"></i>
-            </button>
-            <Transition name="drawer-expand">
-              <div v-if="isNavDropdownOpen" class="drawer-submenu">
-                <a class="drawer-sublink" href="#"><i class="bi bi-list-columns-reverse"></i>提示词库</a>
-                <a class="drawer-sublink" href="#"><i class="bi bi-grid-1x2-fill"></i>统一接口</a>
-                <a class="drawer-sublink" href="#"><i class="bi bi-globe"></i>实时网络搜索</a>
-                <a class="drawer-sublink" href="#"><i class="bi bi-image-fill"></i>图像生成</a>
-                <a class="drawer-sublink" href="#"><i class="bi bi-calendar-range"></i>历史记录</a>
-                <a class="drawer-sublink" href="#"><i class="bi bi-translate"></i>多语言支持</a>
-              </div>
-            </Transition>
+            </a>
             <a class="drawer-link" href="#pricing" @click="isHeaderCollapsed = true">
               <i class="bi bi-tag"></i><span>价格</span>
-            </a>
-            <a class="drawer-link" href="#" @click="isHeaderCollapsed = true">
-              <i class="bi bi-pencil-square"></i><span>博客</span>
             </a>
           </nav>
           <div id="drawer-footer">
@@ -569,8 +601,8 @@ onUnmounted(() => {
               <i class="bi" :class="isDark ? 'bi-sun-fill' : 'bi-moon-fill'"></i>
               <span>{{ isDark ? '浅色模式' : '深色模式' }}</span>
             </button>
-            <a id="drawer-cta" href="#hero-section" @click="isHeaderCollapsed = true">
-              <span>试用工具</span>
+            <a id="drawer-cta" href="#download" @click="isHeaderCollapsed = true">
+              <span>开始下载</span>
               <i class="bi bi-arrow-right"></i>
             </a>
           </div>
@@ -579,7 +611,7 @@ onUnmounted(() => {
     </header>
 
     <!-- Hero Section -->
-    <section class="hero-section tw-relative tw-mt-20 tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden max-lg:tw-mt-[100px] max-md:tw-mt-0" id="hero-section">
+    <section class="hero-section tw-relative tw-mt-20 tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col max-lg:tw-mt-[100px] max-md:tw-mt-0" id="hero-section">
       <!-- Video Modal -->
       <div class="tw-fixed tw-bg-[#000000af] dark:tw-bg-[#80808085] tw-top-0 tw-left-1/2 tw--translate-x-1/2 tw-z-20 tw-transition-opacity tw-duration-300 tw-p-2 tw-w-full tw-h-full tw-flex tw-place-content-center tw-place-items-center"
         :class="isVideoOpen ? 'tw-scale-100 tw-opacity-100' : 'tw-scale-0 tw-opacity-0'" @click.self="closeVideo">
@@ -628,7 +660,7 @@ onUnmounted(() => {
         </div>
 
         <!-- CEP Preview Dashboard -->
-        <div class="reveal-up tw-relative tw-mt-8 tw-flex tw-w-full tw-place-content-center tw-place-items-center" id="dashboard-container">
+        <div class="reveal-up dashboard-container tw-relative tw-mt-8 tw-flex tw-w-full tw-place-content-center tw-place-items-center" id="dashboard-container">
           <div class="purple-bg-grad reveal-up tw-absolute tw-left-1/2 tw--translate-x-1/2 tw-top-[5%] tw-h-[200px] tw-w-[200px]"></div>
           <div class="tw-relative tw-max-w-[80%] tw-bg-white dark:tw-bg-black tw-border-[1px] dark:tw-border-[#36393c] lg:tw-w-[1024px] lg:tw-h-[650px] tw-flex tw-shadow-xl max-lg:tw-h-[450px] max-lg:tw-w-full tw-overflow-hidden tw-min-w-[320px] md:tw-w-full tw-min-h-[450px] tw-rounded-xl tw-bg-transparent max-md:tw-max-w-full" id="dashboard">
             <div class="purple-bg-grad tw-max-w-[80%] reveal-up tw-absolute tw-left-1/2 tw--translate-x-1/2 tw-top-[0%] lg:tw-max-w-[1000px] tw-h-full tw-w-full"></div>
@@ -676,6 +708,9 @@ onUnmounted(() => {
       </div>
     </section>
 
+    <!-- 为什么选择 Kkbar -->
+    <WhyKkbar :is-dark="isDark" />
+
     <!-- Workflow Diagram -->
     <section id="workflow-section" class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-py-16 tw-px-4" style="overflow: visible;">
       <h2 class="reveal-up tw-text-4xl max-md:tw-text-2xl tw-text-center tw-mb-6 tw-font-semibold">工作流程示意</h2>
@@ -693,13 +728,13 @@ onUnmounted(() => {
     </section>
 
     <!-- Nine Button Features -->
-    <section class="tw-relative tw-mt-10 tw-flex tw-min-h-[auto] tw-py-8 tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-items-center lg:tw-p-6" style="overscroll-behavior: none;">
+    <section id="features" class="tw-relative tw-mt-10 tw-flex tw-min-h-[auto] tw-py-8 tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-items-center lg:tw-p-6" style="overscroll-behavior: none;">
       <div class="reveal-up tw-flex tw-w-full tw-place-content-center tw-gap-2 tw-p-4 max-lg:tw-max-w-full max-lg:tw-flex-col" style="overscroll-behavior: none;">
         <div class="tw-relative tw-flex tw-max-w-[30%] max-lg:tw-max-w-full tw-flex-col tw-place-items-start tw-gap-4 tw-p-2 max-lg:tw-place-items-center max-lg:tw-place-content-center max-lg:tw-w-full max-lg:tw-flex-shrink-0">
           <div class="tw-top-40 tw-flex tw-flex-col lg:tw-sticky tw-place-items-center tw-max-h-fit tw-max-w-[850px] max-lg:tw-w-full max-lg:tw-px-4" id="feature-sticky-header">
             <h2 class="tw-text-5xl tw-font-serif tw-text-center tw-font-medium max-md:tw-text-3xl">九大按钮功能</h2>
             <div class="tw-mt-6 tw-w-full dialog-transition" ref="dialogViewportRef">
-              <div :style="{ width: DIALOG_NATURAL_WIDTH + 'px', zoom: dialogScale, marginLeft: 'auto', marginRight: 'auto' }">
+              <div class="dialog-hover-container" :style="{ width: DIALOG_NATURAL_WIDTH + 'px', zoom: dialogScale, marginLeft: 'auto', marginRight: 'auto' }">
                 <DialogMockup :key="activeFeature" :type="activeFeature" @update:type="activeFeature = $event" />
               </div>
             </div>
@@ -708,18 +743,18 @@ onUnmounted(() => {
         </div>
         <div id="feature-card-list" class="tw-flex tw-flex-col tw-gap-10 tw-h-full tw-max-w-1/2 max-lg:tw-max-w-full tw-px-[10%] max-lg:tw-px-4 max-lg:tw-gap-3 max-lg:tw-w-full lg:tw-top-[20%] tw-place-items-center max-lg:tw-flex-row max-lg:tw-overflow-x-auto max-lg:tw-flex-shrink-0 max-lg:tw-flex-1 max-lg:tw-place-items-stretch max-lg:tw-snap-x max-lg:tw-snap-proximity">
           <div v-for="(item, key) in featureData" :key="key" :id="'feature-card-' + key" class="reveal-up tw-h-auto tw-w-[450px] max-lg:tw-w-[72vw] max-lg:tw-flex-shrink-0 max-lg:tw-snap-center">
-            <div @click="navigateToFeature(key)" class="tw-flex tw-w-full tw-h-full tw-gap-3 tw-rounded-lg hover:tw-shadow-lg dark:tw-shadow-[#171717] tw-duration-300 tw-transition-all tw-p-3 tw-group/card tw-cursor-pointer">
-              <div class="tw-text-2xl max-md:tw-text-xl tw-flex-shrink-0">
-                <i class="bi" :class="{
+            <div @click="navigateToFeature(key)" :class="{ 'feature-card--active': activeFeature === key }" class="tw-flex tw-w-full tw-h-full tw-gap-3 tw-rounded-lg hover:tw-shadow-lg dark:tw-shadow-[#171717] tw-duration-300 tw-transition-all tw-p-3 tw-group/card tw-cursor-pointer feature-card">
+              <div class="tw-text-2xl max-md:tw-text-xl tw-flex-shrink-0 feature-card__icon-wrap">
+                <i class="bi feature-card__icon" :class="{
                   'bi-file-code-fill': key === 'jsx',
                   'bi-layers-fill': key === 'preset',
                   'bi-clipboard-fill': key === 'clipboard',
                   'bi-magic': key === 'effect',
                   'bi-code-slash': key === 'expression',
                   'bi-terminal-fill': key === 'scriptlet',
-                  'bi-window-fill': key === 'panel',
+                  'bi-window-stack': key === 'panel',
                   'bi-list-ul': key === 'menuItem',
-                  'bi-shell': key === 'shell',
+                  'bi-terminal': key === 'shell',
                 }"></i>
               </div>
               <div class="tw-flex tw-flex-col tw-gap-1 tw-flex-1">
@@ -757,17 +792,16 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <!-- 为什么选择 Kkbar -->
-    <WhyKkbar :is-dark="isDark" />
-
     <!-- Additional Features -->
     <section class="tw-relative tw-flex tw-w-full tw-min-h-[auto] tw-py-8 tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
       <div class="tw-w-full max-lg:tw-max-w-full tw-place-content-center tw-items-center tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
         <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">特点</h3>
         <div class="tw-mt-6 tw-relative tw-gap-6 tw-p-4 tw-grid tw-place-items-center tw-grid-cols-3 max-lg:tw-grid max-lg:tw-grid-cols-2 max-md:tw-grid max-md:tw-grid-cols-2 max-[480px]:tw-grid-cols-1">
-          <div v-for="item in additionalFeatures" :key="item.title" class="reveal-up tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3 tw-bg-[#f2f3f4] max-md:tw-w-[260px] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-            <div class="tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center">
-              <img :src="item.img" :alt="item.title" class="tw-w-auto tw-h-full tw-object-contain" />
+          <div v-for="item in additionalFeatures" :key="item.title" class="reveal-up feature-item tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3 tw-bg-[#f2f3f4] max-md:tw-w-[260px] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
+            <div class="feature-item__img-wrap tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center"
+              @mouseenter="startHoverTimer(item.img)"
+              @mouseleave="cancelHoverTimer">
+              <img :src="item.img" :alt="item.title" class="feature-item__img tw-w-auto tw-h-full tw-object-contain" />
             </div>
             <h3 class="tw-text-xl">{{ item.title }}</h3>
             <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">{{ item.desc }}</p>
@@ -782,8 +816,9 @@ onUnmounted(() => {
       <div class="reveal-up tw-mt-10 tw-w-full tw-max-w-[1200px] tw-overflow-hidden tw-px-4">
         <div ref="carouselRef" class="tw-flex tw-gap-6 tw-overflow-x-auto tw-scroll-smooth tw-snap-x tw-snap-mandatory tw-pb-4" style="scrollbar-width: none; -ms-overflow-style: none;">
           <div v-for="(article, idx) in articleList" :key="idx" class="tw-flex-shrink-0 tw-w-[80vw] md:tw-w-[60vw] lg:tw-w-[45vw] tw-snap-center tw-rounded-xl tw-overflow-hidden">
-            <div class="tw-aspect-video tw-overflow-hidden tw-rounded-xl">
-              <img :src="article.img" :alt="article.title" class="tw-w-full tw-h-full tw-object-cover tw-transition-transform tw-duration-700 hover:tw-scale-105" />
+            <div class="tw-aspect-video tw-overflow-hidden tw-rounded-xl article-img-wrap"
+              @click="fullscreenImage = article.img">
+              <img :src="article.img" :alt="article.title" class="article-img tw-w-full tw-h-full tw-object-cover" />
             </div>
             <h3 class="tw-mt-3 tw-font-medium tw-text-lg tw-text-center">{{ article.title }}</h3>
           </div>
@@ -837,11 +872,14 @@ onUnmounted(() => {
               <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>优先技术支持</span></li>
               <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>新功能抢先体验</span></li>
             </ul>
-            <a href="#" class="pricing-card__cta pricing-card__cta--primary">立即支持 <i class="bi bi-arrow-right"></i></a>
+            <a href="/guides/04-free-vs-pro.html#第二步-选择支持方式" class="pricing-card__cta pricing-card__cta--primary">立即支持 <i class="bi bi-arrow-right"></i></a>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Download -->
+    <DownloadPage id="download" />
 
     <!-- FAQ -->
     <section class="tw-relative tw-flex tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-gap-[10%] tw-p-[5%] tw-px-[10%]">
@@ -862,62 +900,145 @@ onUnmounted(() => {
     <!-- Footer -->
     <footer class="tw-mt-auto tw-flex tw-flex-col tw-w-full tw-gap-4 tw-text-sm tw-pt-[5%] tw-pb-10 tw-px-[10%] tw-text-black dark:tw-text-white max-md:tw-flex-col">
       <div class="tw-flex max-md:tw-flex-col max-md:tw-gap-6 tw-gap-3 tw-w-full tw-place-content-around">
-        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
-          <a href="javascript:void(0)" class="tw-w-full tw-place-items-center tw-flex tw-flex-col tw-gap-6">
-            <svg class="logo-svg tw-max-w-[120px]" viewBox="0 0 444.44 441.44" xmlns="http://www.w3.org/2000/svg">
-              <path class="logo-path" d="m444.43,219.87c0,53.01.03,106.02-.02,159.03-.01,14.61-3.15,28.25-11.33,39.82-10.18,14.42-23.64,22.29-39.85,22.5-31.92.41-63.85.11-95.78.16-2.09,0-3.5-.74-4.83-2.64-9.71-13.95-19.53-27.81-29.29-41.72-.15-.21-.26-.45-.36-.71-.26-.65.05-1.41.64-1.65.36-.14.71-.25,1.07-.25,14.29-.04,28.58-.04,42.87-.04,14.75,0,29.5.02,44.24-.04.76,0,1.51-.26,2.27-.53.62-.22.93-1,.67-1.67-.32-.83-.65-1.65-1.16-2.28-8.3-10.33-16.69-20.58-25.02-30.89-9.04-11.18-18.03-22.41-27.05-33.61-6.24-7.74-12.47-15.48-18.73-23.2-10.61-13.08-21.23-26.15-31.85-39.22-6.57-8.1-13.15-16.2-19.72-24.29-3.55-4.38-7.08-8.78-10.67-13.12-1.39-1.67-.93-2.99.27-4.42,3.92-4.7,7.81-9.43,11.71-14.16,11.79-14.27,23.58-28.55,35.38-42.81,10.99-13.29,22.01-26.54,33-39.83,12.2-14.75,24.39-29.52,36.55-44.32,1.26-1.53,2.62-2.27,4.47-2.27,17.5.04,35.01.02,52.51.06.41,0,.81.14,1.22.31.59.25.87,1.01.61,1.66-.18.45-.38.89-.66,1.23-8.44,10.29-16.93,20.54-25.4,30.79-15.65,18.94-31.29,37.88-46.95,56.8-9.29,11.22-18.62,22.4-27.94,33.59-5,6-10.03,11.97-15,18-2.56,3.11-2.49,3.35.11,6.54,15.35,18.85,30.67,37.72,46.02,56.57,11.88,14.59,23.78,29.15,35.66,43.74,12.1,14.86,24.18,29.75,36.29,44.59.24.29.54.51.86.7.56.34,1.25.06,1.5-.59.22-.57.42-1.15.42-1.72.05-18.02.04-36.04.04-54.05,0-80.63,0-161.27,0-241.9,0-8.53-2.37-15.85-8.64-20.97-4.52-3.69-9.78-4.9-15.27-4.9-35.53-.01-71.06,0-106.59-.01-13.24,0-26.49.2-39.73-.06-12.44-.24-22.26,5.58-30.52,15.65-6.38,7.79-12.87,15.47-19.28,23.23-10.8,13.08-21.56,26.2-32.36,39.29-6.67,8.09-13.38,16.15-20.06,24.23-11.71,14.16-23.41,28.32-35.12,42.48-6.73,8.13-13.48,16.24-20.21,24.38-11.98,14.48-23.94,28.97-35.92,43.46-11.52,13.94-23.05,27.88-34.57,41.82-.36.43-.72.88-1.12,1.25-1.03.97-1.67.72-1.78-.84-.05-.67-.04-1.34-.04-2.01,0-98.5,0-197,0-295.51C.03.26.17.04,4.87.04c12.98,0,25.96.07,38.93.13,2.25,0,2.93.96,2.9,4.16-.04,5.65-.21,11.3-.2,16.95.04,18,.2,36,.21,54.01,0,9.97-.24,19.94-.26,29.91-.05,22.7-.04,45.39,0,68.09,0,.67.25,1.34.51,2.01.25.62.9.89,1.44.61s1.04-.57,1.41-1.01c8.25-9.98,16.44-20.03,24.67-30.04,6.44-7.83,12.91-15.62,19.37-23.43,13.4-16.23,26.79-32.47,40.19-48.69,6.55-7.93,13.08-15.86,19.67-23.74,8.21-9.83,16.22-19.88,24.75-29.33C189.33,7.62,202.53.85,217.8.44c14.67-.39,29.35-.11,44.03-.16,22.48-.07,44.97-.19,67.45-.24,20.06-.04,40.12-.05,60.18,0,10.37.03,20.39,1.98,29.49,8.01,15.48,10.25,24.46,25.53,25.01,45.89.69,25.96.4,51.95.45,77.93.05,29.33.01,58.67.02,88ZM234.21,76.74c-3.17-.09-5.42,1.03-7.54,3.66-8.8,10.92-17.74,21.71-26.63,32.54-5.94,7.24-11.9,14.47-17.82,21.73-12.56,15.39-25.09,30.8-37.65,46.19-6.99,8.57-13.99,17.12-21.02,25.65-1.41,1.71-1.43,4.36-.05,6.11,2.31,2.94,4.56,5.94,6.85,8.9,9.86,12.74,19.73,25.48,29.59,38.22,9.08,11.74,18.15,23.49,27.25,35.2,9.53,12.28,19.11,24.51,28.65,36.79,8.54,10.99,17.05,22.01,25.54,33.05,1.31,1.7,2.8,2.42,4.81,2.4,8.85-.08,17.7-.02,26.55-.02,8.19,0,16.39,0,24.58-.04.17,0,.35-.04.52-.09.71-.22,1.04-1.15.64-1.85-.06-.11-.13-.22-.21-.32-2.15-2.81-4.35-5.57-6.51-8.36-16.78-21.58-33.56-43.17-50.34-64.76-15.65-20.14-31.3-40.28-46.95-60.42-4.77-6.14-9.51-12.29-14.31-18.4-1.27-1.62-1.41-3.05.01-4.65,1.21-1.36,2.29-2.87,3.46-4.27,11.92-14.34,23.87-28.63,35.75-43.01,10.09-12.21,20.07-24.53,30.14-36.76,12.22-14.84,24.49-29.62,36.71-44.45.22-.27.4-.58.57-.91.34-.67.06-1.52-.59-1.78-.36-.14-.72-.25-1.08-.26-8.85-.05-17.7-.03-26.55-.03-8.13,0-16.26.16-24.38-.07ZM.01,394.43c0,14.44,0,28.88,0,43.33,0,3.18.33,3.59,2.98,3.59,13.63.01,27.27-.02,40.9.02,2.09,0,2.93-.88,2.93-3.29.04-25,.14-50,.22-75,.03-7.89.04-15.78.13-23.67,0-.44.14-.89.31-1.33.26-.67.98-.92,1.53-.56.35.23.68.48.94.8,2.03,2.52,3.98,5.14,5.96,7.72,11.55,15.12,23.1,30.24,34.63,45.38,12.04,15.81,24.08,31.64,36.05,47.52,1.33,1.77,2.76,2.44,4.75,2.43,13.63-.06,27.27-.04,40.9-.04.52,0,1.06.06,1.57-.05.1-.02.19-.05.29-.09.68-.26.96-1.24.51-1.88,0,0,0,0,0-.01-1.21-1.66-2.47-3.28-3.7-4.92-8.5-11.33-16.98-22.68-25.51-33.98-11.13-14.74-22.32-29.43-33.46-44.17-6.95-9.2-13.82-18.49-20.77-27.69-5.84-7.74-11.76-15.4-17.61-23.13-5.6-7.39-11.19-14.79-16.72-22.23-1.39-1.87-2.44-1.92-3.92-.06-5.56,7.02-11.21,13.97-16.85,20.91-11.38,13.99-22.77,27.98-34.21,41.9C.5,347.61,0,349.34,0,351.55c.05,14.29.02,28.59.02,42.88h-.01Zm239.69,46.9c8.19,0,16.38.02,24.58-.03.33,0,.66-.08.99-.18.65-.21.97-1.02.69-1.72-.16-.4-.34-.78-.58-1.11-1.83-2.53-3.74-4.98-5.61-7.46-12.15-16.1-24.29-32.21-36.46-48.29-11.23-14.84-22.52-29.62-33.74-44.46-7.9-10.44-15.71-20.96-23.61-31.4-11.19-14.78-22.44-29.51-33.64-44.27-8.97-11.82-17.91-23.67-26.87-35.5-1.51-2-4.04-2.05-5.62-.12-8.05,9.87-16.07,19.77-24.16,29.6-1.42,1.73-1.14,2.93.11,4.56,8.89,11.53,17.74,23.1,26.54,34.72,11.23,14.83,22.36,29.77,33.61,44.59,14.54,19.17,29.15,38.26,43.72,57.39,10.54,13.84,21.03,27.74,31.67,41.49.93,1.21,2.78,2.07,4.22,2.11,8.06.2,16.12.1,24.18.1v-.02Z"/>
-            </svg>
-            <div class="tw-max-w-[120px] tw-text-center tw-text-3xl tw-h-fit">KKBAR</div>
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-4 max-md:tw-w-full">
+          <a href="javascript:void(0)" class="tw-w-full tw-place-items-center tw-flex tw-flex-col tw-gap-2">
+            <span class="tw-text-4xl tw-font-bold tw-tracking-tight">KKBAR</span>
+            <span class="tw-text-xs tw-opacity-70">CEP toolbar for After Effects</span>
           </a>
-          <div class="tw-flex tw-gap-4 tw-text-lg">
-            <a href="https://github.com/" aria-label="Github"><i class="bi bi-github"></i></a>
-            <a href="https://twitter.com/" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
-            <a href="https://www.linkedin.com/" aria-label="Linkedin"><i class="bi bi-linkedin"></i></a>
+          <div class="tw-flex tw-gap-4 tw-text-lg tw-mt-2">
+            <a href="https://github.com/yancongya" aria-label="Github" class="tw-w-6 tw-h-6"><img src="./assets/github.svg" class="tw-w-full tw-h-full" alt="Github" /></a>
+            <a href="https://space.bilibili.com/100881808/" aria-label="Bilibili" class="tw-w-6 tw-h-6"><img src="./assets/bilibili.svg" class="tw-w-full tw-h-full" alt="Bilibili" /></a>
+            <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" class="tw-w-6 tw-h-6"><img src="./assets/xiaohongshu.svg" class="tw-w-full tw-h-full" alt="小红书" /></a>
+            <a href="javascript:void(0)" aria-label="Email" @click="copyEmail"><i class="bi bi-envelope"></i></a>
           </div>
         </div>
         <div class="tw-flex max-md:tw-grid max-md:tw-grid-cols-2 tw-flex-wrap tw-gap-6 tw-h-full tw-w-full tw-justify-around">
           <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-xl">项目</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3">
+              <a href="https://rualive.itycon.cn/" class="footer-link" target="_blank" rel="noreferrer">rualive</a>
+              <a href="https://kbar.itycon.cn/" class="footer-link" target="_blank" rel="noreferrer">KBar 中文站</a>
+              <a href="https://yancongya.github.io/auto_tinify/" class="footer-link" target="_blank" rel="noreferrer">AE 压缩图片</a>
+              <a href="https://yancongya.github.io/PSD-Batch-Processor/" class="footer-link" target="_blank" rel="noreferrer">PSD 批量处理</a>
+            </div>
+          </div>
+          <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
             <h2 class="tw-text-xl">资源</h2>
-                    <div class="tw-flex tw-flex-col tw-gap-3">
-                        <a href="/guides/01-introduction/" class="footer-link">入门指南</a>
-                        <a href="/reference/api/" class="footer-link">API 文档</a>
-                        <a href="/guides/02-installation/" class="footer-link">安装指南</a>
-                        <a href="/guides/03-quickstart/" class="footer-link">快速上手</a>
-                        <a href="#pricing" class="footer-link">价格</a>
-                    </div>
-          </div>
-          <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-xl">公司</h2>
             <div class="tw-flex tw-flex-col tw-gap-3">
-              <a href="javascript:void(0)" class="footer-link">支持渠道</a>
-              <a href="javascript:void(0)" class="footer-link">系统</a>
-              <a href="javascript:void(0)" class="footer-link">博客</a>
-              <a href="https://twitter.com/" class="footer-link">Twitter</a>
-              <a href="https://github.com/" class="footer-link">Github</a>
+              <a href="https://aemarketplace.vercel.app/" class="footer-link" target="_blank" rel="noreferrer">AE Marketplace</a>
+              <a href="https://www.lookae.com/" class="footer-link" target="_blank" rel="noreferrer">Lookae</a>
+              <a href="https://c4dsky.com/" class="footer-link" target="_blank" rel="noreferrer">C4DSky</a>
+              <a href="https://www.gfxcamp.com/" class="footer-link" target="_blank" rel="noreferrer">GFXCamp</a>
+              <a href="https://www.yuelili.com/" class="footer-link" target="_blank" rel="noreferrer">月离</a>
             </div>
           </div>
           <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-xl">法律</h2>
+            <h2 class="tw-text-xl">支持</h2>
             <div class="tw-flex tw-flex-col tw-gap-3">
-              <a href="javascript:void(0)" class="footer-link">服务条款</a>
-              <a href="javascript:void(0)" class="footer-link">隐私政策</a>
-              <a href="javascript:void(0)" class="footer-link">DCMA - 内容下架</a>
+              <a href="https://ifdian.net/item/996fc7123f2c11f1982e5254001e7c00" class="footer-link" target="_blank" rel="noreferrer">爱发电</a>
+              <a href="javascript:void(0)" class="footer-link" @click="showSupportQr = true">支付宝/微信</a>
             </div>
           </div>
+          
         </div>
       </div>
       <hr class="tw-mt-8" />
       <div class="tw-mt-2 tw-flex tw-gap-2 tw-flex-col tw-text-gray-700 dark:tw-text-gray-300 tw-place-items-center tw-text-[12px] tw-w-full tw-text-center tw-place-content-around">
-        <span>Copyright &#169; 2023-2025</span>
-        <span>All trademarks and copyrights belong to their respective owners.</span>
+        <span>Copyright &#169; 2023-2026 Kkbar. All rights reserved.</span>
+        <span>烟囱鸭 - 一个做动画的</span>
       </div>
     </footer>
+      <!-- 支付宝/微信二维码弹窗 -->
+      <Teleport to="body">
+        <div v-if="showSupportQr" class="support-qr-mask" @click.self="showSupportQr = false">
+          <div class="support-qr-card">
+            <div class="support-qr-header">
+              <span>扫码支持</span>
+              <button class="support-qr-close" @click="showSupportQr = false">&times;</button>
+            </div>
+            <div class="support-qr-body">
+              <div class="support-qr-item">
+                <img src="./assets/alipay.jpg" alt="支付宝" />
+                <span>支付宝</span>
+              </div>
+              <div class="support-qr-item">
+                <img src="./assets/wechat.jpg" alt="微信" />
+                <span>微信</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Teleport>
+      <!-- 邮箱复制 Toast -->
+      <Teleport to="body">
+        <div v-if="showEmailToast" class="email-toast">邮箱已复制到剪贴板</div>
+      </Teleport>
+      <!-- 图片全屏显示 -->
+      <div v-if="fullscreenImage" class="fullscreen-mask" @click.self="closeFullscreen">
+        <div class="fullscreen-content">
+          <img :src="fullscreenImage" alt="全屏图片" class="fullscreen-img" @click.stop />
+        </div>
+      </div>
   </div>
 </template>
 
 <style scoped>
+/* 后续页面无波点 */
+.landing-page {
+  background-color: #f8fafc;
+}
+
+html.dark .landing-page,
+html.tw-dark .landing-page {
+  background-color: #000;
+}
+
+.feature-card {
+  border: 1px solid transparent;
+}
+
+.feature-card--active {
+  border-color: #667eea;
+  box-shadow: 0 0 0 1px #667eea;
+}
+
+.feature-card__icon-wrap {
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-card__icon-wrap {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+.feature-card__icon {
+  transition: color 0.3s ease;
+}
+
+.feature-card:hover .feature-card__icon {
+  color: #667eea !important;
+}
+
 .feature-nav-dots {
   display: none;
+}
+
+.dialog-hover-container {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  transform-origin: center;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.dialog-hover-container:hover {
+  transform: scale(1.02) translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1);
+  filter: brightness(1.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dialog-hover-container:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
 }
 
 @media (max-width: 1023px) {
@@ -928,5 +1049,178 @@ onUnmounted(() => {
 
 div::-webkit-scrollbar {
   display: none;
+}
+
+.support-qr-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.support-qr-card {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.support-qr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.support-qr-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.support-qr-close:hover {
+  opacity: 1;
+}
+
+.support-qr-body {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.support-qr-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.support-qr-item img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.support-qr-item span {
+  color: #fff;
+  font-size: 14px;
+}
+
+.email-toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 9999;
+  animation: toast-fade 2s ease;
+}
+
+@keyframes toast-fade {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* 特点项hover效果 */
+.feature-item {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.dark .feature-item:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.feature-item__img-wrap {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.feature-item__img {
+  transition: transform 0.5s ease;
+}
+
+.feature-item__img-wrap:hover .feature-item__img {
+  transform: scale(1.1);
+}
+
+/* 更多页面图片hover效果 */
+.article-img-wrap {
+  cursor: pointer;
+}
+
+.article-img {
+  transition: transform 0.7s ease;
+}
+
+.article-img-wrap:hover .article-img {
+  transform: scale(1.05);
+}
+
+/* 全屏图片显示 */
+.fullscreen-enter-active,
+.fullscreen-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fullscreen-enter-from,
+.fullscreen-leave-to {
+  opacity: 0;
+}
+
+.fullscreen-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: pointer;
+}
+
+.fullscreen-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </style>

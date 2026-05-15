@@ -1,8 +1,11 @@
 # 调用 AE 内置菜单命令
 
 调用 After Effects 内部菜单命令，快速执行标准操作。
+![首页](/assets/images/panel.png)
 
 ## 使用方法
+
+![首页](/assets/images/panel.webp)
 
 1. 在设置面板中添加或编辑按钮
 2. 设置按钮名称和图标
@@ -19,9 +22,10 @@
 - **版本隔离**：支持切换不同 AE 版本的命令集，确保兼容性
 
 :::warning 执行前提
+
 - 当前 AE 版本有对应的菜单命令数据文件
 - 如果搜索不到目标命令，可能是当前 AE 版本的数据文件未包含该命令
-:::
+  :::
 
 ## 适用场景
 
@@ -38,3 +42,4 @@
 - **JSON 数据文件**：[tree/master/json](https://github.com/hyperbrew/after-effects-command-ids/tree/master/json)
 
 Kkbar 内置了 AE 2015 ~ 2025 共 11 个版本的命令数据，共 909 条命令。
+

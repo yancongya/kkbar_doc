@@ -1,6 +1,7 @@
 # 剪贴板
 
 将预设的文本内容一键复制到系统剪贴板，或执行文件导入操作，方便快速复制常用内容和管理素材。
+![首页](/assets/images/clipboard0.png)
 
 ## 使用方法
 
@@ -31,6 +32,8 @@
 | 运行 | 执行代码（表达式/剪贴板/脚本/Shell 命令） |
 
 ## 动作类型
+
+![首页](/assets/images/clipboard1.png)
 
 ### 1. 文本复制
 
@@ -74,54 +77,70 @@ $FOLDER:D:\Assets
 
 ### 4. 导入示例
 
+![首页](/assets/images/clipboard2.png)
+
 :::details 基础导入
+
 ```
 $FILE:D:\Projects\video.mp4                    # 导入单个视频
 $FILE:D:\Assets\images                         # 导入图片文件夹（所有图片）
 $FOLDER:D:\素材\                                # 递归导入整个素材文件夹
 ```
+
 :::
 
 :::details 导入到 footage 文件夹
+
 ```
 $FILE:D:\Projects\footage@footage              # 导入到 footage 文件夹
 $FILE:D:\素材\@footage                          # 导入到 footage（使用变量路径）
 ```
+
 :::
 
 :::details 导入并加入合成
+
 ```
 $FILE:D:\Projects\video.mp4@1                  # 导入视频并加入当前合成
 $FILE:D:\Assets\序列@1                          # 导入序列并加入合成
 ```
+
 :::
 
 :::details 导入并放到时间点
+
 ```
 $FILE:D:\video.mp4@2                           # 导入视频并放到当前时间点
 ```
+
 :::
 
 :::details 组合模式
+
 ```
 $FILE:D:\footage@footage-1                     # 导入到 footage-1 并加入合成
 ```
+
 :::
 
 :::details 使用变量
+
 ```
 $FILE:$SELECTION_FILE                           # 导入当前选中的素材
 $FILE:$SELECTION_FOLDER                         # 导入选中素材所在的文件夹
 $FOLDER:$PROJECT_PATH\footage                   # 导入项目目录下的 footage 文件夹
 ```
+
 :::
 
 :::details 绝对路径示例
+
 ```
 $FILE:E:\AE Projects\assets\backgrounds        # 导入背景图文件夹
 $FOLDER:E:\Stock Videos\@footage                # 导入库存视频到 footage
 $FILE:E:\footage\mood.mp4@2                     # 导入并放到时间点
 ```
+
 :::
 
 :::tip AI 辅助生成
@@ -131,10 +150,12 @@ $FILE:E:\footage\mood.mp4@2                     # 导入并放到时间点
 2. 打开 AI 网页（如 DeepSeek、通义千问等）
 3. 粘贴模板，描述你的需求
 4. AI 生成后复制回来即可使用
-:::
+   :::
 
 :::warning 执行前提
+
 - 文本内容或导入路径已正确配置
 - 如需导入文件，项目必须已保存
 - 导入模式 `@1` 和 `@2` 需要当前有打开的合成
-:::
+  :::
+

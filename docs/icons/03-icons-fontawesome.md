@@ -1,5 +1,7 @@
 # FontAwesome 图标
 
+![首页](/assets/images/iconinput.png)
+
 Kkbar 集成了 FontAwesome 4.7 图标库，提供 675+ 个图标供选择。
 
 ## 使用方法
@@ -41,3 +43,4 @@ Kkbar 集成了 FontAwesome 4.7 图标库，提供 675+ 个图标供选择。
 :::details 在线浏览完整图标列表
 访问 [FontAwesome 4.7 官方图标库](https://fontawesome.com/v4/icons/) 查看所有可用图标。
 :::
+

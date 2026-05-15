@@ -1,8 +1,11 @@
 # 脚本代码直接运行
 
 直接在配置面板中输入 ExtendScript 代码，点击按钮时立即执行，无需外部文件。
+![首页](/assets/images/scripttlet0.png)
 
 ## 使用方法
+
+![首页](/assets/images/scripttlet.png)
 
 1. 在设置面板中添加或编辑按钮
 2. 设置按钮名称和图标
@@ -31,10 +34,11 @@
 | 运行 | 执行代码（表达式/剪贴板/脚本/Shell 命令） |
 
 :::warning 执行前提
+
 - 代码语法正确
 - 所需的对象存在（如活动合成、选中图层等）
 - 如果执行失败，会显示详细的错误信息
-:::
+  :::
 
 :::tip AI 辅助生成
 点击代码框上方的 **?** 按钮，会将代码模板复制到剪贴板：
@@ -43,7 +47,7 @@
 2. 打开 AI 网页（如 DeepSeek、通义千问等）
 3. 粘贴模板，描述你的需求
 4. AI 生成后复制回来即可使用
-:::
+   :::
 
 ## 保存到文件
 
@@ -56,12 +60,15 @@
 ## 代码示例
 
 :::details 创建新合成
+
 ```javascript
 var comp = app.project.items.addComp("新合成", 1920, 1080, 1, 10, 30);
 ```
+
 :::
 
 :::details 选中所有图层
+
 ```javascript
 var comp = app.project.activeItem;
 if (comp) {
@@ -70,29 +77,37 @@ if (comp) {
   }
 }
 ```
+
 :::
 
 :::details 批量重命名选中图层
+
 ```javascript
 var sel = app.project.activeItem.selectedLayers;
 for (var i = 0; i < sel.length; i++) {
   sel[i].name = "图层_" + (i + 1);
 }
 ```
+
 :::
 
 :::details 导出项目为 AEP
+
 ```javascript
 var file = new File("/d/temp/project.aep");
 app.project.save(file);
 ```
+
 :::
 
 :::details 创建纯色层
+
 ```javascript
 var comp = app.project.activeItem;
 var solid = comp.layers.addSolid([1, 1, 1], "纯色", comp.width, comp.height, 1);
 ```
+
 :::
 
 点击"运行 Scriptlet"按钮即可在 AE 中实时测试代码效果。
+

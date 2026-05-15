@@ -244,6 +244,7 @@ const currentCat = computed(() => categories[activeCatIdx.value])
 const sidebarState = ref<'expanded' | 'icon-only' | 'collapsed'>('expanded')
 const mode = ref<'panel' | 'hotkey' | 'longpress' | 'uisettings'>('panel')
 const longpressType = ref<'popup' | 'ring'>('popup')
+const showAbout = ref(false)
 
 const uiSettings = reactive({ iconSize: 52, iconSpacing: 6, showToolbar: true, viewMode: 'grid' as 'grid' | 'list' })
 
@@ -524,6 +525,13 @@ onUnmounted(() => {
               <button class="cep-main-panel__icon-btn" title="日志">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               </button>
+              <button class="cep-main-panel__icon-btn" :class="{ 'cep-main-panel__icon-btn--active': uiSettings.viewMode === 'list' }" @click="uiSettings.viewMode = uiSettings.viewMode === 'grid' ? 'list' : 'grid'" :title="uiSettings.viewMode === 'grid' ? '切换到列表视图' : '切换到网格视图'">
+                <svg v-if="uiSettings.viewMode === 'grid'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </button>
+              <button class="cep-main-panel__icon-btn" @click="showAbout = !showAbout" title="关于">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
               <button class="cep-main-panel__icon-btn" title="设置">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
               </button>
@@ -608,11 +616,11 @@ onUnmounted(() => {
                 <button class="cep-ui-toolbar-btn" :class="{ 'cep-ui-toolbar-btn--active': uiSettings.viewMode === 'list' }" @click="uiSettings.viewMode = 'list'" type="button"><i class="bi bi-view-list"></i> 列表</button>
               </div>
             </div>
+</div>
           </div>
         </div>
-      </div>
 
-      <!-- Guide Overlay -->
+        <!-- Guide Overlay -->
       <Transition name="guide-fade">
         <div v-if="activeGuide && guideConfig[activeGuide]" class="cep-guide-overlay cep-guide-overlay--visible" @click="dismissGuide">
           <div class="cep-guide-card" @click.stop>
@@ -674,6 +682,58 @@ onUnmounted(() => {
           </div>
         </Transition>
       </Teleport>
+
+      <!-- About Dialog -->
+      <Teleport to="body">
+        <Transition name="guide-fade">
+          <div v-if="showAbout" class="cep-about-overlay" @click="showAbout = false">
+            <div class="cep-about-dialog" @click.stop>
+              <div class="cep-about-header">
+                <div class="cep-about-logo">
+                  <span class="cep-about-logo__text">K</span>
+                </div>
+                <div class="cep-about-title">
+                  <h2>KKBAR</h2>
+                  <span class="cep-about-subtitle">CEP toolbar for After Effects</span>
+                </div>
+              </div>
+              <div class="cep-about-body">
+                <div class="cep-about-info">
+                  <div class="cep-about-row">
+                    <span class="cep-about-label">版本</span>
+                    <span class="cep-about-value">1.0.0</span>
+                  </div>
+                  <div class="cep-about-row">
+                    <span class="cep-about-label">作者</span>
+                    <span class="cep-about-value">烟囱鸭</span>
+                  </div>
+                  <div class="cep-about-row">
+                    <span class="cep-about-label">技术栈</span>
+                    <span class="cep-about-value">CEP + Vue 3 + Pinia + Vite</span>
+                  </div>
+                </div>
+                <div class="cep-about-desc">
+                  <p>九大动作类型覆盖全场景：JSX脚本、预设、效果、表达式、Shell命令、剪贴板、扩展面板、菜单命令、脚本片段</p>
+                </div>
+                <div class="cep-about-links">
+                  <a href="https://github.com/yancongya" target="_blank" rel="noreferrer" class="cep-about-link">
+                    <i class="bi bi-github"></i> GitHub
+                  </a>
+                  <a href="https://space.bilibili.com/100881808/" target="_blank" rel="noreferrer" class="cep-about-link">
+                    <i class="bi bi-play-btn"></i> Bilibili
+                  </a>
+                  <a href="https://xhslink.com/m/9v4RK5HQzsc" target="_blank" rel="noreferrer" class="cep-about-link">
+                    <i class="bi bi-chat-heart"></i> 小红书
+                  </a>
+                </div>
+              </div>
+              <button class="cep-about-close" @click="showAbout = false" type="button">
+                <span>关闭</span>
+              </button>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
     </div>
   </div>
 </template>
@@ -686,5 +746,271 @@ onUnmounted(() => {
 .guide-fade-enter-from,
 .guide-fade-leave-to {
   opacity: 0;
+}
+
+/* Window action buttons */
+.cep-preview__window-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.cep-preview__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cep-preview__action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.cep-preview__action-btn--active {
+  background: rgba(167, 139, 250, 0.2);
+  color: #a78bfa;
+}
+
+.cep-preview__action-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 4px;
+}
+
+/* About dialog */
+.cep-about-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.cep-about-dialog {
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  width: 360px;
+  max-width: 90vw;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.cep-about-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cep-about-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cep-about-logo__text {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.cep-about-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+}
+
+.cep-about-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cep-about-body {
+  padding: 20px 24px;
+}
+
+.cep-about-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.cep-about-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cep-about-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cep-about-value {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.cep-about-desc {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.cep-about-desc p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+}
+
+.cep-about-links {
+  display: flex;
+  gap: 12px;
+}
+
+.cep-about-link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.cep-about-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.cep-about-close {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cep-about-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Light mode */
+html:not(.dark) .cep-preview__action-btn {
+  color: #777;
+}
+
+html:not(.dark) .cep-preview__action-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+html:not(.dark) .cep-preview__action-btn--active {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+}
+
+html:not(.dark) .cep-preview__action-divider {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+html:not(.dark) .cep-about-overlay {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+html:not(.dark) .cep-about-dialog {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+html:not(.dark) .cep-about-header {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+html:not(.dark) .cep-about-title h2 {
+  color: #1a1a2e;
+}
+
+html:not(.dark) .cep-about-subtitle {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+html:not(.dark) .cep-about-label {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+html:not(.dark) .cep-about-value {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+html:not(.dark) .cep-about-desc {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+html:not(.dark) .cep-about-desc p {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+html:not(.dark) .cep-about-link {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.6);
+}
+
+html:not(.dark) .cep-about-link:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+html:not(.dark) .cep-about-close {
+  background: rgba(0, 0, 0, 0.03);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.6);
+}
+
+html:not(.dark) .cep-about-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.85);
 }
 </style>

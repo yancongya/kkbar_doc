@@ -1,5 +1,5 @@
 <template>
-  <section class="why-section">
+  <section id="why-kkbar" class="why-section">
     <h2 class="why-title">为什么选择 Kkbar</h2>
     <p class="why-subtitle">拖拽旋转 · 点击卡片查看详情</p>
 

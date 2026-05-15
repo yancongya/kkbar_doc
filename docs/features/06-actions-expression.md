@@ -2,6 +2,8 @@
 
 将表达式代码应用到选中的属性上。
 
+![首页](/assets/images/exp.png)
+
 ## 使用方法
 
 1. 在设置面板中添加或编辑按钮
@@ -31,10 +33,11 @@
 | 运行 | 执行代码（表达式/剪贴板/脚本/Shell 命令） |
 
 :::warning 执行前提
+
 - 当前 AE 中有打开的活动合成
 - 已选中一个或多个**属性**（不是图层）
 - 如果没有选中属性，运行时会提示"请先选择一个或多个属性"
-:::
+  :::
 
 ## 保存到文件
 
@@ -54,37 +57,48 @@
 ## 表达式示例
 
 :::details 循环动画
+
 ```javascript
 loopOut("cycle")
 ```
+
 :::
 
 :::details 随机抖动
+
 ```javascript
 wiggle(3, 50)
 ```
+
 :::
 
 :::details 滑块控制
 需先添加"滑块控制"效果。
+
 ```javascript
 thisComp.layer("Control").effect("滑块")("滑块")
 ```
+
 :::
 
 :::details 时间相关
+
 ```javascript
 time * 100  // 随时间旋转
 ```
+
 :::
 
 :::details 位置链接
+
 ```javascript
 thisComp.layer("图层名").transform.position
 ```
+
 :::
 
 :::details 弹性动画
+
 ```javascript
 amp = .1;
 freq = 2.0;
@@ -104,6 +118,8 @@ if (n > 0) {
   transform.position
 }
 ```
+
 :::
 
 点击"应用表达式"按钮即可在 AE 中实时测试表达式效果。
+

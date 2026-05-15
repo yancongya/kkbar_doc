@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250">
-  <rect width="400" height="250" fill="#1a1a2e"/>
-  <text x="200" y="120" text-anchor="middle" fill="#ffa726" font-size="24" font-family="sans-serif">效果特效</text>
-  <text x="200" y="150" text-anchor="middle" fill="#666" font-size="14" font-family="sans-serif">快速应用 AE/PS 内置效果到图层</text>
-  <rect x="50" y="170" width="300" height="40" rx="8" fill="#ffa726"/>
-  <text x="200" y="195" text-anchor="middle" fill="#1a1a2e" font-size="14" font-family="sans-serif">applyEffect(matchName)</text>
-</svg>

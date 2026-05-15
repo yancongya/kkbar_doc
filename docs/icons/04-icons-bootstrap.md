@@ -1,6 +1,7 @@
 # Bootstrap Icons
 
 Kkbar 集成了 Bootstrap Icons 1.11.3，提供 300+ 个图标供选择。
+![首页](/assets/images/iconinput.png)
 
 ## 使用方法
 
@@ -40,3 +41,4 @@ Kkbar 集成了 Bootstrap Icons 1.11.3，提供 300+ 个图标供选择。
 :::details 在线浏览完整图标列表
 访问 [Bootstrap Icons 官方图标库](https://icons.getbootstrap.com/) 查看所有可用图标。
 :::
+
