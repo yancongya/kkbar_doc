@@ -84,9 +84,7 @@ export default defineConfig({
       },
     ],
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/' },
-    ],
+    socialLinks: [],
 
     footer: {
       message: 'Released under the MIT License.',

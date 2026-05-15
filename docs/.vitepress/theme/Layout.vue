@@ -3,6 +3,7 @@ import { computed, onMounted, nextTick, watch } from 'vue'
 import { useRoute, useData } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import LandingPage from './LandingPage.vue'
+import NavbarSocial from './components/NavbarSocial.vue'
 
 const route = useRoute()
 const { isDark } = useData()
@@ -48,6 +49,9 @@ watch(isDark, (dark) => {
         alt="logo"
         @mouseenter="replayLogo"
       />
+    </template>
+    <template #nav-bar-content-after>
+      <NavbarSocial />
     </template>
   </DefaultTheme.Layout>
 </template>
