@@ -1162,12 +1162,16 @@ div::-webkit-scrollbar {
 
 .feature-item__img {
   transition: transform 0.5s ease, filter 0.3s ease;
-  filter: invert(1) brightness(0.9);
 }
 
-html.dark .feature-item__img,
-html.tw-dark .feature-item__img {
-  filter: none;
+/* 亮色模式下图片反相，增加对比度避免偏灰 */
+html:not(.dark) .feature-item__img {
+  filter: invert(1) brightness(0.85) contrast(1.3);
+}
+
+/* hover时稍微提亮 */
+html:not(.dark) .feature-item__img-wrap:hover .feature-item__img {
+  filter: invert(1) brightness(0.9) contrast(1.2);
 }
 
 .feature-item__img-wrap:hover .feature-item__img {
