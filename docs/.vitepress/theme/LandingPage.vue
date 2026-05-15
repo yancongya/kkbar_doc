@@ -1229,6 +1229,15 @@ html:not(.dark) .feature-item__img-wrap:hover .feature-item__img {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
+html:not(.dark) .fullscreen-img {
+  filter: invert(1) brightness(0.85) contrast(1.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
