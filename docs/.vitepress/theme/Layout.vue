@@ -53,6 +53,15 @@ watch(isDark, (dark) => {
     <template #nav-bar-content-after>
       <NavbarSocial />
     </template>
+    <template #doc-bottom>
+      <div class="docs-legal-footer">
+        <div class="docs-legal-footer__inner">
+          <span class="docs-legal-footer__label">法律与协议</span>
+          <a class="docs-legal-footer__link" href="/legal/隐私协议">隐私协议</a>
+          <a class="docs-legal-footer__link" href="/legal/用户须知许可协议">用户须知与许可协议</a>
+        </div>
+      </div>
+    </template>
   </DefaultTheme.Layout>
 </template>
 

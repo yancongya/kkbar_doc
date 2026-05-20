@@ -9,7 +9,7 @@
         <h1 class="download-hero__title reveal-up">下载 Kkbar</h1>
         
         <p class="download-hero__desc reveal-up">
-          为 After Effects 打造的全能工具栏扩展
+          AE 工具栏扩展，九种动作类型，告别窗口切换
         </p>
         
         <div class="download-hero__actions reveal-up">
@@ -18,13 +18,13 @@
             <i class="bi bi-cloud-arrow-down"></i>
             <div class="download-btn__text">
               <span class="download-btn__label">网盘下载</span>
-              <span class="download-btn__size">v2.1.0 · Windows / macOS</span>
+              <span class="download-btn__size">v1.0.0 · Windows / macOS</span>
             </div>
           </a>
         </div>
         
         <div class="download-hero__meta reveal-up">
-          <span><i class="bi bi-shield-check"></i> 安全无毒</span>
+          <span><i class="bi bi-puzzle"></i> CEP 扩展</span>
           <span class="dot">·</span>
           <span><i class="bi bi-lightning"></i> 即装即用</span>
           <span class="dot">·</span>
@@ -40,7 +40,7 @@
           <i class="bi bi-journal-text"></i>
           <span>更新日志</span>
         </div>
-        <div class="download-card__body">
+        <div class="download-card__body download-card__body--scroll">
           <div class="changelog-item" v-for="log in changelog" :key="log.version">
             <div class="changelog-item__head">
               <span class="changelog-tag">{{ log.version }}</span>
@@ -65,38 +65,19 @@
             <li><i class="bi bi-check2-circle"></i> After Effects 2020+</li>
             <li><i class="bi bi-check2-circle"></i> 已安装 CEP 扩展支持</li>
           </ul>
-        </div>
-        
-        <div class="download-card__header">
-          <i class="bi bi-list-check"></i>
-          <span>安装步骤</span>
-        </div>
-        <div class="download-card__body">
+          
+          <div class="download-card__header" style="margin: 16px -16px 12px; padding: 12px 16px; border-top: 1px solid #222;">
+            <i class="bi bi-list-check"></i>
+            <span>安装步骤</span>
+          </div>
           <ol class="steps-list">
             <li>下载 .zxp 文件</li>
             <li>使用 ZXP Installer 安装</li>
             <li>AE 中 窗口 → 扩展 → Kkbar</li>
           </ol>
-        </div>
-      </div>
-
-      <!-- FAQ -->
-      <div class="download-card reveal-up">
-        <div class="download-card__header">
-          <i class="bi bi-question-circle"></i>
-          <span>常见问题</span>
-        </div>
-        <div class="download-card__body">
-          <div class="faq-item" v-for="(faq, i) in faqs" :key="i" 
-               :class="{ 'faq-item--open': openFaq === i }" @click="toggleFaq(i)">
-            <div class="faq-item__q">
-              <span>{{ faq.q }}</span>
-              <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="faq-item__a" v-show="openFaq === i">
-              <p>{{ faq.a }}</p>
-            </div>
-          </div>
+          <a href="/guides/02-installation" class="doc-link">
+            <i class="bi bi-book"></i> 查看详细安装教程
+          </a>
         </div>
       </div>
     </div>
@@ -108,19 +89,11 @@ import { ref } from 'vue'
 
 defineProps({ id: { type: String, default: 'download' } })
 
-const openFaq = ref(null)
-const toggleFaq = (i) => { openFaq.value = openFaq.value === i ? null : i }
-
 const changelog = [
-  { version: 'v2.1.0', date: '2025-05-15', items: ['新增剪贴板动作类型', '优化图标库加载性能'] },
-  { version: 'v2.0.5', date: '2025-04-20', items: ['优化按钮拖拽体验', '修复预设应用问题'] },
-  { version: 'v2.0.0', date: '2025-03-01', items: ['全新 UI 设计', '支持多分类管理'] },
-]
-
-const faqs = [
-  { q: '安装后看不到扩展？', a: '请开启 PlayerDebugMode。Win: 注册表 CSXS.11 添加 PlayerDebugMode=1。Mac: 终端执行 defaults write com.adobe.CSXS.11 PlayerDebugMode 1' },
-  { q: '支持哪些 AE 版本？', a: '支持 After Effects 2020 及以上版本，推荐 AE 2022+。' },
-  { q: '如何升级付费版？', a: '在关于页面选择支持方式，付费后获取解锁文本输入即可。' },
+  { version: 'v1.0.0', date: '2025-05-17', items: ['首次发布', '支持9种动作类型', '支持多主题切换', '支持配置导入导出'] },
+  { version: 'v0.9.5', date: '2025-04-28', items: ['优化按钮拖拽体验', '修复预设应用问题', '新增Shell命令动作'] },
+  { version: 'v0.9.0', date: '2025-04-10', items: ['新增剪贴板动作类型', '优化图标库加载性能', '修复部分AE版本兼容问题'] },
+  { version: 'v0.8.0', date: '2025-03-15', items: ['全新UI设计，支持4套主题', '支持多分类管理', '新增Gist云备份功能'] },
 ]
 </script>
 
@@ -241,8 +214,9 @@ const faqs = [
 /* ── Body Grid ──────────────────────────── */
 .download-body {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+  align-items: start;
 }
 
 .download-card {
@@ -251,6 +225,8 @@ const faqs = [
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .download-card:hover {
@@ -281,6 +257,27 @@ const faqs = [
 
 .download-card__body {
   padding: 14px 16px;
+  flex: 1;
+}
+
+.download-card__body--scroll {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+
+.download-card__body--scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.download-card__body--scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.download-card__body--scroll::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
 }
 
 /* ── Changelog ──────────────────────────── */
@@ -365,53 +362,6 @@ const faqs = [
 
 .steps-list li:last-child {
   margin-bottom: 0;
-}
-
-/* ── FAQ ──────────────────────────── */
-.faq-item {
-  border-bottom: 1px solid #222;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.faq-item:last-child {
-  border-bottom: none;
-}
-
-.faq-item:hover {
-  background: rgba(255,255,255,0.02);
-}
-
-.faq-item__q {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  font-size: 12px;
-  color: #ddd;
-}
-
-.faq-item__q i {
-  font-size: 11px;
-  color: #666;
-  transition: transform 0.3s;
-  flex-shrink: 0;
-}
-
-.faq-item--open .faq-item__q i {
-  transform: rotate(180deg);
-  color: #aaa;
-}
-
-.faq-item__a {
-  padding-bottom: 10px;
-}
-
-.faq-item__a p {
-  font-size: 11px;
-  color: #888;
-  margin: 0;
-  line-height: 1.6;
 }
 
 /* ── Responsive ──────────────────────────── */

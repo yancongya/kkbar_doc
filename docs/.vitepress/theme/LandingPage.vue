@@ -1,8 +1,9 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useData } from 'vitepress'
 import CepPreview from './components/CepPreview.vue'
 import ThemeSwitch from './components/ThemeSwitch.vue'
+import NavbarSocial from './components/NavbarSocial.vue'
 
 import DialogMockup from './components/DialogMockup.vue';
 import WorkflowDiagram from './components/WorkflowDiagram.vue';
@@ -90,14 +91,14 @@ async function copyEmail() {
 }
 
 const featureData: Record<string, { title: string; desc: string; link: string }> = {
-  jsx: { title: 'JSX 脚本', desc: '执行本地 .jsx/.jsxbin 脚本文件，调用 AE/PS 完整 API，支持 Undo 撤销。', link: '/features/03-actions-jsx/' },
-  preset: { title: '预设应用', desc: '应用 .prfpset 预设文件到选中图层，支持批量应用和撤销。', link: '/features/04-actions-preset/' },
-  effect: { title: '效果特效', desc: '快速应用 AE/PS 内置效果到图层，支持效果参数预设。', link: '/features/05-actions-effect/' },
+  jsx: { title: 'JSX 脚本', desc: '执行本地 .jsx/.jsxbin 脚本文件，读取脚本进行修改实时修改测试。', link: '/features/03-actions-jsx/' },
+  preset: { title: '预设应用', desc: '应用 .ffx 预设文件到选中图层，支持批量应用和撤销。', link: '/features/04-actions-preset/' },
+  effect: { title: '效果特效', desc: '快速应用 AE 内置效果到图层，支持中英文搜索。', link: '/features/05-actions-effect/' },
   expression: { title: '表达式', desc: '为属性添加动画表达式，支持代码编辑器和常用表达式模板。', link: '/features/06-actions-expression/' },
-  scriptlet: { title: '脚本片段', desc: '直接在配置面板输入代码片段，点击按钮立即执行。', link: '/features/07-actions-scriptlet/' },
-  panel: { title: '扩展面板', desc: '打开其他 CEP 扩展面板，快速切换工作区。', link: '/features/08-actions-panel/' },
-  menuItem: { title: '菜单命令', desc: '调用 AE/PS 菜单命令，快速执行常用操作。', link: '/features/09-actions-menuitem/' },
-  clipboard: { title: '剪贴板', desc: '一键复制预设文本到剪贴板，支持代码片段、文件路径、AE 属性引用等。', link: '/features/10-actions-clipboard/' },
+  scriptlet: { title: '脚本片段', desc: '直接在配置面板输入代码片段，点击按钮立即执行测试。', link: '/features/07-actions-scriptlet/' },
+  panel: { title: '扩展面板', desc: '打开已经安装的插件面板，快速调用临时使用的插件。', link: '/features/08-actions-panel/' },
+  menuItem: { title: '菜单命令', desc: '调用 AE 菜单命令，快速执行内置操作，比如导出、保存、另存为等。', link: '/features/09-actions-menuitem/' },
+  clipboard: { title: '剪贴板', desc: '一键复制预设文本到剪贴板，支持代码片段，搭配文件路径和AE 属性引用可以作为素材库管理。', link: '/features/10-actions-clipboard/' },
   shell: { title: 'Shell 命令', desc: '执行 PowerShell/CMD 命令，自动化文件系统操作。', link: '/features/11-actions-shell/' },
 }
 
@@ -211,10 +212,12 @@ watch(activeFeature, (newFeature) => {
 })
 
 const faqList = [
-  { q: '什么是 Kkbar 工具？', a: 'Kkbar 工具是一个集成的 Web 应用，可无缝测试不同的大语言模型，如 GPT4、Claude、Gemini 等。' },
-  { q: '什么是大语言模型？', a: 'LLM 代表"大语言模型"。它是一种人工智能模型，经过大量文本数据训练，能够理解和生成类似人类的文本。这些模型，如 GPT-4，可以通过利用训练数据中学到的模式执行各种任务。' },
-  { q: '我可以在哪里测试不同的AI模型？', a: '您可以使用 Kkbar 的 AI 工具来测试不同的模型，包括 GPT4、Claude、Perplexity 等。' },
-  { q: 'Kkbar 是免费使用的吗？', a: '您可以免费开始使用 Kkbar，然后升级您的计划以访问所有功能。' },
+  { q: '为什么开发 Kkbar？', a: 'Kbar 是我用得最多的AE扩展，但原版功能和体验还有提升空间。于是基于它二次开发，加了云备份、剪贴板管理、多面板布局等功能，做成了自己想要的样子。' },
+  { q: '和原版 Kbar 有什么区别？', a: '多了剪贴板管理、素材快速导入、Gist云备份、多面板布局、快捷键触发等功能。简单说就是：原版能干的我都能干，原版干不了的我也能干。' },
+  { q: 'Kkbar 是免费的吗？', a: '核心功能完全免费！9种动作类型、自定义工具栏、配置导入导出都能用。付费版只是去掉了弹窗广告，加了云同步和优先支持，一杯奶茶钱终身使用。' },
+  { q: '以后会开源吗？', a: '开发这个项目投入了大量时间和精力，如果未来能回本，会考虑开源。目前先把功能做好，让大家用得爽。' },
+  { q: '支持哪些 AE 版本？', a: '支持 After Effects 2020 及以上版本，推荐 AE 2022+。已测试 AE 2020/2021/2022/2023/2024/2025 全系列。' },
+  { q: '数据安全吗？', a: '所有配置数据存储在本地，支持导出/导入备份。付费版还支持 Gist 云同步，换电脑也不怕丢。' },
 ]
 
 const articleList = [
@@ -244,12 +247,12 @@ const articleList = [
 ]
 
 const additionalFeatures = [
-  { img: '/assets/images/piont/1.png', title: '自定义工具栏', desc: '自由排列按钮、调整图标大小和间距，打造专属的工作面板布局。' },
-  { img: '/assets/images/piont/2.png', title: '脚本一键执行', desc: '管理并运行 JSX 脚本，支持撤销，快速调用常用 AE/PS 自动化流程。' },
-  { img: '/assets/images/piont/3.png', title: '预设与特效', desc: '一键应用预设文件和内置效果到选中图层，支持批量操作。' },
-  { img: '/assets/images/piont/4.png', title: '多动作类型', desc: '支持脚本、预设、效果、表达式、剪贴板、Shell 命令等九大动作类型。' },
-  { img: '/assets/images/piont/5.png', title: '配置导入导出', desc: '导出工具栏配置为文件，在多台设备间同步，或分享给团队成员。' },
-  { img: '/assets/images/piont/6.png', title: '多主题切换', desc: '内置多套主题配色，支持亮色与暗色模式，适配不同工作环境。' },
+  { img: '/assets/images/piont/1.png', title: '无缝迁移', desc: '一键导入KBar配置，大部分功能都可全自动迁移，老用户零成本上车。' },
+  { img: '/assets/images/piont/2.png', title: '九大动作', desc: '脚本、预设、效果、表达式、剪贴板、Shell命令...一个按钮能干九件事。' },
+  { img: '/assets/images/piont/3.png', title: '自由定制', desc: '快捷键随便配，主题随便切，按钮大小位置拖拽调，你的工具栏你做主。' },
+  { img: '/assets/images/piont/4.png', title: '数据安全', desc: '配置本地存储+云端备份双保险，Gist同步不怕丢，换电脑秒恢复。' },
+  { img: '/assets/images/piont/5.png', title: '多面板协作', desc: '三个独立面板同时打开，多种布局面板形式任你选' },
+  { img: '/assets/images/piont/6.png', title: '执行日志', desc: '每次操作都有记录，出了问题一查便知，告别玄学报错。' },
 ]
 
 function toggleFaq(e: Event) {
@@ -535,20 +538,18 @@ onUnmounted(() => {
       <!-- Desktop Nav -->
       <nav id="header-nav">
         <a class="header-link" href="/guides/01-introduction/">文档</a>
-        <a class="header-link" href="#dashboard-container">拟态面板</a>
-        <a class="header-link" href="#why-kkbar">为什么选择</a>
-        <a class="header-link" href="#workflow-section">流程图</a>
-        <a class="header-link" href="#features">功能</a>
-        <a class="header-link" href="#pricing">价格</a>
+        <a class="header-link" href="#dashboard-container">模拟demo</a>
+        <a class="header-link" href="#why-kkbar">痛点解决</a>
+        <a class="header-link" href="#additional-features">扩展特点</a>
+        <a class="header-link" href="#workflow-section">快速调用</a>
+        <a class="header-link" href="#features">功能类型</a>
+        <a class="header-link" href="#pricing">赞助</a>
       </nav>
 
       <!-- Actions -->
       <div id="header-actions">
         <ThemeSwitch v-model="isDark" />
-        <a id="header-cta" href="#download">
-          <span>开始下载</span>
-          <i class="bi bi-arrow-right"></i>
-        </a>
+        <NavbarSocial />
       </div>
 
       <!-- Mobile hamburger -->
@@ -575,6 +576,9 @@ onUnmounted(() => {
             <a class="drawer-link" href="#why-kkbar" @click="isHeaderCollapsed = true">
               <i class="bi bi-question-circle"></i><span>为什么选择</span>
             </a>
+            <a class="drawer-link" href="#additional-features" @click="isHeaderCollapsed = true">
+              <i class="bi bi-stars"></i><span>扩展特点</span>
+            </a>
             <a class="drawer-link" href="#workflow-section" @click="isHeaderCollapsed = true">
               <i class="bi bi-diagram-3"></i><span>流程图</span>
             </a>
@@ -587,10 +591,6 @@ onUnmounted(() => {
           </nav>
           <div id="drawer-footer">
             <ThemeSwitch v-model="isDark" />
-            <a id="drawer-cta" href="#download" @click="isHeaderCollapsed = true">
-              <span>开始下载</span>
-              <i class="bi bi-arrow-right"></i>
-            </a>
           </div>
         </div>
       </Transition>
@@ -624,11 +624,10 @@ onUnmounted(() => {
         <div class="purple-bg-grad reveal-up tw-absolute tw-left-1/2 tw--translate-1/2 tw-top-[10%] tw-h-[120px] tw-w-[120px]"></div>
         <div class="tw-flex tw-flex-col tw-min-h-[60vh] tw-place-content-center tw-items-center">
           <h2 class="reveal-up tw-text-center tw-text-7xl tw-font-semibold tw-uppercase tw-leading-[90px] max-lg:tw-text-4xl max-md:tw-leading-snug">
-            <span>集所有AI模型</span><br />
-            <span class="tw-font-thin tw-font-serif">于一处</span>
+            <span>让工具回归工具</span>
           </h2>
-          <div class="reveal-up tw-mt-8 tw-max-w-[450px] tw-text-lg max-lg:tw-text-base tw-p-2 tw-text-center tw-text-gray-800 dark:tw-text-white max-lg:tw-max-w-full">
-            您的全能AI伴侣。在Kkbar界面中生成图像、视频、代码、文档，调试您的Web应用。
+          <div class="reveal-up tw-mt-8 tw-max-w-[500px] tw-text-lg max-lg:tw-text-base tw-p-2 tw-text-center tw-text-gray-800 dark:tw-text-white max-lg:tw-max-w-full">
+            第37次切换窗口找脚本？Kkbar把常用操作钉在一个面板上，一键触发，一站式解决全部功能的调用。
           </div>
           <div class="reveal-up tw-mt-10 max-md:tw-flex-col tw-flex tw-place-items-center tw-gap-4">
             <button @click="openVideo" class="btn !tw-w-[170px] max-lg:!tw-w-[160px] !tw-rounded-xl !tw-py-4 max-lg:!tw-py-2 tw-flex tw-gap-2 tw-group !tw-bg-transparent !tw-text-black dark:!tw-text-white tw-transition-colors tw-duration-[0.3s] tw-border-[1px] tw-border-black dark:tw-border-white">
@@ -638,7 +637,7 @@ onUnmounted(() => {
               </div>
               <span>观看视频</span>
             </button>
-            <a class="btn tw-group max-lg:!tw-w-[160px] tw-flex tw-gap-2 tw-shadow-lg !tw-w-[170px] !tw-rounded-xl !tw-py-4 max-lg:!tw-py-2 tw-transition-transform tw-duration-[0.3s] hover:tw-scale-x-[1.03]" href="#">
+            <a class="btn tw-group max-lg:!tw-w-[160px] tw-flex tw-gap-2 tw-shadow-lg !tw-w-[170px] !tw-rounded-xl !tw-py-4 max-lg:!tw-py-2 tw-transition-transform tw-duration-[0.3s] hover:tw-scale-x-[1.03]" href="#download">
               <span>立即开始</span>
               <i class="bi bi-arrow-right group-hover:tw-translate-x-1 tw-duration-300"></i>
             </a>
@@ -668,26 +667,41 @@ onUnmounted(() => {
       <div class="reveal-up carousel-container">
         <div class="carousel lg:w-place-content-center tw-mt-10 tw-flex tw-w-full">
           <template v-for="n in 2" :key="n">
-            <a href="https://developer.adobe.com/photoshop/uxp/2022/" target="_blank" rel="noopener" class="carousel-img" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://developer.adobe.com/photoshop/uxp/2022/" target="_blank" rel="noopener" class="carousel-img" title="Adobe CEP扩展开发框架，让AE支持自定义面板" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/adobe.svg" alt="CEP" /><span class="tw-text-xs tw-font-medium">CEP</span>
             </a>
-            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="carousel-img" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="carousel-img" title="渐进式JavaScript前端框架，构建用户界面" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/vue.svg" alt="Vue 3" /><span class="tw-text-xs tw-font-medium">Vue 3</span>
             </a>
-            <a href="https://pinia.vuejs.org/" target="_blank" rel="noopener" class="carousel-img" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://pinia.vuejs.org/" target="_blank" rel="noopener" class="carousel-img" title="Vue官方状态管理库，管理应用数据流" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/pinia.svg" alt="Pinia" /><span class="tw-text-xs tw-font-medium">Pinia</span>
             </a>
-            <a href="https://vitejs.dev/" target="_blank" rel="noopener" class="carousel-img" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://vitejs.dev/" target="_blank" rel="noopener" class="carousel-img" title="下一代前端构建工具，极速开发体验" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/vite.svg" alt="Vite" /><span class="tw-text-xs tw-font-medium">Vite</span>
             </a>
-            <a href="https://github.com/hyperbrew/bolt-cep" target="_blank" rel="noopener" class="carousel-img" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://github.com/hyperbrew/bolt-cep" target="_blank" rel="noopener" class="carousel-img" title="CEP扩展开发脚手架，快速搭建AE插件项目" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/bolt.svg" alt="Bolt CEP" /><span class="tw-text-xs tw-font-medium">Bolt CEP</span>
             </a>
-            <a href="https://fontawesome.com" target="_blank" rel="noopener" class="carousel-img" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://fontawesome.com" target="_blank" rel="noopener" class="carousel-img" title="最流行的图标字体库，提供上千个矢量图标" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/fontawesome.svg" alt="FontAwesome" /><span class="tw-text-xs tw-font-medium">FontAwesome</span>
             </a>
-            <a href="https://icons.getbootstrap.com" target="_blank" rel="noopener" class="carousel-img" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://icons.getbootstrap.com" target="_blank" rel="noopener" class="carousel-img" title="Bootstrap官方图标库，开源免费矢量图标" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/bootstrap-icons.svg" alt="Bootstrap Icons" /><span class="tw-text-xs tw-font-medium">Bootstrap Icons</span>
+            </a>
+            <a href="https://github.com/catdad/canvas-confetti" target="_blank" rel="noopener" class="carousel-img" title="撒花庆祝动画库，Canvas实现五彩纸屑效果" style="display:inline-flex!important;align-items:center;gap:4px">
+              <img src="/assets/images/brand-logos/canvas-confetti.svg" alt="Canvas Confetti" /><span class="tw-text-xs tw-font-medium">Canvas Confetti</span>
+            </a>
+            <a href="https://interactjs.io/" target="_blank" rel="noopener" class="carousel-img" title="拖拽交互库，支持拖放、缩放、手势操作" style="display:inline-flex!important;align-items:center;gap:4px">
+              <img src="/assets/images/brand-logos/interactjs.svg" alt="Interact.js" /><span class="tw-text-xs tw-font-medium">Interact.js</span>
+            </a>
+            <a href="https://stuk.github.io/jszip/" target="_blank" rel="noopener" class="carousel-img" title="JavaScript ZIP文件处理库，读写压缩包" style="display:inline-flex!important;align-items:center;gap:4px">
+              <img src="/assets/images/brand-logos/jszip.svg" alt="JSZip" /><span class="tw-text-xs tw-font-medium">JSZip</span>
+            </a>
+            <a href="https://github.com/ai/nanoid" target="_blank" rel="noopener" class="carousel-img" title="轻量级唯一ID生成器，URL友好且安全" style="display:inline-flex!important;align-items:center;gap:4px">
+              <img src="/assets/images/brand-logos/nanoid.svg" alt="Nano ID" /><span class="tw-text-xs tw-font-medium">Nano ID</span>
+            </a>
+            <a href="https://sortablejs.github.io/Sortable/" target="_blank" rel="noopener" class="carousel-img" title="拖拽排序库，支持列表和网格排序" style="display:inline-flex!important;align-items:center;gap:4px">
+              <img src="/assets/images/brand-logos/sortablejs.svg" alt="Sortable.js" /><span class="tw-text-xs tw-font-medium">Sortable.js</span>
             </a>
           </template>
         </div>
@@ -697,20 +711,35 @@ onUnmounted(() => {
     <!-- 为什么选择 Kkbar -->
     <WhyKkbar :is-dark="isDark" />
 
+    <!-- Additional Features -->
+    <section id="additional-features" class="tw-relative tw-flex tw-w-full tw-min-h-[auto] tw-py-8 tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
+      <div class="tw-w-full max-lg:tw-max-w-full tw-place-content-center tw-items-center tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
+        <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">kkbar扩展特点</h3>
+        <div class="tw-mt-6 tw-relative tw-gap-6 tw-p-4 tw-grid tw-place-items-center tw-grid-cols-3 max-lg:tw-grid max-lg:tw-grid-cols-2 max-md:tw-grid max-md:tw-grid-cols-2 max-[480px]:tw-grid-cols-1">
+          <div v-for="item in additionalFeatures" :key="item.title" class="reveal-up feature-item tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3 tw-bg-[#f2f3f4] max-md:tw-w-[260px] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
+            <div class="feature-item__img-wrap tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center"
+              @mouseenter="startHoverTimer(item.img)"
+              @mouseleave="cancelHoverTimer">
+              <img :src="item.img" :alt="item.title" class="feature-item__img tw-w-auto tw-h-full tw-object-contain" />
+            </div>
+            <h3 class="tw-text-xl">{{ item.title }}</h3>
+            <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">{{ item.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Workflow Diagram -->
     <section id="workflow-section" class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-py-16 tw-px-4" style="overflow: visible;">
-      <h2 class="reveal-up tw-text-4xl max-md:tw-text-2xl tw-text-center tw-mb-6 tw-font-semibold">工作流程示意</h2>
+      <h2 class="reveal-up tw-text-4xl max-md:tw-text-2xl tw-text-center tw-mb-6 tw-font-semibold">删繁就简 & 触类旁通</h2>
       <p class="reveal-up tw-text-base tw-text-center tw-text-gray-500 dark:tw-text-gray-400 tw-mb-8 tw-max-w-[600px]">
-        {{ workflowDirection === 'ltr' ? '把零散的脚本、扩展面板、预设、素材库等统一使用 Kkbar 面板进行管理' : '一个面板即可触发多个功能' }}
+        {{ workflowDirection === 'ltr' ? '九种动作类型，一键直达' : '一个面板即可管理全部的功能' }}
       </p>
       <div class="reveal-up workflow-viewport">
         <div class="workflow-scale">
           <WorkflowDiagram :is-dark="isDark" @flow-change="onFlowChange" />
         </div>
       </div>
-      <p class="reveal-up tw-mt-6 tw-text-center tw-text-sm tw-text-gray-400 dark:tw-text-gray-500 max-md:tw-hidden">
-        点击中间按钮切换流向 · 双击复位卡片 · 点击标题栏切换面板版本
-      </p>
     </section>
 
     <!-- Nine Button Features -->
@@ -778,24 +807,6 @@ onUnmounted(() => {
       </div>
     </section>
 
-    <!-- Additional Features -->
-    <section class="tw-relative tw-flex tw-w-full tw-min-h-[auto] tw-py-8 tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
-      <div class="tw-w-full max-lg:tw-max-w-full tw-place-content-center tw-items-center tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
-        <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">特点</h3>
-        <div class="tw-mt-6 tw-relative tw-gap-6 tw-p-4 tw-grid tw-place-items-center tw-grid-cols-3 max-lg:tw-grid max-lg:tw-grid-cols-2 max-md:tw-grid max-md:tw-grid-cols-2 max-[480px]:tw-grid-cols-1">
-          <div v-for="item in additionalFeatures" :key="item.title" class="reveal-up feature-item tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3 tw-bg-[#f2f3f4] max-md:tw-w-[260px] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
-            <div class="feature-item__img-wrap tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center"
-              @mouseenter="startHoverTimer(item.img)"
-              @mouseleave="cancelHoverTimer">
-              <img :src="item.img" :alt="item.title" class="feature-item__img tw-w-auto tw-h-full tw-object-contain" />
-            </div>
-            <h3 class="tw-text-xl">{{ item.title }}</h3>
-            <p class="tw-text-gray-700 dark:tw-text-gray-300 tw-px-2 tw-text-center tw-text-[10px]">{{ item.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Blog -->
     <section class="tw-mt-5 tw-flex tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-p-[2%] max-lg:tw-p-3">
       <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl">更多</h3>
@@ -836,6 +847,7 @@ onUnmounted(() => {
               <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>所有基础 AE 脚本</span></li>
               <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>自定义工具栏</span></li>
               <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>导入/导出配置</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-exclamation-triangle-fill pricing-card__check" style="color: #f59e0b"></i><span>弹窗广告</span></li>
               <li class="pricing-card__feature pricing-card__feature--disabled"><i class="bi bi-x-circle pricing-card__check pricing-card__check--off"></i><span>云端同步</span></li>
               <li class="pricing-card__feature pricing-card__feature--disabled"><i class="bi bi-x-circle pricing-card__check pricing-card__check--off"></i><span>技术支持</span></li>
             </ul>
@@ -852,11 +864,12 @@ onUnmounted(() => {
             </div>
             <div class="pricing-card__divider"></div>
             <ul class="pricing-card__features">
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>免费版全部功能</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>高级脚本库</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>所有基础 AE 脚本</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>自定义工具栏</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>导入/导出配置</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-shield-check pricing-card__check" style="color: #10b981"></i><span>无弹窗广告</span></li>
               <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>云端同步</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>优先技术支持</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>新功能抢先体验</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>技术支持</span></li>
             </ul>
             <a href="/guides/04-free-vs-pro.html#第二步-选择支持方式" class="pricing-card__cta pricing-card__cta--primary">立即支持 <i class="bi bi-arrow-right"></i></a>
           </div>
@@ -896,6 +909,10 @@ onUnmounted(() => {
             <a href="https://space.bilibili.com/100881808/" aria-label="Bilibili" class="tw-w-6 tw-h-6"><img src="./assets/bilibili.svg" class="tw-w-full tw-h-full" alt="Bilibili" /></a>
             <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" class="tw-w-6 tw-h-6"><img src="./assets/xiaohongshu.svg" class="tw-w-full tw-h-full" alt="小红书" /></a>
             <a href="javascript:void(0)" aria-label="Email" @click="copyEmail"><i class="bi bi-envelope"></i></a>
+          </div>
+          <div class="footer-legal-links">
+            <a href="/legal/隐私协议">隐私协议</a>
+            <a href="/legal/用户须知许可协议">用户须知与许可协议</a>
           </div>
         </div>
         <div class="tw-flex max-md:tw-grid max-md:tw-grid-cols-2 tw-flex-wrap tw-gap-6 tw-h-full tw-w-full tw-justify-around">
@@ -1219,6 +1236,24 @@ html:not(.dark) .fullscreen-img {
   filter: invert(1) brightness(0.85) contrast(1.3);
 }
 
+.footer-legal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 12px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.footer-legal-links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-legal-links a:hover {
+  text-decoration: underline;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1229,3 +1264,6 @@ html:not(.dark) .fullscreen-img {
   to { opacity: 1; }
 }
 </style>
+
+
+

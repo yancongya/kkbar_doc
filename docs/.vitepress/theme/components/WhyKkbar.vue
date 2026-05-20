@@ -1,7 +1,7 @@
 <template>
   <section id="why-kkbar" class="why-section">
     <h2 class="why-title">为什么选择 Kkbar</h2>
-    <p class="why-subtitle">拖拽旋转 · 点击卡片查看详情</p>
+    <p class="why-subtitle">{{ isExpanded ? '一站式解决全部你全部痛点' : '点击中心发射痛点球' }}</p>
 
     <div class="sphere-viewport"
          ref="viewportRef"
@@ -14,16 +14,22 @@
          @touchend="onDragEnd">
 
       <!-- SVG 连线 -->
-      <svg class="sphere-lines" ref="svgRef">
+      <svg class="sphere-lines" ref="svgRef" :class="{ 'lines-visible': isExpanded }">
         <line v-for="(line, i) in lines" :key="i"
           :x1="line.x1" :y1="line.y1" :x2="line.x2" :y2="line.y2"
           class="sphere-line" />
       </svg>
 
+      <!-- 粒子效果 -->
+      <div class="particles" v-if="isAnimating">
+        <div v-for="i in 20" :key="i" class="particle" :style="particleStyle(i)"></div>
+      </div>
+
       <div class="sphere-scene" :style="sphereStyle">
         <div v-for="(card, idx) in painPoints" :key="idx"
              class="sphere-card"
-             :style="cardTransform(idx)">
+             :class="{ 'card-expanded': isExpanded, 'card-animating': isAnimating }"
+             :style="cardStyle(idx)">
           <div class="terminal-card">
             <div class="terminal-card__header">
               <i class="bi terminal-card__icon" :class="card.icon" :style="{ color: card.color }"></i>
@@ -38,8 +44,8 @@
       </div>
 
       <!-- 中心 Logo -->
-      <div class="sphere-center">
-        <div class="center-btn">
+      <div class="sphere-center" :class="{ 'center-expanded': isExpanded }" @click="toggleSphere">
+        <div class="center-btn" :class="{ 'btn-pulse': !isExpanded }">
           <img v-if="isDark" src="/assets/logo/logo_animated.svg" class="center-btn__logo" alt="Kkbar" />
           <img v-else src="/assets/logo/logo_animated-light.svg" class="center-btn__logo" alt="Kkbar" />
         </div>
@@ -54,18 +60,21 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 defineProps({ isDark: { type: Boolean, default: true } })
 
 const painPoints = [
-  { icon: 'bi-translate', pain: 'Kbar 原版纯英文', solution: 'Kkbar 完整汉化', color: '#818cf8' },
-  { icon: 'bi-palette2', pain: 'UI 简陋，交互生硬', solution: '多主题 · 毛玻璃 · 流畅动画', color: '#c084fc' },
-  { icon: 'bi-lightning-charge', pain: '原版功能单一', solution: '九大动作类型覆盖全场景', color: '#fbbf24' },
-  { icon: 'bi-folder2-open', pain: '脚本扩展太多太乱', solution: '分类 · 搜索 · 收藏 · 一键直达', color: '#34d399' },
-  { icon: 'bi-layout-wtf', pain: 'AE 界面布局凌乱', solution: '统一工具栏替代零散面板', color: '#60a5fa' },
-  { icon: 'bi-cloud-arrow-up', pain: '数据备份麻烦', solution: '一键导出配置，随时恢复', color: '#22d3ee' },
-  { icon: 'bi-phone-laptop', pain: '跨设备同步麻烦', solution: '导出/导入配置，无缝迁移', color: '#a78bfa' },
-  { icon: 'bi-braces', pain: '脚本代码片段无法快速测试', solution: 'Scriptlet 即时执行代码片段', color: '#2dd4bf' },
-  { icon: 'bi-code-slash', pain: '表达式调试效率低', solution: '一键应用表达式，快速迭代', color: '#fb923c' },
-  { icon: 'bi-window-stack', pain: '已安装扩展藏在菜单深处', solution: '面板动作一键打开 CEP 扩展', color: '#60a5fa' },
-  { icon: 'bi-clipboard-data', pain: '常用文本反复手动输入', solution: '剪贴板存储常用内容，一键粘贴', color: '#f472b6' },
-  { icon: 'bi-collection-play', pain: '素材分散各处难管理', solution: '统一入口管理所有素材资源', color: '#a3e635' },
+  { icon: 'bi-translate', pain: 'Kbar 纯英文劝退', solution: '完整中文界面 + 详细文档', color: '#818cf8' },
+  { icon: 'bi-palette2', pain: '界面朴素到没朋友', solution: 'UI/UX自定性极强，主题任选', color: '#c084fc' },
+  { icon: 'bi-lightning-charge', pain: '只会跑脚本太单调', solution: '9种动作类型覆盖AE全场景', color: '#fbbf24' },
+  { icon: 'bi-folder2-open', pain: '脚本一多就找不到', solution: '分类管理 · 搜索 · 收藏夹', color: '#34d399' },
+  { icon: 'bi-keyboard', pain: '鼠标点到手抽筋', solution: '快捷键触发，一键执行', color: '#60a5fa' },
+  { icon: 'bi-cloud-arrow-up', pain: '换电脑配置全白给', solution: 'Gist云备份，随时恢复', color: '#22d3ee' },
+  { icon: 'bi-phone-laptop', pain: '公司家里两套配置', solution: '导出导入，无缝迁移', color: '#a78bfa' },
+  { icon: 'bi-braces', pain: '测试代码要开新文件', solution: 'Scriptlet即时执行，即写即用', color: '#2dd4bf' },
+  { icon: 'bi-folder-symlink', pain: '常用素材到处找很麻烦', solution: '快速导入文件/文件夹到项目或合成', color: '#fb923c' },
+  { icon: 'bi-window-stack', pain: '吃灰插件藏在菜单深处', solution: '面板动作直达，告别翻菜单', color: '#60a5fa' },
+  { icon: 'bi-clipboard-data', pain: '常用文本反复手打', solution: '剪贴板管理，一键粘贴', color: '#f472b6' },
+  { icon: 'bi-image', pain: '图标选择太单调', solution: '内置+FA+Bootstrap+自定义图标', color: '#a3e635' },
+  { icon: 'bi-grid-3x3-gap', pain: '按钮太多太凌乱', solution: '多热键合一按钮 · 多面板布局', color: '#e879f9' },
+  { icon: 'bi-hand-index', pain: '左手太忙不方便点击', solution: '长按触发面板选择，解放双手', color: '#f97316' },
+  { icon: 'bi-arrows-angle-expand', pain: '常用按钮太难找', solution: '拖拽调整大小位置，自由布局', color: '#06b6d4' },
 ]
 
 const count = painPoints.length
@@ -75,6 +84,11 @@ const radiusZ = 300
 const viewportRef = ref(null)
 const svgRef = ref(null)
 const lines = ref([])
+
+// 动画状态
+const isExpanded = ref(false)
+const isAnimating = ref(false)
+const animationProgress = ref(0)
 
 // 使用斐波那契球面均匀分布
 function fibonacciSphere(n, rx, ry, rz) {
@@ -111,25 +125,117 @@ const sphereStyle = computed(() => ({
   transform: `rotateX(${rotX.value}deg) rotateY(${rotY.value}deg)`,
 }))
 
-function cardTransform(idx) {
+// 卡片样式（支持动画）
+function cardStyle(idx) {
   const p = spherePoints[idx]
-  // 先定位到球面位置，再反向旋转使卡片始终朝向镜头
+  const progress = animationProgress.value
+  
+  if (!isExpanded.value && !isAnimating.value) {
+    // 收缩状态：所有卡片在中心
+    return {
+      transform: `translate3d(0px, 0px, 0px) scale(0)`,
+      opacity: 0,
+      transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    }
+  }
+  
+  if (isAnimating.value) {
+    // 动画中：从中心发射到球面位置
+    const currentX = p.x * progress
+    const currentY = p.y * progress
+    const currentZ = p.z * progress
+    const scale = 0.3 + 0.7 * progress
+    const opacity = progress
+    
+    return {
+      transform: `translate3d(${currentX}px, ${currentY}px, ${currentZ}px) rotateY(${-rotY.value}deg) rotateX(${-rotX.value}deg) scale(${scale})`,
+      opacity: opacity,
+      transition: 'none',
+    }
+  }
+  
+  // 展开状态：球面位置
   return {
     transform: `translate3d(${p.x}px, ${p.y}px, ${p.z}px) rotateY(${-rotY.value}deg) rotateX(${-rotX.value}deg)`,
+    opacity: 1,
+    transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
   }
 }
 
+// 粒子样式
+function particleStyle(i) {
+  const angle = (i / 20) * Math.PI * 2
+  const distance = 50 + Math.random() * 100
+  const size = 2 + Math.random() * 4
+  const duration = 0.5 + Math.random() * 0.5
+  const delay = Math.random() * 0.3
+  
+  return {
+    '--angle': `${angle}rad`,
+    '--distance': `${distance}px`,
+    '--size': `${size}px`,
+    '--duration': `${duration}s`,
+    '--delay': `${delay}s`,
+    '--color': painPoints[i % painPoints.length].color,
+  }
+}
+
+// 切换球体状态
+function toggleSphere() {
+  if (isAnimating.value) return
+  
+  if (isExpanded.value) {
+    // 收缩动画
+    isAnimating.value = true
+    animateProgress(1, 0, 600, () => {
+      isExpanded.value = false
+      isAnimating.value = false
+      stopAuto()
+    })
+  } else {
+    // 展开动画（发射效果）
+    isExpanded.value = true
+    isAnimating.value = true
+    animateProgress(0, 1, 800, () => {
+      isAnimating.value = false
+      startAuto()
+    })
+  }
+}
+
+// 动画进度控制
+function animateProgress(from, to, duration, callback) {
+  const startTime = Date.now()
+  
+  function update() {
+    const elapsed = Date.now() - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    
+    // 使用缓动函数
+    const eased = progress < 0.5
+      ? 4 * progress * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 3) / 2
+    
+    animationProgress.value = from + (to - from) * eased
+    
+    if (progress < 1) {
+      requestAnimationFrame(update)
+    } else {
+      animationProgress.value = to
+      callback()
+    }
+  }
+  
+  requestAnimationFrame(update)
+}
+
 function project3D(x, y, z, rx, ry, perspective, cx, cy) {
-  // 弧度
   const rxR = (rx * Math.PI) / 180
   const ryR = (ry * Math.PI) / 180
-  // 绕 Y 轴旋转
   let x1 = x * Math.cos(ryR) + z * Math.sin(ryR)
   let z1 = -x * Math.sin(ryR) + z * Math.cos(ryR)
-  // 绕 X 轴旋转
   let y1 = y * Math.cos(rxR) - z1 * Math.sin(rxR)
   let z2 = y * Math.sin(rxR) + z1 * Math.cos(rxR)
-  // 透视投影
   const scale = perspective / (perspective + z2)
   return {
     x: cx + x1 * scale,
@@ -138,7 +244,7 @@ function project3D(x, y, z, rx, ry, perspective, cx, cy) {
 }
 
 function updateLines() {
-  if (!viewportRef.value) return
+  if (!viewportRef.value || !isExpanded.value) return
   const vpRect = viewportRef.value.getBoundingClientRect()
   const cx = vpRect.width / 2
   const cy = vpRect.height / 2
@@ -154,6 +260,7 @@ function updateLines() {
 }
 
 function onDragStart(e) {
+  if (!isExpanded.value) return
   isDragging.value = true
   dragStart.x = e.clientX
   dragStart.y = e.clientY
@@ -172,7 +279,9 @@ function onDragMove(e) {
 
 function onDragEnd() {
   isDragging.value = false
-  startAuto()
+  if (isExpanded.value) {
+    startAuto()
+  }
 }
 
 function onTouchStart(e) {
@@ -187,14 +296,10 @@ function onTouchMove(e) {
   }
 }
 
-function toggleCard(idx) {
-  // 点击卡片时短暂放大效果
-}
-
 function startAuto() {
   stopAuto()
   autoTimer = setInterval(() => {
-    if (!isDragging.value) {
+    if (!isDragging.value && isExpanded.value) {
       targetRotY.value += 0.15
     }
   }, 16)
@@ -217,12 +322,26 @@ let lineTimer = null
 
 onMounted(() => {
   animate()
-  startAuto()
-  // 连线更新（低频，避免布局抖动）
-  setTimeout(() => {
-    updateLines()
-    lineTimer = setInterval(updateLines, 100)
-  }, 500)
+  // 初始状态：收缩，等待滚动触发展开
+  animationProgress.value = 0
+  
+  // 监听滚动，进入视口时自动展开
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !isExpanded.value) {
+        setTimeout(() => {
+          toggleSphere()
+        }, 300)
+      }
+    })
+  }, { threshold: 0.3 })
+  
+  if (viewportRef.value) {
+    observer.observe(viewportRef.value)
+  }
+  
+  // 连线更新
+  lineTimer = setInterval(updateLines, 100)
 })
 
 onUnmounted(() => {
@@ -255,6 +374,7 @@ onUnmounted(() => {
   color: #666;
   text-align: center;
   margin-bottom: 32px;
+  transition: all 0.3s ease;
 }
 
 /* 球体视口 */
@@ -283,11 +403,51 @@ onUnmounted(() => {
   height: 100%;
   pointer-events: none;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.sphere-lines.lines-visible {
+  opacity: 1;
 }
 
 .sphere-line {
   stroke: rgba(167, 139, 250, 0.15);
   stroke-width: 1;
+}
+
+/* 粒子效果 */
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--size);
+  height: var(--size);
+  background: var(--color);
+  border-radius: 50%;
+  animation: particle-burst var(--duration) ease-out var(--delay) forwards;
+  opacity: 0;
+}
+
+@keyframes particle-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+      calc(-50% + cos(var(--angle)) * var(--distance)),
+      calc(-50% + sin(var(--angle)) * var(--distance))
+    ) scale(1);
+    opacity: 0;
+  }
 }
 
 /* 球体场景 */
@@ -306,6 +466,7 @@ onUnmounted(() => {
   left: -95px;
   top: -28px;
   transform-style: preserve-3d;
+  will-change: transform, opacity;
 }
 
 /* ── Terminal Card ── */
@@ -384,11 +545,21 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* 浅色主题 */
+/* 中心按钮 */
 .sphere-center {
   position: absolute;
   z-index: 10;
-  pointer-events: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.sphere-center:hover {
+  transform: scale(1.1);
+}
+
+.sphere-center.center-expanded {
+  transform: scale(0.8);
+  opacity: 0.7;
 }
 
 .center-btn {
@@ -400,7 +571,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 32px rgba(167, 139, 250, 0.4);
-  animation: center-pulse 3s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.center-btn.btn-pulse {
+  animation: center-pulse 2s ease-in-out infinite;
 }
 
 .center-btn__logo {
@@ -409,8 +584,14 @@ onUnmounted(() => {
 }
 
 @keyframes center-pulse {
-  0%, 100% { box-shadow: 0 8px 32px rgba(167, 139, 250, 0.4); }
-  50% { box-shadow: 0 8px 56px rgba(167, 139, 250, 0.65); }
+  0%, 100% { 
+    box-shadow: 0 8px 32px rgba(167, 139, 250, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 8px 56px rgba(167, 139, 250, 0.65);
+    transform: scale(1.05);
+  }
 }
 
 /* ── 响应式 ── */

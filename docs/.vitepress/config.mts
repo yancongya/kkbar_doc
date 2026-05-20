@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitepress'
+﻿import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'Kkbar',
@@ -26,6 +26,10 @@ export default defineConfig({
       { text: '图标库', link: '/icons/01-icons/' },
       { text: '设置', link: '/settings/01-themes/' },
       { text: '故障排除', link: '/troubleshooting/01-faq/' },
+      { text: '法律与协议', items: [
+        { text: '隐私协议', link: '/legal/隐私协议' },
+        { text: '用户须知与许可协议', link: '/legal/用户须知许可协议' },
+      ] },
     ],
 
     sidebar: [
@@ -74,12 +78,20 @@ export default defineConfig({
           { text: '云备份', link: '/settings/03-cloud-backup/' },
         ],
       },
+
       {
         text: '故障排除',
         items: [
           { text: '常见问题', link: '/troubleshooting/01-faq/' },
           { text: '调试模式', link: '/troubleshooting/02-debug-mode/' },
           { text: '错误代码', link: '/troubleshooting/03-error-codes/' },
+        ],
+      },
+      {
+        text: '法律与协议',
+        items: [
+          { text: '隐私协议', link: '/legal/隐私协议' },
+          { text: '用户须知与许可协议', link: '/legal/用户须知许可协议' },
         ],
       },
     ],

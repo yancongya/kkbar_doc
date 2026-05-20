@@ -121,15 +121,15 @@ onMounted(() => {
 
 // 面板数据（纯静态，不需要响应式位置）
 const panelsData = [
-  { title: 'JSX 脚本', item: 'my-script.jsx', icon: 'bi-play-fill', color: '#ef4444' },
-  { title: '预设应用', item: 'animation.ffx', icon: 'bi-magic', color: '#f97316' },
-  { title: '效果特效', item: '高斯模糊', icon: 'bi-layers-fill', color: '#eab308' },
-  { title: '表达式', item: 'loopOut("cycle")', icon: 'bi-code-slash', color: '#22c55e' },
-  { title: '脚本片段', item: 'app.project.active', icon: 'bi-braces', color: '#14b8a6' },
-  { title: '扩展面板', item: 'com.adobe.ae', icon: 'bi-window', color: '#3b82f6' },
-  { title: '菜单命令', item: '新建项目 (ID: 2)', icon: 'bi-list-ul', color: '#6366f1' },
-  { title: '剪贴板', item: '$FILE:path/to', icon: 'bi-clipboard-fill', color: '#8b5cf6' },
-  { title: 'Shell 命令', item: 'powershell -Command', icon: 'bi-terminal-fill', color: '#ec4899' }
+  { title: 'JSX 脚本', item: '批量重命名图层.jsx', icon: 'bi-play-fill', color: '#ef4444' },
+  { title: '预设应用', item: '弹性文字动画.ffx', icon: 'bi-magic', color: '#f97316' },
+  { title: '效果特效', item: '发光 / 模糊 / 色相', icon: 'bi-layers-fill', color: '#eab308' },
+  { title: '表达式', item: 'wiggle(5, 30)', icon: 'bi-code-slash', color: '#22c55e' },
+  { title: '脚本片段', item: 'app.project.activeItem', icon: 'bi-braces', color: '#14b8a6' },
+  { title: '扩展面板', item: 'Duik Bassel 面板', icon: 'bi-window', color: '#3b82f6' },
+  { title: '菜单命令', item: '清空所有缓存', icon: 'bi-list-ul', color: '#6366f1' },
+  { title: '剪贴板', item: '常用文字 / 文件路径', icon: 'bi-clipboard-fill', color: '#8b5cf6' },
+  { title: 'Shell 命令', item: 'ren *.mp4 *.mov', icon: 'bi-terminal-fill', color: '#ec4899' }
 ]
 
 // DOM refs

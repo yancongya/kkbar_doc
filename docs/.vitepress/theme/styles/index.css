@@ -369,6 +369,36 @@ html.dark {
   flex-shrink: 0;
 }
 
+.docs-legal-footer {
+  margin-top: 32px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.docs-legal-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--vp-c-text-2);
+}
+
+.docs-legal-footer__label {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.docs-legal-footer__link {
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.docs-legal-footer__link:hover {
+  text-decoration: underline;
+}
+
 #theme-toggle {
   display: flex;
   align-items: center;
@@ -988,6 +1018,11 @@ button.btn:hover {
 .carousel {
   display: inline-block;
   animation: scroll 30s linear infinite;
+  transition: animation-play-state 0.3s ease;
+}
+
+.carousel-container:hover .carousel {
+  animation-play-state: paused;
 }
 
 .carousel-img {
@@ -997,11 +1032,12 @@ button.btn:hover {
   margin: 0 30px;
   vertical-align: middle;
   filter: grayscale(1) opacity(0.5);
-  transition: filter 0.3s ease;
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
 .carousel-img:hover {
   filter: grayscale(0) opacity(1);
+  transform: scale(1.1);
 }
 
 .carousel-img img {
@@ -3523,6 +3559,7 @@ html:not(.dark) .cep-ring-item--hover {
 #pricing,
 #download,
 #features,
+#additional-features,
 #workflow-section,
 #dashboard-container {
   scroll-margin-top: 100px;
