@@ -909,7 +909,7 @@ onUnmounted(() => {
             <span class="tw-text-xs tw-opacity-70">CEP toolbar for After Effects</span>
           </a>
           <div class="tw-flex tw-gap-4 tw-text-lg tw-mt-2">
-            <a href="https://github.com/yancongya" aria-label="Github" class="tw-w-6 tw-h-6"><img src="./assets/github.svg" class="tw-w-full tw-h-full" alt="Github" /></a>
+            <a href="https://github.com/yancongya" aria-label="Github" class="tw-w-6 tw-h-6"><img src="./assets/github.svg" class="tw-w-full tw-h-full footer-icon-invert" alt="Github" /></a>
             <a href="https://space.bilibili.com/100881808/" aria-label="Bilibili" class="tw-w-6 tw-h-6"><img src="./assets/bilibili.svg" class="tw-w-full tw-h-full" alt="Bilibili" /></a>
             <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" class="tw-w-6 tw-h-6"><img src="./assets/xiaohongshu.svg" class="tw-w-full tw-h-full" alt="小红书" /></a>
             <a href="javascript:void(0)" aria-label="Email" @click="copyEmail"><i class="bi bi-envelope"></i></a>
