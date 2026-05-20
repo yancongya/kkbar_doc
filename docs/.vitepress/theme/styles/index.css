@@ -538,13 +538,24 @@ html.dark {
   top: 56px;
   right: 0;
   bottom: 0;
-  z-index: 100;
+  z-index: 101;
   width: 280px;
   display: flex;
   flex-direction: column;
   background: #fff;
   box-shadow: -4px 0 24px rgba(0,0,0,0.1);
   overflow-y: auto;
+}
+
+/* 手机端 drawer 位置适配 */
+@media (max-width: 767px) {
+  #drawer-backdrop {
+    top: 48px;
+  }
+  
+  #mobile-drawer {
+    top: 48px;
+  }
 }
 
 .tw-dark #mobile-drawer {
@@ -4002,6 +4013,7 @@ html:not(.dark) .cep-ring-item--hover {
   align-items: center;
   padding: 4rem 1rem;
   position: relative;
+  overflow: hidden;
 }
 
 .workflow-viewport {

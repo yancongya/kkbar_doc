@@ -564,44 +564,44 @@ onUnmounted(() => {
           <span class="hamburger-line" :class="{ 'hamburger-line--open': !isHeaderCollapsed }"></span>
         </button>
       </div>
-
-      <!-- Mobile drawer backdrop -->
-      <Transition name="drawer-fade">
-        <div v-if="!isHeaderCollapsed" id="drawer-backdrop" @click="isHeaderCollapsed = true"></div>
-      </Transition>
-
-      <!-- Mobile drawer -->
-      <Transition name="drawer-slide">
-        <div v-if="!isHeaderCollapsed" id="mobile-drawer">
-          <nav id="drawer-nav">
-            <a class="drawer-link" href="/guides/01-introduction/" @click="isHeaderCollapsed = true">
-              <i class="bi bi-book"></i><span>文档</span>
-            </a>
-            <a class="drawer-link" href="#dashboard-container" @click="isHeaderCollapsed = true">
-              <i class="bi bi-window"></i><span>拟态面板</span>
-            </a>
-            <a class="drawer-link" href="#why-kkbar" @click="isHeaderCollapsed = true">
-              <i class="bi bi-question-circle"></i><span>为什么选择</span>
-            </a>
-            <a class="drawer-link" href="#additional-features" @click="isHeaderCollapsed = true">
-              <i class="bi bi-stars"></i><span>扩展特点</span>
-            </a>
-            <a class="drawer-link" href="#workflow-section" @click="isHeaderCollapsed = true">
-              <i class="bi bi-diagram-3"></i><span>流程图</span>
-            </a>
-            <a class="drawer-link" href="#features" @click="isHeaderCollapsed = true">
-              <i class="bi bi-grid-3x3-gap"></i><span>功能</span>
-            </a>
-            <a class="drawer-link" href="#pricing" @click="isHeaderCollapsed = true">
-              <i class="bi bi-tag"></i><span>价格</span>
-            </a>
-          </nav>
-        </div>
-      </Transition>
     </header>
 
+    <!-- Mobile drawer backdrop (outside header to avoid containing-block issue) -->
+    <Transition name="drawer-fade">
+      <div v-if="!isHeaderCollapsed" id="drawer-backdrop" @click="isHeaderCollapsed = true"></div>
+    </Transition>
+
+    <!-- Mobile drawer (outside header to avoid containing-block issue) -->
+    <Transition name="drawer-slide">
+      <div v-if="!isHeaderCollapsed" id="mobile-drawer">
+        <nav id="drawer-nav">
+          <a class="drawer-link" href="/guides/01-introduction/" @click="isHeaderCollapsed = true">
+            <i class="bi bi-book"></i><span>文档</span>
+          </a>
+          <a class="drawer-link" href="#dashboard-container" @click="isHeaderCollapsed = true">
+            <i class="bi bi-window"></i><span>拟态面板</span>
+          </a>
+          <a class="drawer-link" href="#why-kkbar" @click="isHeaderCollapsed = true">
+            <i class="bi bi-question-circle"></i><span>为什么选择</span>
+          </a>
+          <a class="drawer-link" href="#additional-features" @click="isHeaderCollapsed = true">
+            <i class="bi bi-stars"></i><span>扩展特点</span>
+          </a>
+          <a class="drawer-link" href="#workflow-section" @click="isHeaderCollapsed = true">
+            <i class="bi bi-diagram-3"></i><span>流程图</span>
+          </a>
+          <a class="drawer-link" href="#features" @click="isHeaderCollapsed = true">
+            <i class="bi bi-grid-3x3-gap"></i><span>功能</span>
+          </a>
+          <a class="drawer-link" href="#pricing" @click="isHeaderCollapsed = true">
+            <i class="bi bi-tag"></i><span>价格</span>
+          </a>
+        </nav>
+      </div>
+    </Transition>
+
     <!-- Hero Section -->
-    <section class="hero-section tw-relative tw-mt-20 tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col max-lg:tw-mt-[100px] max-md:tw-mt-0" id="hero-section">
+    <section class="hero-section tw-relative tw-mt-20 tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-full tw-flex-col max-lg:tw-mt-[100px] max-md:tw-mt-0" id="hero-section">
       <!-- Video Modal -->
       <div class="tw-fixed tw-bg-[#000000af] dark:tw-bg-[#80808085] tw-top-0 tw-left-1/2 tw--translate-x-1/2 tw-z-20 tw-transition-opacity tw-duration-300 tw-p-2 tw-w-full tw-h-full tw-flex tw-place-content-center tw-place-items-center"
         :class="isVideoOpen ? 'tw-scale-100 tw-opacity-100' : 'tw-scale-0 tw-opacity-0'" @click.self="closeVideo">
@@ -666,7 +666,7 @@ onUnmounted(() => {
     </section>
 
     <!-- Tech Stack Carousel -->
-    <section class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-8">
+    <section class="tw-relative tw-flex tw-w-full tw-max-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-8">
       <h2 class="reveal-up tw-text-3xl max-md:tw-text-xl">使用的技术栈和方案</h2>
       <div class="reveal-up carousel-container">
         <div class="carousel lg:w-place-content-center tw-mt-10 tw-flex tw-w-full">
@@ -734,7 +734,7 @@ onUnmounted(() => {
     </section>
 
     <!-- Workflow Diagram -->
-    <section id="workflow-section" class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-py-16 tw-px-4" style="overflow: visible;">
+    <section id="workflow-section" class="tw-relative tw-flex tw-w-full tw-max-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-py-16 tw-px-4">
       <h2 class="reveal-up tw-text-4xl max-md:tw-text-2xl tw-text-center tw-mb-6 tw-font-semibold">删繁就简 & 触类旁通</h2>
       <p class="reveal-up tw-text-base tw-text-center tw-text-gray-500 dark:tw-text-gray-400 tw-mb-8 tw-max-w-[600px]">
         {{ workflowDirection === 'ltr' ? '九种动作类型，一键直达' : '一个面板即可管理全部的功能' }}
@@ -747,7 +747,7 @@ onUnmounted(() => {
     </section>
 
     <!-- Nine Button Features -->
-    <section id="features" class="tw-relative tw-mt-10 tw-flex tw-min-h-[auto] tw-py-8 tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-items-center lg:tw-p-6" style="overscroll-behavior: none;">
+    <section id="features" class="tw-relative tw-mt-10 tw-flex tw-min-h-[auto] tw-py-8 tw-w-full tw-max-w-full tw-flex-col tw-place-items-center lg:tw-p-6" style="overscroll-behavior: none;">
       <div class="reveal-up tw-flex tw-w-full tw-place-content-center tw-gap-2 tw-p-4 max-lg:tw-max-w-full max-lg:tw-flex-col" style="overscroll-behavior: none;">
         <div class="tw-relative tw-flex tw-max-w-[30%] max-lg:tw-max-w-full tw-flex-col tw-place-items-start tw-gap-4 tw-p-2 max-lg:tw-place-items-center max-lg:tw-place-content-center max-lg:tw-w-full max-lg:tw-flex-shrink-0">
           <div class="tw-top-40 tw-flex tw-flex-col lg:tw-sticky tw-place-items-center tw-max-h-fit tw-max-w-[850px] max-lg:tw-w-full max-lg:tw-px-4" id="feature-sticky-header">
@@ -993,6 +993,8 @@ onUnmounted(() => {
 /* 后续页面无波点 */
 .landing-page {
   background-color: #f8fafc;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 html.dark .landing-page,
