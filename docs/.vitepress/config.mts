@@ -4,6 +4,7 @@ export default defineConfig({
   title: 'Kkbar',
   description: 'Adobe After Effects 快捷工具栏',
   lang: 'zh-CN',
+  base: '/kkbar_doc/',
 
   head: [
     ['link', { rel: 'icon', href: '/assets/logo/logo-favicon.svg' }],
