@@ -2,8 +2,5 @@
   "buildCommand": "yarn docs:build",
   "outputDirectory": "docs/.vitepress/dist",
   "framework": "vitepress",
-  "installCommand": "yarn install --frozen-lockfile",
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "installCommand": "yarn install --frozen-lockfile"
 }
