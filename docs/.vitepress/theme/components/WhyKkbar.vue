@@ -41,13 +41,14 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 中心 Logo -->
-      <div class="sphere-center" :class="{ 'center-expanded': isExpanded }" @click="toggleSphere">
-        <div class="center-btn" :class="{ 'btn-pulse': !isExpanded }">
-          <img v-if="isDark" src="/assets/logo/logo_animated.svg" class="center-btn__logo" alt="Kkbar" />
-          <img v-else src="/assets/logo/logo_animated-light.svg" class="center-btn__logo" alt="Kkbar" />
+        <!-- 中心 Logo (inside scene, same origin as cards) -->
+        <div class="sphere-center" :class="{ 'center-expanded': isExpanded }" @click="toggleSphere"
+             :style="{ transform: counterRotate }">
+          <div class="center-btn" :class="{ 'btn-pulse': !isExpanded }">
+            <img v-if="isDark" src="/assets/logo/logo_animated.svg" class="center-btn__logo" alt="Kkbar" />
+            <img v-else src="/assets/logo/logo_animated-light.svg" class="center-btn__logo" alt="Kkbar" />
+          </div>
         </div>
       </div>
     </div>
@@ -124,6 +125,10 @@ let raf = null
 const sphereStyle = computed(() => ({
   transform: `rotateX(${rotX.value}deg) rotateY(${rotY.value}deg)`,
 }))
+
+const counterRotate = computed(() =>
+  `rotateY(${-rotY.value}deg) rotateX(${-rotX.value}deg)`
+)
 
 // 卡片样式（支持动画）
 function cardStyle(idx) {
@@ -548,9 +553,14 @@ onUnmounted(() => {
 /* 中心按钮 */
 .sphere-center {
   position: absolute;
+  left: 0;
+  top: 0;
+  margin-left: -36px;
+  margin-top: -36px;
   z-index: 10;
   cursor: pointer;
   transition: transform 0.3s ease;
+  transform-style: preserve-3d;
 }
 
 .sphere-center:hover {
@@ -656,5 +666,35 @@ html:not(.dark) .sphere-line {
 html:not(.dark) .center-btn {
   background: linear-gradient(135deg, #818cf8, #6366f1);
   box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25);
+}
+
+/* 手机模式隐藏连线 */
+@media (max-width: 767px) {
+  .sphere-lines {
+    display: none !important;
+  }
+
+  .sphere-viewport {
+    height: 400px;
+  }
+
+  .center-btn {
+    width: 56px;
+    height: 56px;
+  }
+
+  .sphere-center {
+    margin-left: -28px;
+    margin-top: -28px;
+  }
+
+  .terminal-card {
+    width: 150px;
+  }
+
+  .sphere-card {
+    left: -75px;
+    top: -22px;
+  }
 }
 </style>

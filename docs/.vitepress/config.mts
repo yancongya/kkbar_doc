@@ -7,6 +7,7 @@ export default defineConfig({
   description: 'Adobe After Effects 快捷工具栏',
   lang: 'zh-CN',
   base,
+  appearance: 'dark',
 
   head: [
     ['link', { rel: 'icon', href: '/assets/logo/logo-favicon.svg' }],

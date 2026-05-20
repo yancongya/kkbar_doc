@@ -2372,19 +2372,149 @@ html:not(.dark) .cep-resizer:hover {
     font-size: 11px;
   }
 
-  /* 引导卡片在小屏下更紧凑 */
+  /* 引导卡片手机模式重新设计 */
   .cep-guide-card {
-    width: min(240px, 92%);
-    padding: 14px;
-    gap: 10px;
+    width: min(200px, 85%);
+    padding: 8px;
+    gap: 4px;
+    border-radius: 8px;
+  }
+
+  .cep-guide-card__header {
+    gap: 6px;
+    margin-bottom: 0;
+  }
+
+  .cep-guide-card__icon-wrap {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .cep-guide-card__title-group {
+    gap: 2px;
   }
 
   .cep-guide-card__title {
-    font-size: 13px;
+    font-size: 11px;
+    line-height: 1.2;
   }
 
+  .cep-guide-card__tags {
+    gap: 2px;
+  }
+
+  .cep-guide-tag {
+    font-size: 8px;
+    padding: 0 4px;
+    border-radius: 3px;
+  }
+
+  /* 隐藏描述文字 */
   .cep-guide-card__desc {
-    font-size: 11px;
+    display: none;
+  }
+
+  .cep-guide-card__preview {
+    padding: 4px;
+    border-radius: 4px;
+  }
+
+  /* 面板模式：4个按钮横排 */
+  .cep-guide__preview-btns {
+    gap: 3px;
+  }
+
+  .cep-guide__preview-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+    border-radius: 3px;
+  }
+
+  /* 热键模式：紧凑行 */
+  .cep-guide__hotkey-demo {
+    gap: 2px;
+  }
+
+  .cep-guide__hotkey-row {
+    gap: 3px;
+    align-items: center;
+  }
+
+  .cep-guide__hk-key {
+    min-width: 22px;
+    padding: 1px 3px;
+    font-size: 7px;
+    border-radius: 2px;
+  }
+
+  .cep-guide__hk-arrow {
+    font-size: 8px;
+  }
+
+  /* 长按模式：两个选项 */
+  .cep-guide__lp-modes {
+    gap: 4px;
+  }
+
+  .cep-guide__lp-mode {
+    padding: 3px 0;
+    font-size: 8px;
+    gap: 2px;
+    border-radius: 3px;
+  }
+
+  .cep-guide__lp-mode svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* UI设置：滑块行 */
+  .cep-guide__ui-demo {
+    gap: 3px;
+  }
+
+  .cep-guide__ui-row {
+    gap: 3px;
+  }
+
+  .cep-guide__ui-label {
+    font-size: 7px;
+    min-width: 16px;
+  }
+
+  .cep-guide__ui-track {
+    height: 2px;
+  }
+
+  .cep-guide__ui-val {
+    font-size: 7px;
+    min-width: 12px;
+  }
+
+  .cep-guide__ui-btns {
+    gap: 2px;
+  }
+
+  .cep-guide__ui-btn {
+    width: 16px;
+    height: 14px;
+    font-size: 8px;
+    border-radius: 2px;
+  }
+
+  .cep-guide-card__cta {
+    padding: 4px 0;
+    font-size: 10px;
+    gap: 4px;
+    border-radius: 6px;
+  }
+
+  .cep-guide-card__cta i {
+    font-size: 10px;
   }
 
   /* 移动端亮色模式 */
