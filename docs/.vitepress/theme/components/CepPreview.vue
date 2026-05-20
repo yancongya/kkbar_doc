@@ -546,6 +546,9 @@ onUnmounted(() => {
               @mousedown="startLongpress($el as HTMLElement, true)"
               @mouseup="cancelLongpress(); ($el as HTMLElement).style.background = ''"
               @mouseleave="cancelLongpress()"
+              @touchstart.passive="startLongpress($el as HTMLElement, true)"
+              @touchend="cancelLongpress(); ($el as HTMLElement).style.background = ''"
+              @touchcancel="cancelLongpress()"
               @click="selectCategory((activeCatIdx + 1) % categories.length)">
               <div class="cep-main-panel__btn-icon">
                 <i class="bi" :class="currentCat.icon" :style="{ color: currentCat.color, fontSize: '20px' }"></i>
@@ -558,7 +561,10 @@ onUnmounted(() => {
               :style="{ width: uiSettings.iconSize + 'px', height: uiSettings.iconSize + 'px' }"
               @mousedown="($el as HTMLElement).style.background = '#3b3b6e'; ($el as HTMLElement).style.borderColor = '#4b4b7e'; startLongpress($el as HTMLElement, false, idx)"
               @mouseup="($el as HTMLElement).style.background = ''; ($el as HTMLElement).style.borderColor = ''; cancelLongpress()"
-              @mouseleave="($el as HTMLElement).style.background = ''; ($el as HTMLElement).style.borderColor = ''; cancelLongpress()">
+              @mouseleave="($el as HTMLElement).style.background = ''; ($el as HTMLElement).style.borderColor = ''; cancelLongpress()"
+              @touchstart.passive="($el as HTMLElement).style.background = '#3b3b6e'; ($el as HTMLElement).style.borderColor = '#4b4b7e'; startLongpress($el as HTMLElement, false, idx)"
+              @touchend="($el as HTMLElement).style.background = ''; ($el as HTMLElement).style.borderColor = ''; cancelLongpress()"
+              @touchcancel="($el as HTMLElement).style.background = ''; ($el as HTMLElement).style.borderColor = ''; cancelLongpress()">
               <div class="cep-main-panel__btn-icon">
                 <i class="bi" :class="getButtonState(btn).icon" :style="{ color: getButtonState(btn).color, fontSize: '20px' }"></i>
               </div>
@@ -649,9 +655,9 @@ onUnmounted(() => {
       <!-- Popup Overlay -->
       <Teleport to="body">
         <Transition name="guide-fade">
-          <div v-if="popupVisible" class="cep-popup-overlay cep-popup-overlay--visible" @mouseup="closePopup">
-            <div class="cep-popup-panel" @mouseup.stop>
-              <button v-for="(a, i) in popupActions" :key="a.id" class="cep-popup-item" :class="{ 'cep-popup-item--active': popupHoveredIdx === i }" @mouseenter="popupHoveredIdx = i" @mouseup="closePopup">
+          <div v-if="popupVisible" class="cep-popup-overlay cep-popup-overlay--visible" @mouseup="closePopup" @touchend="closePopup">
+            <div class="cep-popup-panel" @mouseup.stop @touchend.stop>
+              <button v-for="(a, i) in popupActions" :key="a.id" class="cep-popup-item" :class="{ 'cep-popup-item--active': popupHoveredIdx === i }" @mouseenter="popupHoveredIdx = i" @mouseup="closePopup" @touchend="closePopup">
                 <span class="cep-popup-item__icon"><i class="bi" :class="a.icon" :style="{ color: a.color }"></i></span>
                 <span class="cep-popup-item__content">
                   <span class="cep-popup-item__label">{{ a.label }}</span>
