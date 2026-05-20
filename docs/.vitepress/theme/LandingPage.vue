@@ -557,10 +557,13 @@ onUnmounted(() => {
       </div>
 
       <!-- Mobile hamburger -->
-      <button id="header-hamburger" @click="isHeaderCollapsed = !isHeaderCollapsed" type="button"
-        :aria-label="isHeaderCollapsed ? '打开菜单' : '关闭菜单'">
-        <span class="hamburger-line" :class="{ 'hamburger-line--open': !isHeaderCollapsed }"></span>
-      </button>
+      <div id="mobile-header-right">
+        <ThemeSwitch v-model="isDark" />
+        <button id="header-hamburger" @click="isHeaderCollapsed = !isHeaderCollapsed" type="button"
+          :aria-label="isHeaderCollapsed ? '打开菜单' : '关闭菜单'">
+          <span class="hamburger-line" :class="{ 'hamburger-line--open': !isHeaderCollapsed }"></span>
+        </button>
+      </div>
 
       <!-- Mobile drawer backdrop -->
       <Transition name="drawer-fade">
@@ -593,9 +596,6 @@ onUnmounted(() => {
               <i class="bi bi-tag"></i><span>价格</span>
             </a>
           </nav>
-          <div id="drawer-footer">
-            <ThemeSwitch v-model="isDark" />
-          </div>
         </div>
       </Transition>
     </header>

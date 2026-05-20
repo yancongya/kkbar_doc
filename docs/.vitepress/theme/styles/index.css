@@ -456,6 +456,14 @@ html.dark {
   transform: translateX(2px);
 }
 
+/* Mobile header right section */
+#mobile-header-right {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
 /* Hamburger */
 #header-hamburger {
   display: none;
@@ -467,7 +475,6 @@ html.dark {
   background: none;
   cursor: pointer;
   padding: 0;
-  margin-left: auto;
 }
 
 .hamburger-line,
@@ -742,6 +749,10 @@ html.dark {
   #header-nav,
   #header-actions {
     display: none !important;
+  }
+
+  #mobile-header-right {
+    display: flex;
   }
 
   #header-hamburger {
