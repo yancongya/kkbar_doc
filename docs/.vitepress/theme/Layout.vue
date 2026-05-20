@@ -22,14 +22,18 @@ onMounted(() => {
   if (kkbarDark !== null) {
     const dark = kkbarDark === 'true'
     isDark.value = dark
-    document.documentElement.classList.toggle('dark', dark)
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle('dark', dark)
+    }
   }
 })
 
 // 监听 VitePress 主题变化，同步到 localStorage
 watch(isDark, (dark) => {
-  localStorage.setItem('kkbar-dark', String(dark))
-  localStorage.setItem('vitepress-theme-appearance', dark ? 'dark' : 'light')
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('kkbar-dark', String(dark))
+    localStorage.setItem('vitepress-theme-appearance', dark ? 'dark' : 'light')
+  }
 })
 </script>
 

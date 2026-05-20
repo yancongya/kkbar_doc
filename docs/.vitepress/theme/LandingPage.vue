@@ -23,8 +23,12 @@ function onFlowChange(direction) {
 
 // 主题切换 - 同步到 localStorage 和 CSS 类
 watch(isDark, (dark) => {
-  document.documentElement.classList.toggle('tw-dark', dark)
-  localStorage.setItem('kkbar-dark', String(dark))
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.toggle('tw-dark', dark)
+  }
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('kkbar-dark', String(dark))
+  }
 }, { immediate: true })
 
 const isVideoOpen = ref(false)

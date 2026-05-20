@@ -48,17 +48,17 @@ const links = [
   {
     label: 'GitHub',
     href: 'https://github.com/yancongya',
-    icon: new URL('../assets/github.svg', import.meta.url).href
+    icon: '/assets/icons/github.svg'
   },
   {
     label: 'Bilibili',
     href: 'https://space.bilibili.com/100881808/',
-    icon: new URL('../assets/bilibili.svg', import.meta.url).href
+    icon: '/assets/icons/bilibili.svg'
   },
   {
     label: '小红书',
     href: 'https://xhslink.com/m/9v4RK5HQzsc',
-    icon: new URL('../assets/xiaohongshu.svg', import.meta.url).href
+    icon: '/assets/icons/xiaohongshu.svg'
   },
   {
     label: '邮箱',
