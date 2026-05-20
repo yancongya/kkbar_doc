@@ -1,10 +1,12 @@
-﻿import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress'
+
+const base = process.env.GITHUB_ACTIONS ? '/kkbar_doc/' : '/'
 
 export default defineConfig({
   title: 'Kkbar',
   description: 'Adobe After Effects 快捷工具栏',
   lang: 'zh-CN',
-  base: '/kkbar_doc/',
+  base,
 
   head: [
     ['link', { rel: 'icon', href: '/assets/logo/logo-favicon.svg' }],
