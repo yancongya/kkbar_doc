@@ -4,10 +4,11 @@
        :href="link.href" 
        :aria-label="link.label"
        class="navbar-social__link"
+       :class="{ 'navbar-social__link--icon': link.icon }"
        target="_blank" 
        rel="noopener noreferrer"
        @click="link.action ? link.action($event) : null">
-      <img v-if="link.icon" :src="link.icon" class="navbar-social__icon" :alt="link.label" />
+      <img v-if="link.icon" :src="link.icon" class="navbar-social__icon" :class="link.iconClass" :alt="link.label" />
       <i v-else class="bi" :class="link.biIcon"></i>
     </a>
     
@@ -48,17 +49,20 @@ const links = [
   {
     label: 'GitHub',
     href: 'https://github.com/yancongya',
-    icon: '/assets/icons/github.svg'
+    icon: '/assets/icons/github.svg',
+    iconClass: 'icon-invert'
   },
   {
     label: 'Bilibili',
     href: 'https://space.bilibili.com/100881808/',
-    icon: '/assets/icons/bilibili.svg'
+    icon: '/assets/icons/bilibili.svg',
+    iconClass: 'icon-no-invert'
   },
   {
     label: '小红书',
     href: 'https://xhslink.com/m/9v4RK5HQzsc',
-    icon: '/assets/icons/xiaohongshu.svg'
+    icon: '/assets/icons/xiaohongshu.svg',
+    iconClass: 'icon-no-invert'
   },
   {
     label: '邮箱',
@@ -97,8 +101,21 @@ const links = [
 .navbar-social__icon {
   width: 20px;
   height: 20px;
-  /* 亮色模式：SVG原本是白色，需要反相为深色 */
+}
+
+/* 纯白色图标（如 GitHub）在亮色模式下反相为深色 */
+.icon-invert {
   filter: invert(1);
+}
+
+/* 带背景色的图标（如 Bilibili、小红书）不反相 */
+.icon-no-invert {
+  filter: none;
+}
+
+/* 暗色模式：白色图标不需要反相，保持白色 */
+:root.dark .icon-invert {
+  filter: none;
 }
 
 /* Toast */
@@ -134,10 +151,5 @@ const links = [
 .toast-leave-to {
   opacity: 0;
   transform: translateY(-4px);
-}
-
-/* Dark mode - SVG是白色，不需要反相 */
-:root.dark .navbar-social__icon {
-  filter: none;
 }
 </style>
