@@ -17,6 +17,7 @@ export default defineConfig({
       crossorigin: 'anonymous',
       referrerpolicy: 'no-referrer'
     }],
+    ['style', {}, '.landing-page{overflow-x:clip!important}'],
   ],
 
   themeConfig: {

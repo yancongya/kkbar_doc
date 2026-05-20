@@ -597,6 +597,22 @@ onUnmounted(() => {
             <i class="bi bi-tag"></i><span>价格</span>
           </a>
         </nav>
+        <div id="drawer-footer">
+          <div id="drawer-social">
+            <a href="https://github.com/yancongya" aria-label="Github" target="_blank" rel="noopener noreferrer">
+              <img src="./assets/github.svg" alt="Github" class="drawer-social-icon icon-invert" />
+            </a>
+            <a href="https://space.bilibili.com/100881808/" aria-label="Bilibili" target="_blank" rel="noopener noreferrer">
+              <img src="./assets/bilibili.svg" alt="Bilibili" class="drawer-social-icon" />
+            </a>
+            <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" target="_blank" rel="noopener noreferrer">
+              <img src="./assets/xiaohongshu.svg" alt="小红书" class="drawer-social-icon" />
+            </a>
+            <a href="javascript:void(0)" aria-label="Email" @click="copyEmail">
+              <i class="bi bi-envelope drawer-social-bi"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </Transition>
 

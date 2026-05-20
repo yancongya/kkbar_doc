@@ -359,7 +359,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: visible;
+  overflow: clip;
 }
 
 .why-title {
