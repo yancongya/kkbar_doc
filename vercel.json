@@ -2,21 +2,8 @@
   "buildCommand": "yarn docs:build",
   "outputDirectory": "docs/.vitepress/dist",
   "framework": "vitepress",
-  "installCommand": "yarn install",
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
-    }
-  ]
+  "installCommand": "yarn install --frozen-lockfile",
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
