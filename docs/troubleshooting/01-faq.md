@@ -106,7 +106,7 @@
 1. 打开设置面板，点击 **导入配置**
 2. 选择 `.json` 或 `.kbar` 文件
 
-详细教程请参考 [数据备份](/settings/01-data-persistence)
+详细教程请参考 [数据备份](/settings/02-db-settings)
 
 ---
 
@@ -118,7 +118,7 @@
 3. 点击 **备份到 Gist** 上传配置
 4. 其他电脑点击 **从 Gist 恢复** 即可同步
 
-详细教程请参考 [云备份](/settings/02-cloud-backup)
+详细教程请参考 [云备份](/settings/03-cloud-backup)
 
 ---
 

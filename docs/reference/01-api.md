@@ -102,7 +102,5 @@ Kkbar 的按钮动作一般走这条链路：
 - 不使用 `async/await`
 - 不使用解构、展开、类语法
 
-更多规则见：
-
-- [ExtendScript 开发指南](../extendscript-development-guidelines.md)
+更多规则见项目根目录的 `docs/extendscript-development-guidelines.md` 文件。
 
