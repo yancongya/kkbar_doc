@@ -14,10 +14,10 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "vitepress": "^1.6.3",
     "vue": "^3.5.13"
   },
   "dependencies": {
-    "gsap": "^3.15.0"
+    "gsap": "^3.15.0",
+    "vitepress": "^1.6.3"
   }
 }
