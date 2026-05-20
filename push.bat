@@ -54,10 +54,10 @@ echo [i] 提交中...
 git commit -m "%COMMIT_MSG%"
 
 :: 推送
-echo [==>]  推送到远程...
+echo [==>] 推送到远程...
 for /f "tokens=*" %%i in ('git branch --show-current') do git push origin %%i
 
 echo.
 echo [OK] 完成！
-echo 提交信息: %COMMIT_MSG%
+echo Commit: %COMMIT_MSG%
 pause
