@@ -1258,6 +1258,15 @@ html:not(.dark) .fullscreen-img {
   text-decoration: underline;
 }
 
+/* 页脚 GitHub 图标反相 */
+.footer-icon-invert {
+  filter: invert(1);
+}
+
+:root.dark .footer-icon-invert {
+  filter: none;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
