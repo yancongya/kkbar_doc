@@ -13,12 +13,20 @@
         </p>
         
         <div class="download-hero__actions reveal-up">
-          <a href="https://www.123pan.com/s/AaaeVj/GtbbI3.html" 
+          <a href="https://1821783597.share.123pan.cn/123pan/FQvajv-Ch02H?pwd=tycn#" 
              target="_blank" rel="noopener noreferrer" class="download-btn">
             <i class="bi bi-cloud-arrow-down"></i>
             <div class="download-btn__text">
               <span class="download-btn__label">网盘下载</span>
               <span class="download-btn__size">v1.0.0 · Windows / macOS</span>
+            </div>
+          </a>
+          <a href="https://github.com/yancongya/Kkbar/releases" 
+             target="_blank" rel="noopener noreferrer" class="download-btn download-btn--github">
+            <i class="bi bi-github"></i>
+            <div class="download-btn__text">
+              <span class="download-btn__label">GitHub 下载</span>
+              <span class="download-btn__size">Releases</span>
             </div>
           </a>
         </div>
@@ -152,6 +160,10 @@ const changelog = [
 }
 
 .download-hero__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
   margin-bottom: 20px;
 }
 
@@ -193,6 +205,20 @@ const changelog = [
   font-size: 11px;
   font-weight: 400;
   color: #666;
+}
+
+.download-btn--github {
+  background: #24292e;
+  color: #fff;
+}
+
+.download-btn--github:hover {
+  background: #1b1f23;
+  color: #fff;
+}
+
+.download-btn--github .download-btn__size {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .download-hero__meta {
