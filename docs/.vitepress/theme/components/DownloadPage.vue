@@ -21,7 +21,7 @@
               <span class="download-btn__size">v1.0.0 · Windows / macOS</span>
             </div>
           </a>
-          <a href="https://github.com/yancongya/Kkbar/releases" 
+          <a href="https://github.com/yancongya/kkbar_doc/tree/master/docs/public/release" 
              target="_blank" rel="noopener noreferrer" class="download-btn download-btn--github">
             <i class="bi bi-github"></i>
             <div class="download-btn__text">
