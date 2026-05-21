@@ -89,7 +89,7 @@ const switchTheme = (e) => {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  z-index: 101;
+  z-index: 1;
 }
 
 .theme-switch__btn:hover {
