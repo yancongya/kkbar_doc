@@ -26,16 +26,15 @@ import { ref } from 'vue'
 
 const showToast = ref(false)
 
-const copyEmail = async (e) => {
+const copyEmail = async (e, email) => {
   e.preventDefault()
   try {
-    await navigator.clipboard.writeText('2655283737@qq.com')
+    await navigator.clipboard.writeText(email)
     showToast.value = true
     setTimeout(() => { showToast.value = false }, 2000)
   } catch {
-    // Fallback for older browsers
     const textarea = document.createElement('textarea')
-    textarea.value = '2655283737@qq.com'
+    textarea.value = email
     document.body.appendChild(textarea)
     textarea.select()
     document.execCommand('copy')
@@ -44,6 +43,9 @@ const copyEmail = async (e) => {
     setTimeout(() => { showToast.value = false }, 2000)
   }
 }
+
+const copyOldEmail = (e) => copyEmail(e, '2655283737@qq.com')
+const copyNewEmail = (e) => copyEmail(e, 'admin@itycon.cn')
 
 const links = [
   {
@@ -68,7 +70,13 @@ const links = [
     label: '邮箱',
     href: '#',
     biIcon: 'bi-envelope',
-    action: copyEmail
+    action: copyOldEmail
+  },
+  {
+    label: '邮箱',
+    href: '#',
+    biIcon: 'bi-envelope-fill',
+    action: copyNewEmail
   }
 ]
 </script>

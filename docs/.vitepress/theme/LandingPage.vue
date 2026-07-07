@@ -84,14 +84,22 @@ onMounted(() => {
   document.addEventListener('keydown', onEscKey)
 })
 
-async function copyEmail() {
+async function copyEmail(email: string) {
   try {
-    await navigator.clipboard.writeText('2655283737@qq.com')
+    await navigator.clipboard.writeText(email)
     showEmailToast.value = true
     setTimeout(() => { showEmailToast.value = false }, 2000)
   } catch {
     alert('复制失败')
   }
+}
+
+async function copyOldEmail() {
+  await copyEmail('2655283737@qq.com')
+}
+
+async function copyNewEmail() {
+  await copyEmail('admin@itycon.cn')
 }
 
 const featureData: Record<string, { title: string; desc: string; link: string }> = {
@@ -608,8 +616,11 @@ onUnmounted(() => {
             <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" target="_blank" rel="noopener noreferrer">
               <img src="./assets/xiaohongshu.svg" alt="小红书" class="drawer-social-icon" />
             </a>
-            <a href="javascript:void(0)" aria-label="Email" @click="copyEmail">
+            <a href="javascript:void(0)" aria-label="Email" @click="copyOldEmail">
               <i class="bi bi-envelope drawer-social-bi"></i>
+            </a>
+            <a href="javascript:void(0)" aria-label="Email" @click="copyNewEmail">
+              <i class="bi bi-envelope-fill drawer-social-bi"></i>
             </a>
           </div>
         </div>
@@ -928,7 +939,8 @@ onUnmounted(() => {
             <a href="https://github.com/yancongya" aria-label="Github" class="tw-w-6 tw-h-6"><img src="./assets/github.svg" class="tw-w-full tw-h-full footer-icon-invert" alt="Github" /></a>
             <a href="https://space.bilibili.com/100881808/" aria-label="Bilibili" class="tw-w-6 tw-h-6"><img src="./assets/bilibili.svg" class="tw-w-full tw-h-full" alt="Bilibili" /></a>
             <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" class="tw-w-6 tw-h-6"><img src="./assets/xiaohongshu.svg" class="tw-w-full tw-h-full" alt="小红书" /></a>
-            <a href="javascript:void(0)" aria-label="Email" @click="copyEmail"><i class="bi bi-envelope"></i></a>
+            <a href="javascript:void(0)" aria-label="Email" @click="copyOldEmail" title="2655283737@qq.com"><i class="bi bi-envelope"></i></a>
+            <a href="javascript:void(0)" aria-label="Email" @click="copyNewEmail" title="admin@itycon.cn"><i class="bi bi-envelope-fill"></i></a>
           </div>
           <div class="footer-legal-links">
             <a href="/legal/隐私协议">隐私协议</a>
