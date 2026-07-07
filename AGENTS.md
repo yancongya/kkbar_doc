@@ -6,7 +6,7 @@
 
 **kkbar_doc** 是 Kkbar（Adobe After Effects/Photoshop 工具栏扩展）的官方文档站。基于 **VitePress 1.6+** 构建，包含完全自定义的落地页，集成交互式 CEP 面板预览、GSAP 滚动动画和 Tailwind CSS。
 
-在线地址：https://kkbar-doc.vercel.app/
+在线地址：https://kkbar.itycon.cn/
 
 ## 开发命令
 
@@ -93,11 +93,19 @@ docs/
 
 ## 部署
 
-推送到 `master` 分支时，GitHub Actions 自动部署到 GitHub Pages。工作流程：
-1. `yarn install --frozen-lockfile`
-2. `yarn build`（VitePress 构建）
-3. 上传 `docs/.vitepress/dist` 作为构建产物
-4. 部署到 GitHub Pages
+### Vercel（主站）+ Cloudflare DNS
+
+```bash
+vercel login                     # 首次登录
+vercel --prod                    # 部署到生产
+```
+
+也可推送到 GitHub 后，Vercel 自动部署（需在 Vercel 控制台关联仓库）。
+
+**域名 kkbar.itycon.cn：**
+1. Vercel 控制台 → 项目 → Settings → Domains → 添加 `kkbar.itycon.cn`
+2. Cloudflare DNS 添加记录：`CNAME @ → cname.vercel-dns.com`（或指向 Vercel 分配的域名）
+3. Cloudflare 开启 Proxy（橙色云朵）启用 CDN 和 SSL
 
 ## 注意事项
 
