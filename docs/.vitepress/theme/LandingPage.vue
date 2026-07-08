@@ -4,11 +4,15 @@ import { useData } from 'vitepress'
 import CepPreview from './components/CepPreview.vue'
 import ThemeSwitch from './components/ThemeSwitch.vue'
 import NavbarSocial from './components/NavbarSocial.vue'
+import LangSwitcher from './components/LangSwitcher.vue'
 
 import DialogMockup from './components/DialogMockup.vue';
 import WorkflowDiagram from './components/WorkflowDiagram.vue';
 import WhyKkbar from './components/WhyKkbar.vue';
 import DownloadPage from './components/DownloadPage.vue';
+import { useI18n } from './i18n'
+
+const { t, locale } = useI18n()
 
 // 使用 VitePress 的 isDark 实现全局同步
 const { isDark } = useData()
@@ -90,7 +94,7 @@ async function copyEmail(email: string) {
     showEmailToast.value = true
     setTimeout(() => { showEmailToast.value = false }, 2000)
   } catch {
-    alert('复制失败')
+    alert(t('toast.copyFailed'))
   }
 }
 
@@ -102,21 +106,24 @@ async function copyNewEmail() {
   await copyEmail('admin@itycon.cn')
 }
 
-const featureData: Record<string, { title: string; desc: string; link: string }> = {
-  jsx: { title: 'JSX 脚本', desc: '执行本地 .jsx/.jsxbin 脚本文件，读取脚本进行修改实时修改测试。', link: '/features/03-actions-jsx/' },
-  preset: { title: '预设应用', desc: '应用 .ffx 预设文件到选中图层，支持批量应用和撤销。', link: '/features/04-actions-preset/' },
-  effect: { title: '效果特效', desc: '快速应用 AE 内置效果到图层，支持中英文搜索。', link: '/features/05-actions-effect/' },
-  expression: { title: '表达式', desc: '为属性添加动画表达式，支持代码编辑器和常用表达式模板。', link: '/features/06-actions-expression/' },
-  scriptlet: { title: '脚本片段', desc: '直接在配置面板输入代码片段，点击按钮立即执行测试。', link: '/features/07-actions-scriptlet/' },
-  panel: { title: '扩展面板', desc: '打开已经安装的插件面板，快速调用临时使用的插件。', link: '/features/08-actions-panel/' },
-  menuItem: { title: '菜单命令', desc: '调用 AE 菜单命令，快速执行内置操作，比如导出、保存、另存为等。', link: '/features/09-actions-menuitem/' },
-  clipboard: { title: '剪贴板', desc: '一键复制预设文本到剪贴板，支持代码片段，搭配文件路径和AE 属性引用可以作为素材库管理。', link: '/features/10-actions-clipboard/' },
-  shell: { title: 'Shell 命令', desc: '执行 PowerShell/CMD 命令，自动化文件系统操作。', link: '/features/11-actions-shell/' },
+function createFeatureData() {
+  return {
+    jsx: { title: t('featureCards.jsx.title'), desc: t('featureCards.jsx.desc'), link: '/features/03-actions-jsx/' },
+    preset: { title: t('featureCards.preset.title'), desc: t('featureCards.preset.desc'), link: '/features/04-actions-preset/' },
+    effect: { title: t('featureCards.effect.title'), desc: t('featureCards.effect.desc'), link: '/features/05-actions-effect/' },
+    expression: { title: t('featureCards.expression.title'), desc: t('featureCards.expression.desc'), link: '/features/06-actions-expression/' },
+    scriptlet: { title: t('featureCards.scriptlet.title'), desc: t('featureCards.scriptlet.desc'), link: '/features/07-actions-scriptlet/' },
+    panel: { title: t('featureCards.panel.title'), desc: t('featureCards.panel.desc'), link: '/features/08-actions-panel/' },
+    menuItem: { title: t('featureCards.menuItem.title'), desc: t('featureCards.menuItem.desc'), link: '/features/09-actions-menuitem/' },
+    clipboard: { title: t('featureCards.clipboard.title'), desc: t('featureCards.clipboard.desc'), link: '/features/10-actions-clipboard/' },
+    shell: { title: t('featureCards.shell.title'), desc: t('featureCards.shell.desc'), link: '/features/11-actions-shell/' },
+  }
 }
 
+const featureData = ref(createFeatureData())
 const activeFeature = ref('jsx')
-const featureKeys = Object.keys(featureData)
-const activeFeatureIndex = computed(() => featureKeys.indexOf(activeFeature.value))
+const featureKeys = computed(() => Object.keys(featureData.value))
+const activeFeatureIndex = computed(() => featureKeys.value.indexOf(activeFeature.value))
 let isManualNavigation = false
 let manualNavTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -126,14 +133,16 @@ function showFeature(feature: string) {
 
 function prevFeature() {
   const idx = activeFeatureIndex.value
-  const prevIdx = (idx - 1 + featureKeys.length) % featureKeys.length
-  navigateToFeature(featureKeys[prevIdx])
+  const keys = featureKeys.value
+  const prevIdx = (idx - 1 + keys.length) % keys.length
+  navigateToFeature(keys[prevIdx])
 }
 
 function nextFeature() {
   const idx = activeFeatureIndex.value
-  const nextIdx = (idx + 1) % featureKeys.length
-  navigateToFeature(featureKeys[nextIdx])
+  const keys = featureKeys.value
+  const nextIdx = (idx + 1) % keys.length
+  navigateToFeature(keys[nextIdx])
 }
 
 function navigateToFeature(key: string) {
@@ -178,7 +187,7 @@ onMounted(() => {
         const containerCenter = cardList.scrollLeft + cardList.clientWidth / 2
         let minDist = Infinity
         let closestKey = activeFeature.value
-        Object.keys(featureData).forEach((key) => {
+        Object.keys(featureData.value).forEach((key) => {
           const card = document.getElementById('feature-card-' + key)
           if (card) {
             const cardCenter = card.offsetLeft + card.offsetWidth / 2
@@ -199,10 +208,9 @@ onMounted(() => {
         if (rafId) cancelAnimationFrame(rafId)
         rafId = requestAnimationFrame(updateActiveFromScroll)
 
-        // 滚动结束时再更新一次，确保最终位置正确
         if (scrollEndTimer) clearTimeout(scrollEndTimer)
         scrollEndTimer = setTimeout(updateActiveFromScroll, 100)
-      })
+      }, { passive: true })
     }
   }, 300)
 })
@@ -223,49 +231,59 @@ watch(activeFeature, (newFeature) => {
   }, 100)
 })
 
-const faqList = [
-  { q: '为什么开发 Kkbar？', a: 'Kbar 是我用得最多的AE扩展，但原版功能和体验还有提升空间。于是基于它二次开发，加了云备份、剪贴板管理、多面板布局等功能，做成了自己想要的样子。' },
-  { q: '和原版 Kbar 有什么区别？', a: '多了剪贴板管理、素材快速导入、Gist云备份、多面板布局、快捷键触发等功能。简单说就是：原版能干的我都能干，原版干不了的我也能干。' },
-  { q: 'Kkbar 是免费的吗？', a: '核心功能完全免费！9种动作类型、自定义工具栏、配置导入导出都能用。付费版只是去掉了弹窗广告，加了云同步和优先支持，一杯奶茶钱终身使用。' },
-  { q: '以后会开源吗？', a: '开发这个项目投入了大量时间和精力，如果未来能回本，会考虑开源。目前先把功能做好，让大家用得爽。' },
-  { q: '支持哪些 AE 版本？', a: '支持 After Effects 2020 及以上版本，推荐 AE 2022+。已测试 AE 2020/2021/2022/2023/2024/2025 全系列。' },
-  { q: '数据安全吗？', a: '所有配置数据存储在本地，支持导出/导入备份。付费版还支持 Gist 云同步，换电脑也不怕丢。' },
-]
+function createFaqList() {
+  return [
+    { q: t('faq.q1'), a: t('faq.a1') },
+    { q: t('faq.q2'), a: t('faq.a2') },
+    { q: t('faq.q3'), a: t('faq.a3') },
+    { q: t('faq.q4'), a: t('faq.a4') },
+    { q: t('faq.q5'), a: t('faq.a5') },
+    { q: t('faq.q6'), a: t('faq.a6') },
+  ]
+}
 
-const articleList = [
-  { img: '/assets/images/intro.png', title: '功能简介' },
-  { img: '/assets/images/install.png', title: '安装指南' },
-  { img: '/assets/images/cep.png', title: 'CEP 面板预览' },
-  { img: '/assets/images/buttons.png', title: '自定义按钮' },
-  { img: '/assets/images/actions.png', title: '九大动作类型' },
-  { img: '/assets/images/jsx0.png', title: '脚本执行' },
-  { img: '/assets/images/presets0.png', title: '预设管理' },
-  { img: '/assets/images/eefect.png', title: '效果特效' },
-  { img: '/assets/images/exp.png', title: '表达式' },
-  { img: '/assets/images/scripttlet0.png', title: '脚本片段' },
-  { img: '/assets/images/panel.png', title: '扩展面板' },
-  { img: '/assets/images/clipboard0.png', title: '剪贴板 - 复制' },
-  { img: '/assets/images/clipboard1.png', title: '剪贴板 - 粘贴' },
-  { img: '/assets/images/clipboard2.png', title: '剪贴板 - 管理' },
-  { img: '/assets/images/shell0.png', title: 'Shell 命令 - 配置' },
-  { img: '/assets/images/shell1.png', title: 'Shell 命令 - 执行' },
-  { img: '/assets/images/shell2.png', title: 'Shell 命令 - 结果' },
-  { img: '/assets/images/icons0.png', title: '图标库 - 内置' },
-  { img: '/assets/images/icons1.png', title: '图标库 - FontAwesome' },
-  { img: '/assets/images/icons2.png', title: '图标库 - Bootstrap' },
-  { img: '/assets/images/icons3.png', title: '图标库 - 自定义' },
-  { img: '/assets/images/transfrom.png', title: '界面设置' },
-  { img: '/assets/images/vs.png', title: '功能对比' },
-]
+function createArticleList() {
+  return [
+    { img: '/assets/images/intro.png', title: t('articleList.featureOverview') },
+    { img: '/assets/images/install.png', title: t('articleList.installGuide') },
+    { img: '/assets/images/cep.png', title: t('articleList.cepPreview') },
+    { img: '/assets/images/buttons.png', title: t('articleList.customButtons') },
+    { img: '/assets/images/actions.png', title: t('articleList.nineActions') },
+    { img: '/assets/images/jsx0.png', title: t('articleList.scriptExec') },
+    { img: '/assets/images/presets0.png', title: t('articleList.presetMgmt') },
+    { img: '/assets/images/eefect.png', title: t('articleList.effects') },
+    { img: '/assets/images/exp.png', title: t('articleList.expressions') },
+    { img: '/assets/images/scripttlet0.png', title: t('articleList.scriptlets') },
+    { img: '/assets/images/panel.png', title: t('articleList.panels') },
+    { img: '/assets/images/clipboard0.png', title: t('articleList.clipboardCopy') },
+    { img: '/assets/images/clipboard1.png', title: t('articleList.clipboardPaste') },
+    { img: '/assets/images/clipboard2.png', title: t('articleList.clipboardMgmt') },
+    { img: '/assets/images/shell0.png', title: t('articleList.shellConfig') },
+    { img: '/assets/images/shell1.png', title: t('articleList.shellExec') },
+    { img: '/assets/images/shell2.png', title: t('articleList.shellResult') },
+    { img: '/assets/images/icons0.png', title: t('articleList.iconBuiltin') },
+    { img: '/assets/images/icons1.png', title: t('articleList.iconFA') },
+    { img: '/assets/images/icons2.png', title: t('articleList.iconBI') },
+    { img: '/assets/images/icons3.png', title: t('articleList.iconCustom') },
+    { img: '/assets/images/transfrom.png', title: t('articleList.uiSettings') },
+    { img: '/assets/images/vs.png', title: t('articleList.featureCompare') },
+  ]
+}
 
-const additionalFeatures = [
-  { img: '/assets/images/piont/1.png', title: '无缝迁移', desc: '一键导入KBar配置，大部分功能都可全自动迁移，老用户零成本上车。' },
-  { img: '/assets/images/piont/2.png', title: '九大动作', desc: '脚本、预设、效果、表达式、剪贴板、Shell命令...一个按钮能干九件事。' },
-  { img: '/assets/images/piont/3.png', title: '自由定制', desc: '快捷键随便配，主题随便切，按钮大小位置拖拽调，你的工具栏你做主。' },
-  { img: '/assets/images/piont/4.png', title: '数据安全', desc: '配置本地存储+云端备份双保险，Gist同步不怕丢，换电脑秒恢复。' },
-  { img: '/assets/images/piont/5.png', title: '多面板协作', desc: '三个独立面板同时打开，多种布局面板形式任你选' },
-  { img: '/assets/images/piont/6.png', title: '执行日志', desc: '每次操作都有记录，出了问题一查便知，告别玄学报错。' },
-]
+function createAdditionalFeatures() {
+  return [
+    { img: '/assets/images/piont/1.png', title: t('addFeatures.migrate'), desc: t('addFeatures.migrateDesc') },
+    { img: '/assets/images/piont/2.png', title: t('addFeatures.nineActions'), desc: t('addFeatures.nineActionsDesc') },
+    { img: '/assets/images/piont/3.png', title: t('addFeatures.customize'), desc: t('addFeatures.customizeDesc') },
+    { img: '/assets/images/piont/4.png', title: t('addFeatures.dataSafe'), desc: t('addFeatures.dataSafeDesc') },
+    { img: '/assets/images/piont/5.png', title: t('addFeatures.multiPanel'), desc: t('addFeatures.multiPanelDesc') },
+    { img: '/assets/images/piont/6.png', title: t('addFeatures.execLog'), desc: t('addFeatures.execLogDesc') },
+  ]
+}
+
+const faqList = ref(createFaqList())
+const articleList = ref(createArticleList())
+const additionalFeatures = ref(createAdditionalFeatures())
 
 function toggleFaq(e: Event) {
   const el = e.currentTarget as HTMLElement
@@ -282,6 +300,13 @@ function toggleFaq(e: Event) {
     icon.style.transform = 'rotate(45deg)'
   }
 }
+
+watch(locale, () => {
+  featureData.value = createFeatureData()
+  faqList.value = createFaqList()
+  articleList.value = createArticleList()
+  additionalFeatures.value = createAdditionalFeatures()
+})
 
 const RESPONSIVE_WIDTH = 1024
 const SCROLL_THRESHOLD = 80
@@ -510,9 +535,9 @@ onMounted(async () => {
       el.addEventListener('scroll', () => {
         const children = el.children
         if (!children.length) return
-        const itemW = children[0].offsetWidth + 24 // gap-6 = 24px
+        const itemW = children[0].offsetWidth + 24
         carouselSlide.value = Math.round(el.scrollLeft / itemW)
-      })
+      }, { passive: true })
 
       carouselTimer = setInterval(() => {
         if (paused) return
@@ -549,18 +574,19 @@ onUnmounted(() => {
 
       <!-- Desktop Nav -->
       <nav id="header-nav">
-        <a class="header-link" href="/guides/01-introduction/">文档</a>
-        <a class="header-link" href="#dashboard-container">模拟demo</a>
-        <a class="header-link" href="#why-kkbar">痛点解决</a>
-        <a class="header-link" href="#additional-features">扩展特点</a>
-        <a class="header-link" href="#workflow-section">快速调用</a>
-        <a class="header-link" href="#features">功能类型</a>
-        <a class="header-link" href="#pricing">赞助</a>
+        <a class="header-link" href="/guides/01-introduction/">{{ t('nav.docs') }}</a>
+        <a class="header-link" href="#dashboard-container">{{ t('nav.demo') }}</a>
+        <a class="header-link" href="#why-kkbar">{{ t('nav.problem') }}</a>
+        <a class="header-link" href="#additional-features">{{ t('nav.features') }}</a>
+        <a class="header-link" href="#workflow-section">{{ t('nav.workflow') }}</a>
+        <a class="header-link" href="#features">{{ t('nav.actions') }}</a>
+        <a class="header-link" href="#pricing">{{ t('nav.sponsor') }}</a>
       </nav>
 
       <!-- Actions -->
       <div id="header-actions">
         <ThemeSwitch v-model="isDark" />
+        <LangSwitcher />
         <NavbarSocial />
       </div>
 
@@ -568,7 +594,7 @@ onUnmounted(() => {
       <div id="mobile-header-right">
         <ThemeSwitch v-model="isDark" />
         <button id="header-hamburger" @click="isHeaderCollapsed = !isHeaderCollapsed" type="button"
-          :aria-label="isHeaderCollapsed ? '打开菜单' : '关闭菜单'">
+          :aria-label="isHeaderCollapsed ? t('nav.openMenu') : t('nav.closeMenu')">
           <span class="hamburger-line" :class="{ 'hamburger-line--open': !isHeaderCollapsed }"></span>
         </button>
       </div>
@@ -584,25 +610,25 @@ onUnmounted(() => {
       <div v-if="!isHeaderCollapsed" id="mobile-drawer">
         <nav id="drawer-nav">
           <a class="drawer-link" href="/guides/01-introduction/" @click="isHeaderCollapsed = true">
-            <i class="bi bi-book"></i><span>文档</span>
+            <i class="bi bi-book"></i><span>{{ t('drawer.docs') }}</span>
           </a>
           <a class="drawer-link" href="#dashboard-container" @click="isHeaderCollapsed = true">
-            <i class="bi bi-window"></i><span>拟态面板</span>
+            <i class="bi bi-window"></i><span>{{ t('drawer.mockPanel') }}</span>
           </a>
           <a class="drawer-link" href="#why-kkbar" @click="isHeaderCollapsed = true">
-            <i class="bi bi-question-circle"></i><span>为什么选择</span>
+            <i class="bi bi-question-circle"></i><span>{{ t('drawer.why') }}</span>
           </a>
           <a class="drawer-link" href="#additional-features" @click="isHeaderCollapsed = true">
-            <i class="bi bi-stars"></i><span>扩展特点</span>
+            <i class="bi bi-stars"></i><span>{{ t('drawer.features') }}</span>
           </a>
           <a class="drawer-link" href="#workflow-section" @click="isHeaderCollapsed = true">
-            <i class="bi bi-diagram-3"></i><span>流程图</span>
+            <i class="bi bi-diagram-3"></i><span>{{ t('drawer.workflow') }}</span>
           </a>
           <a class="drawer-link" href="#features" @click="isHeaderCollapsed = true">
-            <i class="bi bi-grid-3x3-gap"></i><span>功能</span>
+            <i class="bi bi-grid-3x3-gap"></i><span>{{ t('drawer.featuresAlt') }}</span>
           </a>
           <a class="drawer-link" href="#pricing" @click="isHeaderCollapsed = true">
-            <i class="bi bi-tag"></i><span>价格</span>
+            <i class="bi bi-tag"></i><span>{{ t('drawer.pricing') }}</span>
           </a>
         </nav>
         <div id="drawer-footer">
@@ -655,10 +681,10 @@ onUnmounted(() => {
         <div class="purple-bg-grad reveal-up tw-absolute tw-left-1/2 tw--translate-1/2 tw-top-[10%] tw-h-[120px] tw-w-[120px]"></div>
         <div class="tw-flex tw-flex-col tw-min-h-[60vh] tw-place-content-center tw-items-center">
           <h2 class="reveal-up tw-text-center tw-text-7xl tw-font-semibold tw-uppercase tw-leading-[90px] max-lg:tw-text-4xl max-md:tw-leading-snug">
-            <span>让工具回归工具</span>
+            <span>{{ t('hero.title') }}</span>
           </h2>
           <div class="reveal-up tw-mt-8 tw-max-w-[500px] tw-text-lg max-lg:tw-text-base tw-p-2 tw-text-center tw-text-gray-800 dark:tw-text-white max-lg:tw-max-w-full">
-            第37次切换窗口找脚本？Kkbar把常用操作钉在一个面板上，一键触发，一站式解决全部功能的调用。
+            {{ t('hero.desc') }}
           </div>
           <div class="reveal-up tw-mt-10 max-md:tw-flex-col tw-flex tw-place-items-center tw-gap-4">
             <button @click="openVideo" class="btn !tw-w-[170px] max-lg:!tw-w-[160px] !tw-rounded-xl !tw-py-4 max-lg:!tw-py-2 tw-flex tw-gap-2 tw-group !tw-bg-transparent !tw-text-black dark:!tw-text-white tw-transition-colors tw-duration-[0.3s] tw-border-[1px] tw-border-black dark:tw-border-white">
@@ -666,10 +692,10 @@ onUnmounted(() => {
                 <div class="tw-absolute tw-inset-0 tw-top-0 tw-left-0 tw-scale-0 tw-duration-300 group-hover:tw-scale-100 tw-border-2 tw-border-gray-600 dark:tw-border-gray-200 tw-rounded-full tw-w-full tw-h-full"></div>
                 <span class="bi bi-play-circle-fill"></span>
               </div>
-              <span>观看视频</span>
+              <span>{{ t('hero.watchVideo') }}</span>
             </button>
             <a class="btn tw-group max-lg:!tw-w-[160px] tw-flex tw-gap-2 tw-shadow-lg !tw-w-[170px] !tw-rounded-xl !tw-py-4 max-lg:!tw-py-2 tw-transition-transform tw-duration-[0.3s] hover:tw-scale-x-[1.03]" href="#download">
-              <span>立即开始</span>
+              <span>{{ t('hero.getStarted') }}</span>
               <i class="bi bi-arrow-right group-hover:tw-translate-x-1 tw-duration-300"></i>
             </a>
           </div>
@@ -694,44 +720,44 @@ onUnmounted(() => {
 
     <!-- Tech Stack Carousel -->
     <section class="tw-relative tw-flex tw-w-full tw-max-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-8">
-      <h2 class="reveal-up tw-text-3xl max-md:tw-text-xl">使用的技术栈和方案</h2>
+      <h2 class="reveal-up tw-text-3xl max-md:tw-text-xl">{{ t('techStack.title') }}</h2>
       <div class="reveal-up carousel-container">
         <div class="carousel lg:w-place-content-center tw-mt-10 tw-flex tw-w-full">
           <template v-for="n in 2" :key="n">
-            <a href="https://developer.adobe.com/photoshop/uxp/2022/" target="_blank" rel="noopener" class="carousel-img" title="Adobe CEP扩展开发框架，让AE支持自定义面板" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://developer.adobe.com/photoshop/uxp/2022/" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.cep')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/adobe.svg" alt="CEP" /><span class="tw-text-xs tw-font-medium">CEP</span>
             </a>
-            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="carousel-img" title="渐进式JavaScript前端框架，构建用户界面" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://vuejs.org/" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.vue')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/vue.svg" alt="Vue 3" /><span class="tw-text-xs tw-font-medium">Vue 3</span>
             </a>
-            <a href="https://pinia.vuejs.org/" target="_blank" rel="noopener" class="carousel-img" title="Vue官方状态管理库，管理应用数据流" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://pinia.vuejs.org/" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.pinia')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/pinia.svg" alt="Pinia" /><span class="tw-text-xs tw-font-medium">Pinia</span>
             </a>
-            <a href="https://vitejs.dev/" target="_blank" rel="noopener" class="carousel-img" title="下一代前端构建工具，极速开发体验" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://vitejs.dev/" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.vite')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/vite.svg" alt="Vite" /><span class="tw-text-xs tw-font-medium">Vite</span>
             </a>
-            <a href="https://github.com/hyperbrew/bolt-cep" target="_blank" rel="noopener" class="carousel-img" title="CEP扩展开发脚手架，快速搭建AE插件项目" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://github.com/hyperbrew/bolt-cep" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.bolt')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/bolt.svg" alt="Bolt CEP" /><span class="tw-text-xs tw-font-medium">Bolt CEP</span>
             </a>
-            <a href="https://fontawesome.com" target="_blank" rel="noopener" class="carousel-img" title="最流行的图标字体库，提供上千个矢量图标" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://fontawesome.com" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.fontawesome')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/fontawesome.svg" alt="FontAwesome" /><span class="tw-text-xs tw-font-medium">FontAwesome</span>
             </a>
-            <a href="https://icons.getbootstrap.com" target="_blank" rel="noopener" class="carousel-img" title="Bootstrap官方图标库，开源免费矢量图标" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://icons.getbootstrap.com" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.bootstrap')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/bootstrap-icons.svg" alt="Bootstrap Icons" /><span class="tw-text-xs tw-font-medium">Bootstrap Icons</span>
             </a>
-            <a href="https://github.com/catdad/canvas-confetti" target="_blank" rel="noopener" class="carousel-img" title="撒花庆祝动画库，Canvas实现五彩纸屑效果" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://github.com/catdad/canvas-confetti" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.canvas')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/canvas-confetti.svg" alt="Canvas Confetti" /><span class="tw-text-xs tw-font-medium">Canvas Confetti</span>
             </a>
-            <a href="https://interactjs.io/" target="_blank" rel="noopener" class="carousel-img" title="拖拽交互库，支持拖放、缩放、手势操作" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://interactjs.io/" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.interact')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/interactjs.svg" alt="Interact.js" /><span class="tw-text-xs tw-font-medium">Interact.js</span>
             </a>
-            <a href="https://stuk.github.io/jszip/" target="_blank" rel="noopener" class="carousel-img" title="JavaScript ZIP文件处理库，读写压缩包" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://stuk.github.io/jszip/" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.jszip')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/jszip.svg" alt="JSZip" /><span class="tw-text-xs tw-font-medium">JSZip</span>
             </a>
-            <a href="https://github.com/ai/nanoid" target="_blank" rel="noopener" class="carousel-img" title="轻量级唯一ID生成器，URL友好且安全" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://github.com/ai/nanoid" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.nanoid')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/nanoid.svg" alt="Nano ID" /><span class="tw-text-xs tw-font-medium">Nano ID</span>
             </a>
-            <a href="https://sortablejs.github.io/Sortable/" target="_blank" rel="noopener" class="carousel-img" title="拖拽排序库，支持列表和网格排序" style="display:inline-flex!important;align-items:center;gap:4px">
+            <a href="https://sortablejs.github.io/Sortable/" target="_blank" rel="noopener" class="carousel-img" :title="t('techStack.sortable')" style="display:inline-flex!important;align-items:center;gap:4px">
               <img src="/assets/images/brand-logos/sortablejs.svg" alt="Sortable.js" /><span class="tw-text-xs tw-font-medium">Sortable.js</span>
             </a>
           </template>
@@ -745,7 +771,7 @@ onUnmounted(() => {
     <!-- Additional Features -->
     <section id="additional-features" class="tw-relative tw-flex tw-w-full tw-min-h-[auto] tw-py-8 tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden">
       <div class="tw-w-full max-lg:tw-max-w-full tw-place-content-center tw-items-center tw-flex tw-flex-col tw-max-w-[80%] tw-gap-4 tw-p-4">
-        <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">kkbar扩展特点</h3>
+        <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl tw-text-center tw-leading-normal">{{ t('addFeatures.title') }}</h3>
         <div class="tw-mt-6 tw-relative tw-gap-6 tw-p-4 tw-grid tw-place-items-center tw-grid-cols-3 max-lg:tw-grid max-lg:tw-grid-cols-2 max-md:tw-grid max-md:tw-grid-cols-2 max-[480px]:tw-grid-cols-1">
           <div v-for="item in additionalFeatures" :key="item.title" class="reveal-up feature-item tw-w-[280px] tw-border-[1px] tw-h-[320px] tw-rounded-md tw-place-items-center tw-p-3 tw-bg-[#f2f3f4] max-md:tw-w-[260px] dark:tw-bg-[#141414] dark:tw-border-[#1f2123] tw-flex tw-flex-col tw-gap-2">
             <div class="feature-item__img-wrap tw-w-full tw-h-[180px] tw-p-3 tw-rounded-xl tw-backdrop-blur-2xl tw-overflow-hidden tw-flex tw-place-content-center"
@@ -762,9 +788,9 @@ onUnmounted(() => {
 
     <!-- Workflow Diagram -->
     <section id="workflow-section" class="tw-relative tw-flex tw-w-full tw-max-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-py-16 tw-px-4">
-      <h2 class="reveal-up tw-text-4xl max-md:tw-text-2xl tw-text-center tw-mb-6 tw-font-semibold">删繁就简 & 触类旁通</h2>
+      <h2 class="reveal-up tw-text-4xl max-md:tw-text-2xl tw-text-center tw-mb-6 tw-font-semibold">{{ t('workflow.titleLine1') }}</h2>
       <p class="reveal-up tw-text-base tw-text-center tw-text-gray-500 dark:tw-text-gray-400 tw-mb-8 tw-max-w-[600px]">
-        {{ workflowDirection === 'ltr' ? '九种动作类型，一键直达' : '一个面板即可管理全部的功能' }}
+        {{ workflowDirection === 'ltr' ? t('workflow.titleLine2') : t('workflow.titleLine3') }}
       </p>
       <div class="reveal-up workflow-viewport">
         <div class="workflow-scale">
@@ -778,7 +804,7 @@ onUnmounted(() => {
       <div class="reveal-up tw-flex tw-w-full tw-place-content-center tw-gap-2 tw-p-4 max-lg:tw-max-w-full max-lg:tw-flex-col" style="overscroll-behavior: none;">
         <div class="tw-relative tw-flex tw-max-w-[30%] max-lg:tw-max-w-full tw-flex-col tw-place-items-start tw-gap-4 tw-p-2 max-lg:tw-place-items-center max-lg:tw-place-content-center max-lg:tw-w-full max-lg:tw-flex-shrink-0">
           <div class="tw-top-40 tw-flex tw-flex-col lg:tw-sticky tw-place-items-center tw-max-h-fit tw-max-w-[850px] max-lg:tw-w-full max-lg:tw-px-4" id="feature-sticky-header">
-            <h2 class="tw-text-5xl tw-font-serif tw-text-center tw-font-medium max-md:tw-text-3xl">九大按钮功能</h2>
+            <h2 class="tw-text-5xl tw-font-serif tw-text-center tw-font-medium max-md:tw-text-3xl">{{ t('features.title') }}</h2>
             <div class="tw-mt-6 tw-w-full dialog-transition" ref="dialogViewportRef">
               <div class="dialog-hover-container" :style="{ width: DIALOG_NATURAL_WIDTH + 'px', zoom: dialogScale, marginLeft: 'auto', marginRight: 'auto' }">
                 <DialogMockup :key="activeFeature" :type="activeFeature" @update:type="activeFeature = $event" />
@@ -806,7 +832,7 @@ onUnmounted(() => {
               <div class="tw-flex tw-flex-col tw-gap-1 tw-flex-1">
                 <h3 class="tw-text-base max-md:tw-text-sm">{{ item.title }}</h3>
                 <p class="tw-text-gray-800 dark:tw-text-gray-100 tw-text-xs tw-line-clamp-2">{{ item.desc }}</p>
-                <a :href="item.link" @click.stop class="tw-text-xs tw-text-purple-500 tw-mt-1">了解更多</a>
+                <a :href="item.link" @click.stop class="tw-text-xs tw-text-purple-500 tw-mt-1">{{ t('features.learnMore') }}</a>
               </div>
             </div>
           </div>
@@ -814,7 +840,7 @@ onUnmounted(() => {
 
         <!-- Mobile Navigation: Dots + Arrows -->
         <div class="feature-nav-dots lg:tw-hidden tw-flex tw-items-center tw-justify-center tw-gap-4 tw-mt-4 tw-w-full">
-          <button class="feature-nav-arrow" @click="prevFeature" aria-label="上一个">
+          <button class="feature-nav-arrow" @click="prevFeature" :aria-label="t('features.prev')">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
@@ -829,7 +855,7 @@ onUnmounted(() => {
               :aria-label="featureData[key].title"
             />
           </div>
-          <button class="feature-nav-arrow" @click="nextFeature" aria-label="下一个">
+          <button class="feature-nav-arrow" @click="nextFeature" :aria-label="t('features.next')">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
@@ -840,7 +866,7 @@ onUnmounted(() => {
 
     <!-- Blog -->
     <section class="tw-mt-5 tw-flex tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-p-[2%] max-lg:tw-p-3">
-      <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl">更多</h3>
+      <h3 class="reveal-up tw-text-4xl tw-font-medium max-md:tw-text-2xl">{{ t('more.title') }}</h3>
       <div class="reveal-up tw-mt-10 tw-w-full tw-max-w-[1200px] tw-overflow-hidden tw-px-4">
         <div ref="carouselRef" class="tw-flex tw-gap-6 tw-overflow-x-auto tw-scroll-smooth tw-snap-x tw-snap-mandatory tw-pb-4" style="scrollbar-width: none; -ms-overflow-style: none;">
           <div v-for="(article, idx) in articleList" :key="idx" class="tw-flex-shrink-0 tw-w-[80vw] md:tw-w-[60vw] lg:tw-w-[45vw] tw-snap-center tw-rounded-xl tw-overflow-hidden">
@@ -857,52 +883,52 @@ onUnmounted(() => {
             class="tw-w-2 tw-h-2 tw-rounded-full tw-transition-all tw-duration-300 tw-cursor-pointer"
             :class="carouselSlide === idx ? 'tw-bg-purple-500 tw-w-6' : 'tw-bg-gray-400 dark:tw-bg-gray-600'"
             @click="scrollToSlide(idx)"
-            :aria-label="'跳转到第' + (idx + 1) + '张'" />
+            :aria-label="t('more.slideN').replace('{0}', String(idx + 1))" />
         </div>
       </div>
     </section>
 
     <!-- Pricing -->
     <section class="tw-mt-5 tw-flex tw-w-full tw-flex-col tw-gap-6 tw-place-items-center tw-p-[2%]" id="pricing">
-      <h3 class="reveal-up tw-text-5xl tw-font-medium max-md:tw-text-2xl">选择适合您的计划</h3>
+      <h3 class="reveal-up tw-text-5xl tw-font-medium max-md:tw-text-2xl">{{ t('pricing.title') }}</h3>
       <div class="tw-mt-10 tw-flex tw-flex-wrap tw-place-content-center tw-gap-8 max-lg:tw-flex-col max-lg:tw-place-items-center">
         <div class="reveal-up">
           <div class="pricing-card">
             <div class="pricing-card__header">
-              <span class="pricing-card__tier">免费版</span>
-              <div class="pricing-card__price"><span class="pricing-card__amount">¥0</span><span class="pricing-card__period">/永久</span></div>
-              <p class="pricing-card__desc">适合个人探索和基础使用</p>
+              <span class="pricing-card__tier">{{ t('pricing.free') }}</span>
+              <div class="pricing-card__price"><span class="pricing-card__amount">{{ t('pricing.freePrice') }}</span><span class="pricing-card__period">{{ t('pricing.permanent') }}</span></div>
+              <p class="pricing-card__desc">{{ t('pricing.freeDesc') }}</p>
             </div>
             <div class="pricing-card__divider"></div>
             <ul class="pricing-card__features">
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>所有基础 AE 脚本</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>自定义工具栏</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>导入/导出配置</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-exclamation-triangle-fill pricing-card__check" style="color: #f59e0b"></i><span>弹窗广告</span></li>
-              <li class="pricing-card__feature pricing-card__feature--disabled"><i class="bi bi-x-circle pricing-card__check pricing-card__check--off"></i><span>云端同步</span></li>
-              <li class="pricing-card__feature pricing-card__feature--disabled"><i class="bi bi-x-circle pricing-card__check pricing-card__check--off"></i><span>技术支持</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.basicScripts') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.customToolbar') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.importExport') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-exclamation-triangle-fill pricing-card__check" style="color: #f59e0b"></i><span>{{ t('pricing.popupAds') }}</span></li>
+              <li class="pricing-card__feature pricing-card__feature--disabled"><i class="bi bi-x-circle pricing-card__check pricing-card__check--off"></i><span>{{ t('pricing.cloudSync') }}</span></li>
+              <li class="pricing-card__feature pricing-card__feature--disabled"><i class="bi bi-x-circle pricing-card__check pricing-card__check--off"></i><span>{{ t('pricing.techSupport') }}</span></li>
             </ul>
-            <a href="#" class="pricing-card__cta pricing-card__cta--outline">免费使用 <i class="bi bi-arrow-right"></i></a>
+            <a href="#" class="pricing-card__cta pricing-card__cta--outline">{{ t('pricing.useFree') }} <i class="bi bi-arrow-right"></i></a>
           </div>
         </div>
         <div class="reveal-up">
           <div class="pricing-card pricing-card--featured">
-            <div class="pricing-card__badge">推荐</div>
+            <div class="pricing-card__badge">{{ t('pricing.recommended') }}</div>
             <div class="pricing-card__header">
-              <span class="pricing-card__tier">专业版</span>
-              <div class="pricing-card__price"><span class="pricing-card__amount">¥8.8</span><span class="pricing-card__period">/永久</span></div>
-              <p class="pricing-card__desc">一次付费，终身使用，持续更新</p>
+              <span class="pricing-card__tier">{{ t('pricing.pro') }}</span>
+              <div class="pricing-card__price"><span class="pricing-card__amount">{{ t('pricing.proPrice') }}</span><span class="pricing-card__period">{{ t('pricing.permanent') }}</span></div>
+              <p class="pricing-card__desc">{{ t('pricing.proDesc') }}</p>
             </div>
             <div class="pricing-card__divider"></div>
             <ul class="pricing-card__features">
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>所有基础 AE 脚本</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>自定义工具栏</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>导入/导出配置</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-shield-check pricing-card__check" style="color: #10b981"></i><span>无弹窗广告</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>云端同步</span></li>
-              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>技术支持</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.basicScripts') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.customToolbar') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.importExport') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-shield-check pricing-card__check" style="color: #10b981"></i><span>{{ t('pricing.noPopupAds') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.cloudSync') }}</span></li>
+              <li class="pricing-card__feature"><i class="bi bi-check-circle-fill pricing-card__check"></i><span>{{ t('pricing.techSupport') }}</span></li>
             </ul>
-            <a href="/guides/04-free-vs-pro.html#第二步-选择支持方式" class="pricing-card__cta pricing-card__cta--primary">立即支持 <i class="bi bi-arrow-right"></i></a>
+            <a href="/guides/04-free-vs-pro.html#第二步-选择支持方式" class="pricing-card__cta pricing-card__cta--primary">{{ t('pricing.supportNow') }} <i class="bi bi-arrow-right"></i></a>
           </div>
         </div>
       </div>
@@ -913,7 +939,7 @@ onUnmounted(() => {
 
     <!-- FAQ -->
     <section class="tw-relative tw-flex tw-w-full tw-flex-col tw-place-content-center tw-place-items-center tw-gap-[10%] tw-p-[5%] tw-px-[10%]">
-      <h3 class="tw-text-4xl tw-font-medium max-md:tw-text-2xl">常见问题</h3>
+      <h3 class="tw-text-4xl tw-font-medium max-md:tw-text-2xl">{{ t('faq.title') }}</h3>
       <div class="tw-mt-5 tw-flex tw-min-h-[300px] tw-w-full tw-max-w-[850px] tw-flex-col tw-gap-4">
         <div v-for="(faq, idx) in faqList" :key="idx" class="faq tw-w-full">
           <h4 class="faq-accordion tw-flex tw-w-full tw-select-none tw-text-xl max-md:tw-text-lg" @click="toggleFaq">
@@ -930,57 +956,56 @@ onUnmounted(() => {
     <!-- Footer -->
     <footer class="tw-mt-auto tw-flex tw-flex-col tw-w-full tw-gap-4 tw-text-sm tw-pt-[5%] tw-pb-10 tw-px-[10%] tw-text-black dark:tw-text-white max-md:tw-flex-col">
       <div class="tw-flex max-md:tw-flex-col max-md:tw-gap-6 tw-gap-3 tw-w-full tw-place-content-around">
-        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-4 max-md:tw-w-full">
-          <a href="javascript:void(0)" class="tw-w-full tw-place-items-center tw-flex tw-flex-col tw-gap-2">
-            <span class="tw-text-4xl tw-font-bold tw-tracking-tight">KKBAR</span>
-            <span class="tw-text-xs tw-opacity-70">CEP toolbar for After Effects</span>
-          </a>
-          <div class="tw-flex tw-gap-4 tw-text-lg tw-mt-2">
-            <a href="https://github.com/yancongya" aria-label="Github" class="tw-w-6 tw-h-6"><img src="./assets/github.svg" class="tw-w-full tw-h-full footer-icon-invert" alt="Github" /></a>
-            <a href="https://space.bilibili.com/100881808/" aria-label="Bilibili" class="tw-w-6 tw-h-6"><img src="./assets/bilibili.svg" class="tw-w-full tw-h-full" alt="Bilibili" /></a>
-            <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" class="tw-w-6 tw-h-6"><img src="./assets/xiaohongshu.svg" class="tw-w-full tw-h-full" alt="小红书" /></a>
-            <a href="javascript:void(0)" aria-label="Email" @click="copyOldEmail" title="2655283737@qq.com"><i class="bi bi-envelope"></i></a>
-            <a href="javascript:void(0)" aria-label="Email" @click="copyNewEmail" title="admin@itycon.cn"><i class="bi bi-envelope-fill"></i></a>
+          <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-4 max-md:tw-w-full">
+            <a href="javascript:void(0)" class="tw-w-full tw-place-items-center tw-flex tw-flex-col tw-gap-2">
+              <span class="tw-text-4xl tw-font-bold tw-tracking-tight">KKBAR</span>
+              <span class="tw-text-xs tw-opacity-70">CEP toolbar for After Effects</span>
+            </a>
+            <div class="tw-flex tw-gap-4 tw-text-lg tw-mt-2">
+              <a href="https://github.com/yancongya" aria-label="Github" class="tw-w-6 tw-h-6"><img src="./assets/github.svg" class="tw-w-full tw-h-full footer-icon-invert" alt="Github" /></a>
+              <a href="https://space.bilibili.com/100881808/" aria-label="Bilibili" class="tw-w-6 tw-h-6"><img src="./assets/bilibili.svg" class="tw-w-full tw-h-full" alt="Bilibili" /></a>
+              <a href="https://xhslink.com/m/9v4RK5HQzsc" aria-label="小红书" class="tw-w-6 tw-h-6"><img src="./assets/xiaohongshu.svg" class="tw-w-full tw-h-full" alt="小红书" /></a>
+              <a href="javascript:void(0)" aria-label="Email" @click="copyOldEmail" title="2655283737@qq.com"><i class="bi bi-envelope"></i></a>
+              <a href="javascript:void(0)" aria-label="Email" @click="copyNewEmail" title="admin@itycon.cn"><i class="bi bi-envelope-fill"></i></a>
+            </div>
+            <div class="footer-legal-links">
+              <a href="/legal/隐私协议">{{ t('footer.privacy') }}</a>
+              <a href="/legal/用户须知许可协议">{{ t('footer.license') }}</a>
+            </div>
           </div>
-          <div class="footer-legal-links">
-            <a href="/legal/隐私协议">隐私协议</a>
-            <a href="/legal/用户须知许可协议">用户须知与许可协议</a>
+          <div class="tw-flex max-md:tw-grid max-md:tw-grid-cols-2 tw-flex-wrap tw-gap-6 tw-h-full tw-w-full tw-justify-around">
+            <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
+              <h2 class="tw-text-xl">{{ t('footer.projects') }}</h2>
+              <div class="tw-flex tw-flex-col tw-gap-3">
+                <a href="https://rualive.itycon.cn/" class="footer-link" target="_blank" rel="noreferrer">rualive</a>
+                <a href="https://kbar.itycon.cn/" class="footer-link" target="_blank" rel="noreferrer">{{ t('footer.kbarCn') }}</a>
+                <a href="https://yancongya.github.io/auto_tinify/" class="footer-link" target="_blank" rel="noreferrer">{{ t('footer.aeCompress') }}</a>
+                <a href="https://yancongya.github.io/PSD-Batch-Processor/" class="footer-link" target="_blank" rel="noreferrer">{{ t('footer.psdBatch') }}</a>
+              </div>
+            </div>
+            <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
+              <h2 class="tw-text-xl">{{ t('footer.resources') }}</h2>
+              <div class="tw-flex tw-flex-col tw-gap-3">
+                <a href="https://aemarketplace.vercel.app/" class="footer-link" target="_blank" rel="noreferrer">AE Marketplace</a>
+                <a href="https://www.lookae.com/" class="footer-link" target="_blank" rel="noreferrer">Lookae</a>
+                <a href="https://c4dsky.com/" class="footer-link" target="_blank" rel="noreferrer">C4DSky</a>
+                <a href="https://www.gfxcamp.com/" class="footer-link" target="_blank" rel="noreferrer">GFXCamp</a>
+                <a href="https://www.yuelili.com/" class="footer-link" target="_blank" rel="noreferrer">{{ t('footer.yuelili') }}</a>
+              </div>
+            </div>
+            <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
+              <h2 class="tw-text-xl">{{ t('footer.support') }}</h2>
+              <div class="tw-flex tw-flex-col tw-gap-3">
+                <a href="https://ifdian.net/item/996fc7123f2c11f1982e5254001e7c00" class="footer-link" target="_blank" rel="noreferrer">{{ t('footer.afdian') }}</a>
+                <a href="javascript:void(0)" class="footer-link" @click="showSupportQr = true">{{ t('footer.alipayWechat') }}</a>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="tw-flex max-md:tw-grid max-md:tw-grid-cols-2 tw-flex-wrap tw-gap-6 tw-h-full tw-w-full tw-justify-around">
-          <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-xl">项目</h2>
-            <div class="tw-flex tw-flex-col tw-gap-3">
-              <a href="https://rualive.itycon.cn/" class="footer-link" target="_blank" rel="noreferrer">rualive</a>
-              <a href="https://kbar.itycon.cn/" class="footer-link" target="_blank" rel="noreferrer">KBar 中文站</a>
-              <a href="https://yancongya.github.io/auto_tinify/" class="footer-link" target="_blank" rel="noreferrer">AE 压缩图片</a>
-              <a href="https://yancongya.github.io/PSD-Batch-Processor/" class="footer-link" target="_blank" rel="noreferrer">PSD 批量处理</a>
-            </div>
-          </div>
-          <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-xl">资源</h2>
-            <div class="tw-flex tw-flex-col tw-gap-3">
-              <a href="https://aemarketplace.vercel.app/" class="footer-link" target="_blank" rel="noreferrer">AE Marketplace</a>
-              <a href="https://www.lookae.com/" class="footer-link" target="_blank" rel="noreferrer">Lookae</a>
-              <a href="https://c4dsky.com/" class="footer-link" target="_blank" rel="noreferrer">C4DSky</a>
-              <a href="https://www.gfxcamp.com/" class="footer-link" target="_blank" rel="noreferrer">GFXCamp</a>
-              <a href="https://www.yuelili.com/" class="footer-link" target="_blank" rel="noreferrer">月离</a>
-            </div>
-          </div>
-          <div class="tw-flex tw-h-full tw-w-[200px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-xl">支持</h2>
-            <div class="tw-flex tw-flex-col tw-gap-3">
-              <a href="https://ifdian.net/item/996fc7123f2c11f1982e5254001e7c00" class="footer-link" target="_blank" rel="noreferrer">爱发电</a>
-              <a href="javascript:void(0)" class="footer-link" @click="showSupportQr = true">支付宝/微信</a>
-            </div>
-          </div>
-          
-        </div>
-      </div>
       <hr class="tw-mt-8" />
       <div class="tw-mt-2 tw-flex tw-gap-2 tw-flex-col tw-text-gray-700 dark:tw-text-gray-300 tw-place-items-center tw-text-[12px] tw-w-full tw-text-center tw-place-content-around">
-        <span>Copyright &#169; 2023-2026 Kkbar. All rights reserved.</span>
-        <span>烟囱鸭 - 一个做动画的</span>
+        <span>{{ t('footer.copyright') }}</span>
+        <span>{{ t('footer.author') }}</span>
       </div>
     </footer>
       <!-- 支付宝/微信二维码弹窗 -->
@@ -988,17 +1013,17 @@ onUnmounted(() => {
         <div v-if="showSupportQr" class="support-qr-mask" @click.self="showSupportQr = false">
           <div class="support-qr-card">
             <div class="support-qr-header">
-              <span>扫码支持</span>
+              <span>{{ t('footer.scanSupport') }}</span>
               <button class="support-qr-close" @click="showSupportQr = false">&times;</button>
             </div>
             <div class="support-qr-body">
               <div class="support-qr-item">
-                <img src="./assets/alipay.jpg" alt="支付宝" />
-                <span>支付宝</span>
+                <img src="./assets/alipay.jpg" :alt="t('footer.alipay')" />
+                <span>{{ t('footer.alipay') }}</span>
               </div>
               <div class="support-qr-item">
-                <img src="./assets/wechat.jpg" alt="微信" />
-                <span>微信</span>
+                <img src="./assets/wechat.jpg" :alt="t('footer.wechat')" />
+                <span>{{ t('footer.wechat') }}</span>
               </div>
             </div>
           </div>
@@ -1006,12 +1031,12 @@ onUnmounted(() => {
       </Teleport>
       <!-- 邮箱复制 Toast -->
       <Teleport to="body">
-        <div v-if="showEmailToast" class="email-toast">邮箱已复制到剪贴板</div>
+        <div v-if="showEmailToast" class="email-toast">{{ t('toast.emailCopied') }}</div>
       </Teleport>
       <!-- 图片全屏显示 -->
       <div v-if="fullscreenImage" class="fullscreen-mask" @click.self="closeFullscreen">
         <div class="fullscreen-content">
-          <img :src="fullscreenImage" alt="全屏图片" class="fullscreen-img" @click.stop />
+          <img :src="fullscreenImage" :alt="t('fullscreen.alt')" class="fullscreen-img" @click.stop />
         </div>
       </div>
   </div>

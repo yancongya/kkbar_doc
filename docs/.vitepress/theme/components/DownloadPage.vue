@@ -6,18 +6,16 @@
       </div>
       
       <div class="download-hero__content">
-        <h1 class="download-hero__title reveal-up">下载 Kkbar</h1>
+        <h1 class="download-hero__title reveal-up">{{ t('download.title') }}</h1>
         
-        <p class="download-hero__desc reveal-up">
-          AE 工具栏扩展，九种动作类型，告别窗口切换
-        </p>
+        <p class="download-hero__desc reveal-up">{{ t('download.desc') }}</p>
         
         <div class="download-hero__actions reveal-up">
           <a href="https://1821783597.share.123pan.cn/123pan/FQvajv-Ch02H?pwd=tycn#" 
              target="_blank" rel="noopener noreferrer" class="download-btn">
             <i class="bi bi-cloud-arrow-down"></i>
             <div class="download-btn__text">
-              <span class="download-btn__label">网盘下载</span>
+              <span class="download-btn__label">{{ t('download.cloudDrive') }}</span>
               <span class="download-btn__size">v1.0.0 · Windows / macOS</span>
             </div>
           </a>
@@ -25,16 +23,16 @@
              target="_blank" rel="noopener noreferrer" class="download-btn download-btn--github">
             <i class="bi bi-github"></i>
             <div class="download-btn__text">
-              <span class="download-btn__label">GitHub 下载</span>
+              <span class="download-btn__label">{{ t('download.github') }}</span>
               <span class="download-btn__size">Releases</span>
             </div>
           </a>
         </div>
         
         <div class="download-hero__meta reveal-up">
-          <span><i class="bi bi-puzzle"></i> CEP 扩展</span>
+          <span><i class="bi bi-puzzle"></i> {{ t('download.cepExt') }}</span>
           <span class="dot">·</span>
-          <span><i class="bi bi-lightning"></i> 即装即用</span>
+          <span><i class="bi bi-lightning"></i> {{ t('download.instantUse') }}</span>
           <span class="dot">·</span>
           <span>AE 2020+ · Win10+ / macOS 11+</span>
         </div>
@@ -46,7 +44,7 @@
       <div class="download-card reveal-up">
         <div class="download-card__header">
           <i class="bi bi-journal-text"></i>
-          <span>更新日志</span>
+          <span>{{ t('download.changelog') }}</span>
         </div>
         <div class="download-card__body download-card__body--scroll">
           <div class="changelog-item" v-for="log in changelog" :key="log.version">
@@ -65,26 +63,26 @@
       <div class="download-card reveal-up">
         <div class="download-card__header">
           <i class="bi bi-pc-display"></i>
-          <span>系统要求</span>
+          <span>{{ t('download.requirements') }}</span>
         </div>
         <div class="download-card__body">
           <ul class="req-list">
-            <li><i class="bi bi-check2-circle"></i> Windows 10+ 64位 / macOS 11+</li>
-            <li><i class="bi bi-check2-circle"></i> After Effects 2020+</li>
-            <li><i class="bi bi-check2-circle"></i> 已安装 CEP 扩展支持</li>
+            <li><i class="bi bi-check2-circle"></i> {{ t('download.reqWinMac') }}</li>
+            <li><i class="bi bi-check2-circle"></i> {{ t('download.reqAE') }}</li>
+            <li><i class="bi bi-check2-circle"></i> {{ t('download.reqCEP') }}</li>
           </ul>
           
           <div class="download-card__header" style="margin: 16px -16px 12px; padding: 12px 16px; border-top: 1px solid #222;">
             <i class="bi bi-list-check"></i>
-            <span>安装步骤</span>
+            <span>{{ t('download.installSteps') }}</span>
           </div>
           <ol class="steps-list">
-            <li>下载 .zxp 文件</li>
-            <li>使用 ZXP Installer 安装</li>
-            <li>AE 中 窗口 → 扩展 → Kkbar</li>
+            <li>{{ t('download.step1') }}</li>
+            <li>{{ t('download.step2') }}</li>
+            <li>{{ t('download.step3') }}</li>
           </ol>
           <a href="/guides/02-installation" class="doc-link">
-            <i class="bi bi-book"></i> 查看详细安装教程
+            <i class="bi bi-book"></i> {{ t('download.viewGuide') }}
           </a>
         </div>
       </div>
@@ -93,16 +91,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { useI18n } from '../i18n'
+
+const { t, tA } = useI18n()
 
 defineProps({ id: { type: String, default: 'download' } })
 
-const changelog = [
-  { version: 'v1.1.0', date: '2026-06-04', items: ['网格吸附拖拽 & 挤压布局', '网格预览模式 & 动态自适应列数', '按钮圆角调节 & 透明模式交互', '设置面板响应式布局优化'] },
-  { version: 'v1.0.0', date: '2026-05-21', items: ['正式版发布 & 自动热更新系统', '9 种动作类型：JSX/预设/效果/表达式/脚本片段/面板/菜单/Shell/剪贴板', 'JSX 脚本编辑器：内置代码编辑、实时保存、刷新运行', '4 套主题：暗夜Pro / 现代白 / 黑曜石 / Nord', '网格布局：自适应列宽、拖拽排序、碰撞反馈', '分类管理 & 多面板支持 (main/toolbar2/toolbar3)', '图标库：内置 SVG + FontAwesome + Bootstrap Icons', 'Gist 云备份 & 配置导入导出', '支持文件夹扫描 & macOS 扩展目录'] },
-  { version: 'v0.9.0', date: '2026-05-10', items: ['新增剪贴板动作类型，支持一键复制预设文本', '新增 Shell 命令动作类型', '优化图标库加载性能和缓存策略', '修复多 AE 版本兼容性问题'] },
-  { version: 'v0.8.0', date: '2026-04-20', items: ['全新 UI 设计系统，4 套主题切换', '支持多分类管理 & 按钮分组', 'Gist 云备份功能上线', '配置导入/导出支持'] },
-]
+const changelog = computed(() => [
+  { version: 'v1.0.0', date: '2026-05-21', items: tA('changelog.v100') },
+  { version: 'v0.9.0', date: '2026-05-10', items: tA('changelog.v090') },
+  { version: 'v0.8.0', date: '2026-04-20', items: tA('changelog.v080') },
+])
 </script>
 
 <style scoped>
@@ -242,7 +242,7 @@ const changelog = [
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .download-card {
@@ -289,6 +289,7 @@ const changelog = [
 .download-card__body--scroll {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
   scrollbar-width: thin;
   scrollbar-color: #333 transparent;
 }

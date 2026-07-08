@@ -15,7 +15,7 @@
     <!-- Toast -->
     <Transition name="toast">
       <div v-if="showToast" class="navbar-social__toast">
-        邮箱已复制到剪贴板
+        {{ t('toast.emailCopied') }}
       </div>
     </Transition>
   </div>
@@ -23,7 +23,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from '../i18n'
 
+const { t } = useI18n()
 const showToast = ref(false)
 
 const copyEmail = async (e, email) => {
@@ -67,13 +69,13 @@ const links = [
     iconClass: 'icon-no-invert'
   },
   {
-    label: '邮箱',
+    label: 'QQ Email',
     href: '#',
     biIcon: 'bi-envelope',
     action: copyOldEmail
   },
   {
-    label: '邮箱',
+    label: 'Admin Email',
     href: '#',
     biIcon: 'bi-envelope-fill',
     action: copyNewEmail

@@ -209,20 +209,45 @@ const cardPositions = []
 // 右侧面板位置
 const rightPos = { x: 0, y: 0 }
 
+// 缓存布局值，避免每帧读取 DOM
+const cachedLayout = { cw: 800, ch: 500, leftOffsetX: 20, leftOffsetY: 20, cx: 400, cy: 250, rightIOx: 0, rightIOy: 0 }
+
+function refreshLayoutCache() {
+  if (!container.value) return
+  const cw = container.value.offsetWidth || 800
+  const ch = container.value.offsetHeight || 500
+  const leftContainer = container.value.querySelector('.workflow-left')
+  cachedLayout.cw = cw
+  cachedLayout.ch = ch
+  cachedLayout.cx = cw / 2
+  cachedLayout.cy = ch / 2
+  cachedLayout.leftOffsetX = leftContainer ? leftContainer.offsetLeft : 20
+  cachedLayout.leftOffsetY = leftContainer ? leftContainer.offsetTop : 20
+  // 缓存右侧 IO 相对于容器的初始位置
+  const rightIo = container.value.querySelector('.grid-panel__io')
+  if (rightIo) {
+    const cRect = container.value.getBoundingClientRect()
+    const ioRect = rightIo.getBoundingClientRect()
+    cachedLayout.rightIOx = ioRect.left - cRect.left + ioRect.width / 2
+    cachedLayout.rightIOy = ioRect.top - cRect.top + ioRect.height / 2
+  }
+}
+
 // 初始化卡片位置
 function initCardPositions() {
-  // 手机模式下不初始化卡片位置
+  if (!container.value) return
   if (isMobile.value) return
 
-  const cw = container.value?.offsetWidth || 800
-  // 偏移量分布曲线：整体右移，波浪形交错
+  refreshLayoutCache()
+
+  const cw = cachedLayout.cw
   const offsets = [0.15, 0.02, 0.22, -0.02, 0.28, 0.00, 0.18, 0.06, 0.12]
   const yGap = 55
 
   const cards = container.value.querySelectorAll('.terminal-card')
   cards.forEach((card, i) => {
     let x = Math.round(cw * offsets[i])
-    x = Math.max(x, -15)  // 限制左侧最大偏移，避免超出屏幕
+    x = Math.max(x, -15)
     const y = i * yGap
     cardPositions[i] = { x, y }
     card.style.left = x + 'px'
@@ -303,6 +328,7 @@ function updateDots() {
     
     // 获取路径长度
     const length = line.getTotalLength()
+    if (!length) return
     const point = line.getPointAtLength(anim.progress * length)
     
     // 更新光点位置
@@ -415,49 +441,33 @@ function updateLines() {
   
   const svg = svgEl.value
   if (!svg) return
-  
-  const cw = container.value?.offsetWidth || 800
-  const ch = container.value?.offsetHeight || 500
-  const cx = cw / 2
-  const cy = ch / 2
-  
+  if (!container.value) return
+
+  const { cw, ch, cx, cy, leftOffsetX, leftOffsetY } = cachedLayout
+
   svg.setAttribute('viewBox', `0 0 ${cw} ${ch}`)
-  
-  // 获取 .workflow-left 容器的偏移
-  const leftContainer = container.value.querySelector('.workflow-left')
-  const leftOffsetX = leftContainer ? leftContainer.offsetLeft : 20
-  const leftOffsetY = leftContainer ? leftContainer.offsetTop : 20
-  
+
   // 更新左侧连线物理
   const leftPaths = svg.querySelectorAll('.flow-line-left')
-  const cards = leftContainer ? leftContainer.querySelectorAll('.terminal-card') : []
   leftPaths.forEach((path, i) => {
     const pos = cardPositions[i]
     if (!pos || !ropes[i]) return
-    
-    // 获取卡片实际高度，计算 IO 接口位置（右侧垂直居中）
-    const card = cards[i]
-    const cardH = card ? card.offsetHeight : 40
-    // 加上 .workflow-left 容器的偏移
-    const sx = leftOffsetX + pos.x + 134  // 容器偏移 + 卡片位置 + 卡片宽度 + IO偏移
-    const sy = leftOffsetY + pos.y + cardH / 2
+
+    const sx = leftOffsetX + pos.x + 134
+    const sy = leftOffsetY + pos.y + 20
     const ex = cx - 50
     const ey = cy
-    
+
     updateRopePhysics(ropes[i], sx, sy, ex, ey)
     path.setAttribute('d', ropeToPath(ropes[i]))
   })
-  
+
   // 更新右侧连线物理
   const rightPath = svg.querySelector('.flow-line-right')
-  const rightIo = container.value.querySelector('.grid-panel__io')
-  if (rightPath && rightPanel.value && rightRope && rightIo) {
-    const ioRect = rightIo.getBoundingClientRect()
-    const containerRect = container.value.getBoundingClientRect()
-    // IO 接口的中心位置（左侧）
-    const rx = ioRect.left - containerRect.left + ioRect.width / 2
-    const ry = ioRect.top - containerRect.top + ioRect.height / 2
-    
+  if (rightPath && rightRope) {
+    const rx = cachedLayout.rightIOx + rightPos.x
+    const ry = cachedLayout.rightIOy + rightPos.y
+
     updateRopePhysics(rightRope, cx + 50, cy, rx, ry)
     rightPath.setAttribute('d', ropeToPath(rightRope))
   }
@@ -486,6 +496,7 @@ function onCardMouseDown(e) {
   dragState = {
     card,
     idx,
+    rect,
     startX: e.clientX - rect.left - pos.x,
     startY: e.clientY - rect.top - pos.y
   }
@@ -500,8 +511,8 @@ function onCardMouseDown(e) {
 function onCardMouseMove(e) {
   if (!dragState) return
   e.preventDefault()
-  
-  const rect = container.value.getBoundingClientRect()
+
+  const rect = dragState.rect
   const pos = cardPositions[dragState.idx]
   
   // 直接修改对象 + 直接操作 DOM（零延迟）
@@ -586,6 +597,7 @@ function onRightMouseUp() {
 
 // ============ 生命周期 ============
 let btnAnimTimer = null
+let resizeHandler = null
 
 onMounted(() => {
   // 检测手机模式
@@ -607,12 +619,13 @@ onMounted(() => {
   startBtnAnimation()
 
   // resize 处理
-  const handleResize = () => {
+  resizeHandler = () => {
+    if (!container.value) return
     checkMobile()
     updateScale()
     initCardPositions()
   }
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', resizeHandler)
 })
 
 onUnmounted(() => {
@@ -622,6 +635,7 @@ onUnmounted(() => {
   document.removeEventListener('mouseup', onCardMouseUp)
   document.removeEventListener('mousemove', onRightMouseMove)
   document.removeEventListener('mouseup', onRightMouseUp)
+  if (resizeHandler) window.removeEventListener('resize', resizeHandler)
   if (btnAnimTimer) clearInterval(btnAnimTimer)
 })
 

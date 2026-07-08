@@ -11,7 +11,7 @@
          @mouseleave="onDragEnd"
          @touchstart.passive="onTouchStart"
          @touchmove.passive="onTouchMove"
-         @touchend="onDragEnd">
+          @touchend.passive="onDragEnd">
 
       <!-- SVG 连线 -->
       <svg class="sphere-lines" ref="svgRef" :class="{ 'lines-visible': isExpanded }">
